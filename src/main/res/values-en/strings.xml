@@ -1,0 +1,6 @@
+<resources>
+
+    <string name="draft_pic">[IMAGE]</string>
+    <string name="draft_card">[CARD]</string>
+
+</resources>

@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="card_bg">#FFFFFF</color>
+    <color name="card_main_tab_top">#DBDBDB</color>
+
+    <color name="black">#262626</color>
+    <color name="gray">#A4A8AC</color>
+    <color name="card_shop_money">#ff7600</color>
+
+    <color name="gray_text">#777777</color>
+    <color name="black_text">#000000</color>
+    <color name="gray_placeholder">#cecece</color>
+    <color name="gray_edit_quote_bg">#efefef</color>
+    <color name="gray_placeholder_bg">#efefef</color>
+    <color name="gray_card_stroke">#b6b6b6</color>
+    <color name="white_card_bg">#ffffff</color>
+</resources>

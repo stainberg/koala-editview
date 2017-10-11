@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="110dp"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:background="@drawable/widget_view_card_bg"
+    android:paddingLeft="@dimen/margin_14dp"
+    android:paddingRight="11dp"
+    android:orientation="horizontal">
+
+    <RelativeLayout
+        android:layout_width="0dp"
+        android:layout_height="match_parent"
+        android:layout_weight="1"
+        android:layout_marginTop="@dimen/margin_14dp"
+        android:layout_marginBottom="@dimen/margin_10dp">
+
+        <com.duodian.moreviewtype.view.MyTextView
+            android:id="@+id/url_title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            tools:text="App 名称"
+            android:textColor="@color/black"
+            android:ellipsize="end"
+            android:textSize="@dimen/text_size_16dp"
+            android:singleLine="true"/>
+
+        <com.duodian.moreviewtype.view.MyTextView
+            android:id="@+id/url_desc"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/url_title"
+            android:layout_marginTop="8dp"
+            tools:text="发现创作的乐趣发现创作的乐趣发现创作的乐趣发现创作的乐趣发现创作的乐趣发现创作的乐趣发现创作的乐趣"
+            android:textColor="@color/gray"
+            android:lineSpacingMultiplier="1.2"
+            android:ellipsize="end"
+            android:textSize="@dimen/text_size_12dp"
+            android:maxLines="2"/>
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentBottom="true"
+            android:orientation="horizontal">
+
+            <com.facebook.drawee.view.SimpleDraweeView
+                android:id="@+id/card_type_image"
+                android:layout_width="12dp"
+                android:layout_height="12dp"
+                android:layout_marginRight="6dp"
+                android:visibility="gone"
+                android:layout_gravity="center"/>
+
+            <com.duodian.moreviewtype.view.MyTextView
+                android:id="@+id/url"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                tools:text="www.apple.com"
+                android:textColor="@color/gray"
+                android:ellipsize="end"
+                android:textSize="@dimen/text_size_12dp"
+                android:layout_gravity="center"
+                android:gravity="center"
+                android:singleLine="true"/>
+
+        </LinearLayout>
+        
+
+    </RelativeLayout>
+
+    <FrameLayout
+        android:id="@+id/card_thumb_layout"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_vertical"
+        android:layout_marginLeft="11dp">
+
+        <com.facebook.drawee.view.SimpleDraweeView
+            android:id="@+id/url_thumb"
+            android:layout_width="88dp"
+            android:layout_height="88dp"
+            android:layout_gravity="center"/>
+        
+    </FrameLayout>
+
+
+
+</LinearLayout>

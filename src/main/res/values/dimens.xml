@@ -1,0 +1,32 @@
+<resources>
+    <dimen name="normal_text">16px</dimen>
+    <dimen name="middle_text">18px</dimen>
+    <dimen name="large_text">20px</dimen>
+
+    <dimen name="text_padding_h">4dp</dimen>
+    <dimen name="text_padding_v">4dp</dimen>
+
+    <dimen name="text_quote_padding_h">10dp</dimen>
+    <dimen name="text_quote_padding_v">10dp</dimen>
+
+    <dimen name="section_radio">6dp</dimen>
+    <dimen name="slider_heigh">5dp</dimen>
+    <dimen name="card_height">110dp</dimen>
+    <dimen name="card_file_height">90dp</dimen>
+
+    <dimen name="section_text_margin">3dp</dimen>
+    <dimen name="section_margin">20dp</dimen>
+
+    <dimen name="cell_left_margin">26dp</dimen>
+    <dimen name="cell_right_margin">26dp</dimen>
+    <dimen name="cell_top_margin">8dp</dimen>
+    <dimen name="cell_bottom_margin">8dp</dimen>
+
+    <dimen name="margin_10dp">10dp</dimen>
+    <dimen name="margin_14dp">14dp</dimen>
+
+    <dimen name="text_size_12dp">12dp</dimen>
+    <dimen name="text_size_14dp">14dp</dimen>
+    <dimen name="text_size_16dp">16dp</dimen>
+
+</resources>
