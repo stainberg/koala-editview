@@ -42,8 +42,8 @@ public class KoalaRichEditorView extends FrameLayout {
         context = c;
         views = new EditList<>();
         View root = View.inflate(c, R.layout.layout_koala_rich_editor, this);
-        KoalaScrollView scrollView = (KoalaScrollView) root.findViewById(R.id.koala_rich_editor_srollview);
-        container = (LinearLayout) root.findViewById(R.id.koala_rich_editor_container);
+        KoalaScrollView scrollView = root.findViewById(R.id.koala_rich_editor_srollview);
+        container = root.findViewById(R.id.koala_rich_editor_container);
         scrollView.setSmoothScrollingEnabled(true);
         KoalaEditTextView editTextView = new KoalaEditTextView(context, onPressEnterListener, statusListener, onHintSetListener);
         LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);

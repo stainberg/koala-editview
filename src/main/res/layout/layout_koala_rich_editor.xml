@@ -4,7 +4,7 @@
               android:layout_height="match_parent">
 
 
-    <com.duodian.richeditview.KoalaScrollView
+    <com.stainberg.keditview.KoalaScrollView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:id="@+id/koala_rich_editor_srollview"
@@ -22,6 +22,6 @@
 
         </LinearLayout>
 
-    </com.duodian.richeditview.KoalaScrollView>
+    </com.stainberg.keditview.KoalaScrollView>
 
 </FrameLayout>
