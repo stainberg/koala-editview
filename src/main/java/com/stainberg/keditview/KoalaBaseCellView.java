@@ -16,6 +16,7 @@ public interface KoalaBaseCellView {
     int CARD_FILE_VIEW = 8;
     int CARD_SHOP_VIEW = 9;
     int CARD_APP_VIEW = 10;
+    int CARD_HEAD = 11;
 
     void setPosition(int index);
     int getPosition();
@@ -46,5 +47,6 @@ public interface KoalaBaseCellView {
     int getSection();
     int getImageWidth();
     int getImageHeight();
-
+    void setEditable(boolean enable);
+    void enableDrag(boolean enable);
 }

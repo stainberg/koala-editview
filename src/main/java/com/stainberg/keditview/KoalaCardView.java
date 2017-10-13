@@ -1,9 +1,12 @@
 package com.stainberg.keditview;
 
+import android.content.ClipData;
 import android.content.Context;
+import android.graphics.Color;
 import android.support.annotation.Nullable;
 import android.text.TextUtils;
 import android.util.AttributeSet;
+import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
@@ -17,6 +20,7 @@ import com.facebook.drawee.view.SimpleDraweeView;
 
 public class KoalaCardView extends FrameLayout implements KoalaBaseCellView {
 
+    private View move;
     private int index;
     private KoalaBaseCellView prev;
     private KoalaBaseCellView next;
@@ -150,10 +154,32 @@ public class KoalaCardView extends FrameLayout implements KoalaBaseCellView {
         lp.bottomMargin = (int) getResources().getDimension(R.dimen.cell_bottom_margin);
         v.setBackgroundResource(R.drawable.shape_card_bg);
         addView(v ,lp);
+        move = new View(context);
+        FrameLayout.LayoutParams l0 = new FrameLayout.LayoutParams(120, 60);
+        l0.gravity = Gravity.END;
+        move.setBackgroundColor(Color.parseColor("#00FF00"));
+        addView(move, l0);
+        move.setVisibility(GONE);
     }
 
     private  String getThumbnailUrl(String url) {
         return (TextUtils.isEmpty(url)) ? CardInfo.getIconByCode("default") : url;
+    }
+
+    public void enableDrag(boolean enable) {
+        if(enable) {
+            move.setOnLongClickListener(new OnLongClickListener() {
+                @Override
+                public boolean onLongClick(View v) {
+                    KoalaCardView.this.startDrag(ClipData.newPlainText("text", data.url), new KoalaDragShadowBuilder(KoalaCardView.this), new DragState(KoalaCardView.this), 0);
+                    return true;
+                }
+            });
+            move.setVisibility(VISIBLE);
+        } else {
+            move.setOnLongClickListener(null);
+            move.setVisibility(GONE);
+        }
     }
 
     @Override
@@ -297,6 +323,11 @@ public class KoalaCardView extends FrameLayout implements KoalaBaseCellView {
         return 0;
     }
 
+    @Override
+    public void setEditable(boolean enable) {
+
+    }
+
     @Deprecated
     @Override
     public void setText(CharSequence sequence) {
@@ -306,13 +337,13 @@ public class KoalaCardView extends FrameLayout implements KoalaBaseCellView {
     @Deprecated
     @Override
     public CharSequence getText() {
-        return null;
+        return "";
     }
 
     @Deprecated
     @Override
     public String getHtmlText() {
-        return null;
+        return "";
     }
 
     @Override

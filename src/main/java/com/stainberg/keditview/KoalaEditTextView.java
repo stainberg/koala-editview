@@ -1,6 +1,8 @@
 package com.stainberg.keditview;
 
+import android.content.ClipData;
 import android.content.Context;
+import android.graphics.Color;
 import android.graphics.Typeface;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.AppCompatTextView;
@@ -34,6 +36,7 @@ import org.xml.sax.XMLReader;
 
 public class KoalaEditTextView extends FrameLayout implements KoalaBaseCellView {
 
+    private View move;
     private KoalaEditText editText;
     private AppCompatTextView sectionText;
     private int index;
@@ -146,6 +149,31 @@ public class KoalaEditTextView extends FrameLayout implements KoalaBaseCellView 
                     }
                 }
             });
+        }
+        move = new View(context);
+        FrameLayout.LayoutParams l0 = new FrameLayout.LayoutParams(120, 60);
+        l0.gravity = Gravity.END;
+        move.setBackgroundColor(Color.parseColor("#00FF00"));
+        addView(move, l0);
+        move.setVisibility(GONE);
+    }
+
+    public void enableDrag(boolean enable) {
+        if(enable) {
+            move.setOnLongClickListener(new OnLongClickListener() {
+                @Override
+                public boolean onLongClick(View v) {
+                    if (statusListener != null) {
+                        statusListener.setEnableFocus(false);
+                    }
+                    KoalaEditTextView.this.startDrag(ClipData.newPlainText("text", getHtmlText()), new KoalaDragShadowBuilder(KoalaEditTextView.this), new DragState(KoalaEditTextView.this), 0);
+                    return true;
+                }
+            });
+            move.setVisibility(VISIBLE);
+        } else {
+            move.setOnLongClickListener(null);
+            move.setVisibility(GONE);
         }
     }
 
@@ -495,6 +523,12 @@ public class KoalaEditTextView extends FrameLayout implements KoalaBaseCellView 
         return 0;
     }
 
+    @Override
+    public void setEditable(boolean enable) {
+        editText.setEnabled(enable);
+        editText.setFocusable(enable);
+    }
+
     public void setTextStyle(int syl) {
         if(syl == STYLE_H1) {
             setStyleH1();
@@ -826,6 +860,7 @@ public class KoalaEditTextView extends FrameLayout implements KoalaBaseCellView 
 
     interface OnEditTextStatusListener {
         void setEnableKeyBoard(boolean enable);
+        void setEnableFocus(boolean enable);
     }
 
     interface OnHintSetListener {
@@ -858,5 +893,4 @@ public class KoalaEditTextView extends FrameLayout implements KoalaBaseCellView 
             }
         }
     }
-
 }

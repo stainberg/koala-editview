@@ -15,7 +15,7 @@
         android:layout_marginTop="@dimen/margin_14dp"
         android:layout_marginBottom="@dimen/margin_10dp">
 
-        <com.duodian.moreviewtype.view.MyTextView
+        <TextView
             android:id="@+id/url_title"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -25,7 +25,7 @@
             android:textSize="@dimen/text_size_16dp"
             android:singleLine="true"/>
 
-        <com.duodian.moreviewtype.view.MyTextView
+        <TextView
             android:id="@+id/url_desc"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -52,7 +52,7 @@
                 android:visibility="gone"
                 android:layout_gravity="center"/>
 
-            <com.duodian.moreviewtype.view.MyTextView
+            <TextView
                 android:id="@+id/url"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"

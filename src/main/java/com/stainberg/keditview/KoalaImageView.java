@@ -1,8 +1,10 @@
 package com.stainberg.keditview;
 
+import android.content.ClipData;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Color;
 import android.net.Uri;
 import android.support.annotation.Nullable;
 import android.support.v4.content.ContextCompat;
@@ -31,6 +33,7 @@ import java.io.File;
 
 public class KoalaImageView extends FrameLayout implements KoalaBaseCellView {
 
+    private View move;
     private SimpleDraweeView imageView;
     private ImageView delete;
     private int index;
@@ -83,6 +86,12 @@ public class KoalaImageView extends FrameLayout implements KoalaBaseCellView {
         addView(delete, lpdelete);
         visible = false;
         getViewTreeObserver().addOnScrollChangedListener(onScrollChangedListener);
+        move = new View(context);
+        FrameLayout.LayoutParams l0 = new FrameLayout.LayoutParams(120, 60);
+        l0.gravity = Gravity.END;
+        move.setBackgroundColor(Color.parseColor("#00FF00"));
+        addView(move, l0);
+        move.setVisibility(GONE);
     }
 
     @Override
@@ -231,13 +240,13 @@ public class KoalaImageView extends FrameLayout implements KoalaBaseCellView {
     @Deprecated
     @Override
     public CharSequence getText() {
-        return null;
+        return "";
     }
 
     @Deprecated
     @Override
     public String getHtmlText() {
-        return null;
+        return "";
     }
 
     @Override
@@ -275,6 +284,27 @@ public class KoalaImageView extends FrameLayout implements KoalaBaseCellView {
     @Override
     public int getImageHeight() {
         return height;
+    }
+
+    @Override
+    public void setEditable(boolean enable) {
+
+    }
+
+    public void enableDrag(boolean enable) {
+        if(enable) {
+            move.setOnLongClickListener(new OnLongClickListener() {
+                @Override
+                public boolean onLongClick(View v) {
+                    KoalaImageView.this.startDrag(ClipData.newPlainText("text", getUrl()), new KoalaDragShadowBuilder(KoalaImageView.this), new DragState(KoalaImageView.this), 0);
+                    return true;
+                }
+            });
+            move.setVisibility(VISIBLE);
+        } else {
+            move.setOnLongClickListener(null);
+            move.setVisibility(GONE);
+        }
     }
 
     private void reloadImage() {

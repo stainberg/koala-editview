@@ -1,12 +1,16 @@
 package com.stainberg.keditview;
 
+import android.animation.ObjectAnimator;
 import android.content.Context;
 import android.graphics.BitmapFactory;
 import android.support.annotation.Nullable;
 import android.text.TextUtils;
 import android.util.AttributeSet;
+import android.util.Log;
+import android.view.DragEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.ViewTreeObserver;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.FrameLayout;
 import android.widget.LinearLayout;
@@ -48,7 +52,8 @@ public class KoalaRichEditorView extends FrameLayout {
         KoalaEditTextView editTextView = new KoalaEditTextView(context, onPressEnterListener, statusListener, onHintSetListener);
         LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
         container.addView(editTextView, lp);
-        views.add(0, editTextView);
+        setDragAndDrop(editTextView);
+        views.add(editTextView);
         setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -62,6 +67,72 @@ public class KoalaRichEditorView extends FrameLayout {
             }
         });
         setHint();
+    }
+
+    public void swapViewGroupChildren(ViewGroup viewGroup, View firstView, View secondView) {
+        LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+        int firstIndex = viewGroup.indexOfChild(firstView);
+        int secondIndex = viewGroup.indexOfChild(secondView);
+        if (firstIndex < secondIndex) {
+            viewGroup.removeViewAt(secondIndex);
+            views.remove(secondView);
+            viewGroup.removeViewAt(firstIndex);
+            views.remove(firstView);
+            viewGroup.addView(secondView, firstIndex, lp);
+            secondView.setVisibility(VISIBLE);
+            views.add(firstIndex, (KoalaBaseCellView) secondView);
+            viewGroup.addView(firstView, secondIndex, lp);
+            firstView.setVisibility(VISIBLE);
+            views.add(secondIndex, (KoalaBaseCellView) firstView);
+        } else {
+            viewGroup.removeViewAt(firstIndex);
+            views.remove(firstView);
+            viewGroup.removeViewAt(secondIndex);
+            views.remove(secondView);
+            firstView.setVisibility(VISIBLE);
+            viewGroup.addView(firstView, secondIndex, lp);
+            views.add(secondIndex, (KoalaBaseCellView) firstView);
+            secondView.setVisibility(VISIBLE);
+            viewGroup.addView(secondView, firstIndex, lp);
+            views.add(firstIndex, (KoalaBaseCellView) secondView);
+        }
+        for(KoalaBaseCellView v : views) {
+            Log.v("333", v.getText().toString());
+        }
+    }
+
+    private void swapViews(ViewGroup viewGroup, final View view, int index,
+                                  DragState dragState) {
+        swapViewGroupChildren(viewGroup, view, dragState.view);
+        final float viewY = view.getY();
+        dragState.index = index;
+        postOnPreDraw(view, new Runnable() {
+            @Override
+            public void run() {
+                ObjectAnimator
+                        .ofFloat(view, View.Y, viewY, view.getTop())
+                        .setDuration(getDuration(view))
+                        .start();
+            }
+        });
+    }
+
+    private int getDuration(View view) {
+        return view.getResources().getInteger(android.R.integer.config_shortAnimTime);
+    }
+
+    public void postOnPreDraw(View view, final Runnable runnable) {
+        final ViewTreeObserver observer = view.getViewTreeObserver();
+        observer.addOnPreDrawListener(new ViewTreeObserver.OnPreDrawListener() {
+            @Override
+            public boolean onPreDraw() {
+                if (observer.isAlive()) {
+                    observer.removeOnPreDrawListener(this);
+                }
+                runnable.run();
+                return true;
+            }
+        });
     }
 
     public void setKeyStatusListener(OnStatusListener listener) {
@@ -201,6 +272,45 @@ public class KoalaRichEditorView extends FrameLayout {
         }
     }
 
+    private void setDragAndDrop(KoalaBaseCellView view) {
+        ((View)view).setOnDragListener(new OnDragListener() {
+            @Override
+            public boolean onDrag(View view, DragEvent event) {
+                ViewGroup viewGroup = (ViewGroup)view.getParent();
+                DragState dragState = (DragState)event.getLocalState();
+                switch (event.getAction()) {
+                    case DragEvent.ACTION_DRAG_STARTED:
+                        if (view == dragState.view) {
+                            view.setVisibility(View.INVISIBLE);
+                        }
+                        break;
+                    case DragEvent.ACTION_DROP:
+                        break;
+                    case DragEvent.ACTION_DRAG_ENDED:
+                        for(KoalaBaseCellView v : views) {
+                            v.setEditable(true);
+                        }
+                        if (view == dragState.view) {
+                            view.setVisibility(View.VISIBLE);
+                        }
+                        break;
+                    case DragEvent.ACTION_DRAG_LOCATION: {
+                        if (view == dragState.view){
+                            break;
+                        }
+                        int index = viewGroup.indexOfChild(view);
+                        if ((index > dragState.index && event.getY() > view.getHeight() / 2)
+                                || (index < dragState.index && event.getY() < view.getHeight() / 2)) {
+                            swapViews(viewGroup, view, index, dragState);
+                        }
+                        break;
+                    }
+                }
+                return true;
+            }
+        });
+    }
+
     public View getCurrentFocusEdit() {
         View v = container.getFocusedChild();
         if(v != null && v instanceof KoalaEditTextView) {
@@ -291,6 +401,12 @@ public class KoalaRichEditorView extends FrameLayout {
             editTextView.resetNextSection(editTextView);
         }
         setHint();
+    }
+
+    public void enableDrag(boolean enable) {
+        for(KoalaBaseCellView v : views) {
+            v.enableDrag(enable);
+        }
     }
 
     public void addCellText(String sequence) {
@@ -455,12 +571,13 @@ public class KoalaRichEditorView extends FrameLayout {
                     p = view.getText();
                     n = "";
                 }
-                KoalaEditTextView editTextView = new KoalaEditTextView(context, onPressEnterListener, statusListener);
+                final KoalaEditTextView editTextView = new KoalaEditTextView(context, onPressEnterListener, statusListener);
                 view.setText(p);
                 editTextView.setText(n);
                 LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
                 container.addView(editTextView, index + 1, lp);
                 views.add(index + 1, editTextView);
+                setDragAndDrop(editTextView);
                 editTextView.requestFocus();
                 editTextView.setSelection(0);
                 if(view.section == 1) {
@@ -626,6 +743,15 @@ public class KoalaRichEditorView extends FrameLayout {
                 keyStatusListener.setEnableKeyBoard(true);
             } else {
                 keyStatusListener.setEnableKeyBoard(false);
+            }
+        }
+
+        @Override
+        public void setEnableFocus(boolean enable) {
+            for(KoalaBaseCellView v : views) {
+                if(v.getType() == KoalaBaseCellView.EDIT_VIEW) {
+                    v.setEditable(false);
+                }
             }
         }
     };

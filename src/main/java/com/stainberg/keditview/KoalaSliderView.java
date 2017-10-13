@@ -181,6 +181,16 @@ public class KoalaSliderView extends FrameLayout implements KoalaBaseCellView {
         return 0;
     }
 
+    @Override
+    public void setEditable(boolean enable) {
+
+    }
+
+    @Override
+    public void enableDrag(boolean enable) {
+
+    }
+
     @Deprecated
     @Override
     public void setText(CharSequence sequence) {
@@ -190,13 +200,13 @@ public class KoalaSliderView extends FrameLayout implements KoalaBaseCellView {
     @Deprecated
     @Override
     public CharSequence getText() {
-        return null;
+        return "";
     }
 
     @Deprecated
     @Override
     public String getHtmlText() {
-        return null;
+        return "";
     }
 
     @Override

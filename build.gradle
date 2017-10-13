@@ -31,12 +31,12 @@ repositories {
     mavenCentral()
 }
 
-//apply plugin: 'com.novoda.bintray-release'
-//publish {
-//    userOrg = 'donaldyen'
-//    groupId = 'com.stainberg.koala'
-//    artifactId = 'keditview'
-//    publishVersion = '0.0.1'
-//    desc = 'rich editview'
-//    website = 'https://github.com/stainberg/koala-editview'
-//}
+apply plugin: 'com.novoda.bintray-release'
+publish {
+    userOrg = 'donaldyen'
+    groupId = 'com.stainberg.koala'
+    artifactId = 'keditview'
+    publishVersion = '0.0.2'
+    desc = 'rich editview'
+    website = 'https://github.com/stainberg/koala-editview'
+}
