@@ -36,7 +36,7 @@ publish {
     userOrg = 'donaldyen'
     groupId = 'com.stainberg.koala'
     artifactId = 'keditview'
-    publishVersion = '0.0.2'
+    publishVersion = '0.0.4'
     desc = 'rich editview'
     website = 'https://github.com/stainberg/koala-editview'
 }

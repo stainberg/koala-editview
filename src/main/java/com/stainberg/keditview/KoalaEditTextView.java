@@ -36,6 +36,13 @@ import org.xml.sax.XMLReader;
 
 public class KoalaEditTextView extends FrameLayout implements KoalaBaseCellView {
 
+    public static final int S_H1 = 1;
+    public static final int S_H2 = 1<<1;
+    public static final int S_G = 1<<2;
+    public static final int S_B = 1<<3;
+    public static final int S_Q = 1<<4;
+    public static final int S_L = 1<<5;
+
     private View move;
     private KoalaEditText editText;
     private AppCompatTextView sectionText;
@@ -846,7 +853,35 @@ public class KoalaEditTextView extends FrameLayout implements KoalaBaseCellView 
         @Override
         public void onSelectionChanged(int selStart, int selEnd) {
             if(statusListener != null) {
-
+                int s = 0;
+                if(getStyle() == STYLE_H1) {
+                    s = s|S_H1;
+                } else if(getStyle() == STYLE_H2) {
+                    s = s|S_H2;
+                }
+                boolean bold = false;
+                SpannableString ssb = new SpannableString(editText.getText());
+                StyleSpan[] spans = ssb.getSpans(selStart, selEnd, StyleSpan.class);
+                for(StyleSpan span : spans) {
+                    if(span.getStyle() == Typeface.BOLD) {
+                        if(ssb.getSpanStart(span) == selStart) {
+                            bold = true;
+                        }
+                    }
+                }
+                if(!bold) {
+                    s = s|S_B;
+                }
+                if(gravity != GRAVITY_LEFT) {
+                    s = s|S_G;
+                }
+                if(quote) {
+                    s = s|S_Q;
+                }
+                if(section != 0) {
+                    s= s|S_L;
+                }
+                statusListener.onEditStatus(s);
             }
         }
     };
@@ -861,6 +896,7 @@ public class KoalaEditTextView extends FrameLayout implements KoalaBaseCellView 
     interface OnEditTextStatusListener {
         void setEnableKeyBoard(boolean enable);
         void setEnableFocus(boolean enable);
+        void onEditStatus(int status);
     }
 
     interface OnHintSetListener {

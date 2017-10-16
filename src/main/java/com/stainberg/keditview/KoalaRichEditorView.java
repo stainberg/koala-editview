@@ -28,6 +28,7 @@ public class KoalaRichEditorView extends FrameLayout {
     private List<KoalaBaseCellView> views;
     private int margin = 0;
     private OnStatusListener keyStatusListener;
+    private OnEditTextChangedListener onEditTextChangedListener;
 
     public KoalaRichEditorView(Context context) {
         this(context, null);
@@ -135,6 +136,10 @@ public class KoalaRichEditorView extends FrameLayout {
         });
     }
 
+    public void setOnEditTextChangedListener(OnEditTextChangedListener listener) {
+        onEditTextChangedListener = listener;
+    }
+
     public void setKeyStatusListener(OnStatusListener listener) {
         keyStatusListener = listener;
     }
@@ -214,6 +219,23 @@ public class KoalaRichEditorView extends FrameLayout {
         KoalaBaseCellView v = (KoalaBaseCellView) container.getFocusedChild();
         if(v != null) {
             v.setSection(type);
+        }
+    }
+
+    public void setSection() {
+        KoalaBaseCellView v = (KoalaBaseCellView) container.getFocusedChild();
+        if(v != null) {
+            switch (v.getSection()) {
+                case 1:
+                    v.setSection(2);
+                    break;
+                case 2:
+                    v.setSection(0);
+                    break;
+                default:
+                    v.setSection(1);
+                    break;
+            }
         }
     }
 
@@ -754,9 +776,20 @@ public class KoalaRichEditorView extends FrameLayout {
                 }
             }
         }
+
+        @Override
+        public void onEditStatus(int status) {
+            if(onEditTextChangedListener != null) {
+                onEditTextChangedListener.onEditTextTextChanged(status);
+            }
+        }
     };
 
     public interface OnStatusListener {
         void setEnableKeyBoard(boolean enableKeyBoard);
+    }
+
+    public interface OnEditTextChangedListener {
+        void onEditTextTextChanged(int status);
     }
 }
