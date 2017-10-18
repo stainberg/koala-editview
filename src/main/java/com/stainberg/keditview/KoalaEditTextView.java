@@ -878,8 +878,11 @@ public class KoalaEditTextView extends FrameLayout implements KoalaBaseCellView 
                 StyleSpan[] spans = ssb.getSpans(selStart, selEnd, StyleSpan.class);
                 for (StyleSpan span : spans) {
                     if (span.getStyle() == Typeface.BOLD) {
-                        if (ssb.getSpanStart(span) == selStart) {
+                        int ss = ssb.getSpanStart(span);
+                        int se = ssb.getSpanEnd(span);
+                        if (selStart >= ss && selStart < se) {
                             bold = true;
+                            break;
                         }
                     }
                 }
