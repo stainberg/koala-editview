@@ -14,4 +14,13 @@
     <color name="gray_placeholder_bg">#efefef</color>
     <color name="gray_card_stroke">#b6b6b6</color>
     <color name="white_card_bg">#ffffff</color>
+    <color name="file_img_bg">#FF6B6B</color>
+    <color name="color_333333">#333333</color>
+    <color name="color_9B9B9B">#9B9B9B</color>
+    <color name="color_pdf">#FF6B6B</color>
+    <color name="color_excel">#00D99D</color>
+    <color name="color_ppt">#FCAF4E</color>
+    <color name="color_txt">@color/color_9B9B9B</color>
+    <color name="color_word">#6BA7FF</color>
+    <color name="color_unknwon">#CBCBCB</color>
 </resources>

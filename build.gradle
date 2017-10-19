@@ -9,6 +9,7 @@ android {
         targetSdkVersion 26
         versionCode 1
         versionName "1.0"
+        vectorDrawables.useSupportLibrary true
     }
     buildTypes {
         release {
@@ -31,12 +32,12 @@ repositories {
     mavenCentral()
 }
 
-apply plugin: 'com.novoda.bintray-release'
-publish {
-    userOrg = 'donaldyen'
-    groupId = 'com.stainberg.koala'
-    artifactId = 'keditview'
-    publishVersion = '0.0.4'
-    desc = 'rich editview'
-    website = 'https://github.com/stainberg/koala-editview'
-}
+//apply plugin: 'com.novoda.bintray-release'
+//publish {
+//    userOrg = 'donaldyen'
+//    groupId = 'com.stainberg.koala'
+//    artifactId = 'keditview'
+//    publishVersion = '0.0.4'
+//    desc = 'rich editview'
+//    website = 'https://github.com/stainberg/koala-editview'
+//}
