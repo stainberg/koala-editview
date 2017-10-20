@@ -20,7 +20,7 @@ import com.facebook.drawee.view.SimpleDraweeView;
  * Created by Stainberg on 7/5/17.
  */
 
-class KoalaFileView extends FrameLayout implements KoalaBaseCellView {
+public class KoalaFileView extends FrameLayout implements KoalaBaseCellView {
 
     public KoalaFileView(@NonNull Context context) {
         this(context, null, 0);
