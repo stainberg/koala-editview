@@ -11,6 +11,9 @@ android {
         versionName "1.0"
         vectorDrawables.useSupportLibrary true
     }
+    lintOptions {
+        abortOnError false
+    }
     buildTypes {
         release {
             minifyEnabled false
