@@ -181,6 +181,7 @@ public class KoalaEditTextView extends FrameLayout implements KoalaBaseCellView 
         } else {
             move.setOnLongClickListener(null);
             move.setVisibility(GONE);
+            setEditable(true);
         }
     }
 
