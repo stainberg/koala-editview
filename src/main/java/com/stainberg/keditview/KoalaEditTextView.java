@@ -310,14 +310,17 @@ public class KoalaEditTextView extends FrameLayout implements KoalaBaseCellView 
 
     @Override
     public void setGravity() {
+        if (quote || section == 1 || section == 2) {//不支持居中
+            return;
+        }
         if (gravity == GRAVITY_LEFT) {//left
-            editText.setGravity(Gravity.CENTER_HORIZONTAL);
+            editText.setGravity(Gravity.CENTER);
             gravity = GRAVITY_CENTER;
-        } else if (gravity == GRAVITY_CENTER) {//middle
+        } /*else if (gravity == GRAVITY_CENTER) {//middle
             editText.setGravity(Gravity.END);
             gravity = GRAVITY_RIGHT;
-        } else {//right
-            editText.setGravity(Gravity.START);
+        } */ else {//right
+            editText.setGravity(Gravity.START | Gravity.CENTER_VERTICAL);
             gravity = GRAVITY_LEFT;
         }
         notifyStatusChanged();
@@ -880,7 +883,7 @@ public class KoalaEditTextView extends FrameLayout implements KoalaBaseCellView 
                     if (span.getStyle() == Typeface.BOLD) {
                         int ss = ssb.getSpanStart(span);
                         int se = ssb.getSpanEnd(span);
-                        if (selStart >= ss && selStart < se) {
+                        if (selStart >= ss && (selStart < se || (selStart == ssb.length() && selStart == se))) {
                             bold = true;
                             break;
                         }

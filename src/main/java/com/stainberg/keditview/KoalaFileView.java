@@ -138,7 +138,7 @@ public class KoalaFileView extends FrameLayout implements KoalaBaseCellView {
 
     @Override
     public String getUrl() {
-        return null;
+        return "";
     }
 
     @Override
@@ -208,12 +208,12 @@ public class KoalaFileView extends FrameLayout implements KoalaBaseCellView {
 
     @Override
     public CharSequence getText() {
-        return null;
+        return "";
     }
 
     @Override
     public String getHtmlText() {
-        return null;
+        return "";
     }
 
     @Override
