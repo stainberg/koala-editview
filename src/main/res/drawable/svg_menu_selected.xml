@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+        android:width="36dp"
+        android:height="36dp"
+        android:viewportHeight="36"
+        android:viewportWidth="36">
+
+    <group
+        android:translateX="4"
+        android:translateY="2">
+        <path
+            android:name="path-1"
+            android:fillColor="#000000"
+            android:pathData="M14,0 C21.732,0,28,6.26801,28,14 C28,21.732,21.732,28,14,28
+C6.26801,28,0,21.732,0,14 C0,6.26801,6.26801,0,14,0 Z"
+            android:strokeWidth="1"/>
+        <path
+            android:name="path-1"
+            android:fillColor="#00D99D"
+            android:pathData="M14,0 C21.732,0,28,6.26801,28,14 C28,21.732,21.732,28,14,28
+C6.26801,28,0,21.732,0,14 C0,6.26801,6.26801,0,14,0 Z"
+            android:strokeColor="#FFFFFF"
+            android:strokeWidth="2"/>
+        <path
+            android:name="path-1"
+            android:fillColor="#00D99D"
+            android:pathData="M14,0 C21.732,0,28,6.26801,28,14 C28,21.732,21.732,28,14,28
+C6.26801,28,0,21.732,0,14 C0,6.26801,6.26801,0,14,0 Z"
+            android:strokeColor="#FFFFFF"
+            android:strokeWidth="2"/>
+        <path
+            android:name="Rectangle-7"
+            android:fillColor="#FFFFFF"
+            android:pathData="M9,8 L19,8 Q20,8,20,9 L20,9 Q20,10,19,10 L9,10 Q8,10,8,9 L8,9 Q8,8,9,8 Z"
+            android:strokeWidth="1"/>
+        <path
+            android:name="Rectangle-7-Copy"
+            android:fillColor="#FFFFFF"
+            android:pathData="M9,13 L19,13 Q20,13,20,14 L20,14 Q20,15,19,15 L9,15 Q8,15,8,14 L8,14 Q8,13,9,13
+Z"
+            android:strokeWidth="1"/>
+        <path
+            android:name="Rectangle-7-Copy-2"
+            android:fillColor="#FFFFFF"
+            android:pathData="M9,18 L19,18 Q20,18,20,19 L20,19 Q20,20,19,20 L9,20 Q8,20,8,19 L8,19 Q8,18,9,18
+Z"
+            android:strokeWidth="1"/>
+    </group>
+</vector>

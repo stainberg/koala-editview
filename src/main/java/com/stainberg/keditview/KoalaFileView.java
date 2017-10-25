@@ -1,5 +1,6 @@
 package com.stainberg.keditview;
 
+import android.content.ClipData;
 import android.content.Context;
 import android.os.Build;
 import android.support.annotation.AttrRes;
@@ -42,6 +43,7 @@ public class KoalaFileView extends FrameLayout implements KoalaBaseCellView {
     }
 
     private FileData fileData;
+    private View drag;
 
     public KoalaFileView(Context context, FileData fileData) {
         this(context);
@@ -102,8 +104,13 @@ public class KoalaFileView extends FrameLayout implements KoalaBaseCellView {
         }
     }
 
+    public FileData getFileData() {
+        return fileData;
+    }
+
     private void init() {
-        LayoutInflater.from(getContext()).inflate(R.layout.item_view_file, this, true);
+        View v = LayoutInflater.from(getContext()).inflate(R.layout.item_view_file, this, true);
+        drag = v.findViewById(R.id.icon_drag);
     }
 
     @Override
@@ -258,6 +265,18 @@ public class KoalaFileView extends FrameLayout implements KoalaBaseCellView {
 
     @Override
     public void enableDrag(boolean enable) {
-
+        if (enable) {
+            drag.setOnLongClickListener(new OnLongClickListener() {
+                @Override
+                public boolean onLongClick(View v) {
+                    KoalaFileView.this.startDrag(ClipData.newPlainText("text", getUrl()), new KoalaDragShadowBuilder(KoalaFileView.this), new DragState(KoalaFileView.this), 0);
+                    return true;
+                }
+            });
+            drag.setVisibility(VISIBLE);
+        } else {
+            drag.setOnLongClickListener(null);
+            drag.setVisibility(GONE);
+        }
     }
 }

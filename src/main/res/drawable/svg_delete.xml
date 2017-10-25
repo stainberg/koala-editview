@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+        android:width="32dp"
+        android:height="32dp"
+        android:viewportHeight="32"
+        android:viewportWidth="32">
+
+    <path
+        android:name="Oval"
+        android:fillColor="#FF3049"
+        android:pathData="M16,0 C24.8366,0,32,7.16344,32,16 C32,24.8366,24.8366,32,16,32
+C7.16344,32,0,24.8366,0,16 C0,7.16344,7.16344,0,16,0 Z"
+        android:strokeWidth="1"/>
+    <path
+        android:name="Rectangle"
+        android:fillColor="#FFFFFF"
+        android:pathData="M9,11 L23,11 Q24,11,24,12 L24,12 Q24,13,23,13 L9,13 Q8,13,8,12 L8,12 Q8,11,9,11
+Z"
+        android:strokeWidth="1"/>
+    <path
+        android:name="Rectangle-Copy"
+        android:fillColor="#FFFFFF"
+        android:pathData="M15,8 L17,8 Q18,8,18,9 L18,9 Q18,10,17,10 L15,10 Q14,10,14,9 L14,9 Q14,8,15,8 Z"
+        android:strokeWidth="1"/>
+    <path
+        android:name="Rectangle-4"
+        android:pathData="M21,14.5506 L21,22.1818 C21,23.186,20.3112,24,19.4615,24 L12.5385,24
+C11.6888,24,11,23.186,11,22.1818 L11,14.5506"
+        android:strokeColor="#FFFFFF"
+        android:strokeWidth="2"/>
+</vector>

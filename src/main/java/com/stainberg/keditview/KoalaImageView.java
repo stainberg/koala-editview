@@ -10,6 +10,7 @@ import android.support.annotation.Nullable;
 import android.support.v4.content.ContextCompat;
 import android.util.AttributeSet;
 import android.view.Gravity;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewTreeObserver;
@@ -33,9 +34,9 @@ import java.io.File;
 
 public class KoalaImageView extends FrameLayout implements KoalaBaseCellView {
 
-    private View move;
     private SimpleDraweeView imageView;
     private ImageView delete;
+    private ImageView drag;
     private int index;
     private KoalaBaseCellView prev;
     private KoalaBaseCellView next;
@@ -71,27 +72,19 @@ public class KoalaImageView extends FrameLayout implements KoalaBaseCellView {
 
     private void init(Context context) {
         setOnClickListener(onClickListener);
-        imageView = new SimpleDraweeView(context);
-        imageView.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.gray_placeholder));
-        ViewGroup.LayoutParams lpimage = new ViewGroup.LayoutParams(width, height);
-        addView(imageView, lpimage);
-        delete = new ImageView(context);
+        View v = LayoutInflater.from(getContext()).inflate(R.layout.item_view_image, this, true);
+        imageView = v.findViewById(R.id.icon);
+        ViewGroup.LayoutParams lp = imageView.getLayoutParams();
+        lp.width = width;
+        lp.height = height;
+        imageView.setLayoutParams(lp);
+        delete = v.findViewById(R.id.icon_delete);
         delete.setOnClickListener(onDeleteImageListener);
-        delete.setVisibility(GONE);
-        delete.setImageResource(R.mipmap.icon_edit_close);
-        LayoutParams lpdelete = new LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
-        lpdelete.gravity = Gravity.END;
-        lpdelete.topMargin = 24;
-        lpdelete.rightMargin = 24;
-        addView(delete, lpdelete);
+
+        drag = v.findViewById(R.id.icon_drag);
+
         visible = false;
         getViewTreeObserver().addOnScrollChangedListener(onScrollChangedListener);
-        move = new View(context);
-        FrameLayout.LayoutParams l0 = new FrameLayout.LayoutParams(120, 60);
-        l0.gravity = Gravity.END;
-        move.setBackgroundColor(Color.parseColor("#00FF00"));
-        addView(move, l0);
-        move.setVisibility(GONE);
     }
 
     @Override
@@ -104,6 +97,10 @@ public class KoalaImageView extends FrameLayout implements KoalaBaseCellView {
     public void setImageSource(String source) {
         src = source;
         reloadImage();
+    }
+
+    public String getFilePath() {
+        return src;
     }
 
     @Override
@@ -150,21 +147,21 @@ public class KoalaImageView extends FrameLayout implements KoalaBaseCellView {
     public void reload() {
         int[] location = new int[2];
         imageView.getLocationInWindow(location);
-        if(location[1] < 0) {
-            if(location[1] < -(height + bound) && visible) {
+        if (location[1] < 0) {
+            if (location[1] < -(height + bound) && visible) {
                 visible = false;
                 return;
             }
-            if(location[1] > -(height + bound) && !visible) {
+            if (location[1] > -(height + bound) && !visible) {
                 visible = true;
                 reloadImage();
             }
         } else {
-            if((location[1] > getResources().getDisplayMetrics().heightPixels + bound && visible)) {
+            if ((location[1] > getResources().getDisplayMetrics().heightPixels + bound && visible)) {
                 visible = false;
                 return;
             }
-            if((location[1] < getResources().getDisplayMetrics().heightPixels + bound && !visible)) {
+            if ((location[1] < getResources().getDisplayMetrics().heightPixels + bound && !visible)) {
                 visible = true;
                 reloadImage();
             }
@@ -291,28 +288,29 @@ public class KoalaImageView extends FrameLayout implements KoalaBaseCellView {
 
     }
 
+    @Override
     public void enableDrag(boolean enable) {
-        if(enable) {
-            move.setOnLongClickListener(new OnLongClickListener() {
+        if (enable) {
+            drag.setVisibility(VISIBLE);
+            drag.setOnLongClickListener(new OnLongClickListener() {
                 @Override
                 public boolean onLongClick(View v) {
                     KoalaImageView.this.startDrag(ClipData.newPlainText("text", getUrl()), new KoalaDragShadowBuilder(KoalaImageView.this), new DragState(KoalaImageView.this), 0);
                     return true;
                 }
             });
-            move.setVisibility(VISIBLE);
         } else {
-            move.setOnLongClickListener(null);
-            move.setVisibility(GONE);
+            drag.setOnLongClickListener(null);
+            drag.setVisibility(GONE);
         }
     }
 
     private void reloadImage() {
         System.out.println("reload bitmap");
-        if(src.startsWith("http")) {
+        if (src.startsWith("http")) {
             imageView.setImageURI(src);
         } else {
-            if(bitmap != null) {
+            if (bitmap != null) {
                 return;
             }
             KoalaImageLoadPoll.getPoll().handle(new Runnable() {
@@ -340,7 +338,7 @@ public class KoalaImageView extends FrameLayout implements KoalaBaseCellView {
 
     private void releaseImage() {
         System.out.println("release bitmap");
-        if(src.startsWith("http")) {
+        if (src.startsWith("http")) {
             imageView.setImageBitmap(null);
             imageView.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.gray_placeholder));
         } else {
@@ -356,7 +354,7 @@ public class KoalaImageView extends FrameLayout implements KoalaBaseCellView {
     private OnClickListener onClickListener = new OnClickListener() {
         @Override
         public void onClick(View v) {
-            if(delete.getVisibility() == VISIBLE) {
+            if (delete.getVisibility() == VISIBLE) {
                 delete.setVisibility(GONE);
             } else {
                 delete.setVisibility(VISIBLE);
@@ -376,23 +374,23 @@ public class KoalaImageView extends FrameLayout implements KoalaBaseCellView {
         public void onScrollChanged() {
             int[] location = new int[2];
             imageView.getLocationInWindow(location);
-            if(location[1] < 0) {
-                if(location[1] < -(height + bound) && visible) {
+            if (location[1] < 0) {
+                if (location[1] < -(height + bound) && visible) {
                     visible = false;
                     releaseImage();
                     return;
                 }
-                if(location[1] > -(height + bound) && !visible) {
+                if (location[1] > -(height + bound) && !visible) {
                     visible = true;
                     reloadImage();
                 }
             } else {
-                if((location[1] > getResources().getDisplayMetrics().heightPixels + bound && visible)) {
+                if ((location[1] > getResources().getDisplayMetrics().heightPixels + bound && visible)) {
                     visible = false;
                     releaseImage();
                     return;
                 }
-                if((location[1] < getResources().getDisplayMetrics().heightPixels + bound && !visible)) {
+                if ((location[1] < getResources().getDisplayMetrics().heightPixels + bound && !visible)) {
                     visible = true;
                     reloadImage();
                 }
@@ -404,14 +402,14 @@ public class KoalaImageView extends FrameLayout implements KoalaBaseCellView {
         void delete(KoalaBaseCellView v);
     }
 
-    public static File getFrescoCache(String url){
+    public static File getFrescoCache(String url) {
         ImageRequest imageRequest = ImageRequestBuilder.newBuilderWithSource(Uri.parse(url)).build();
-        CacheKey cacheKey= DefaultCacheKeyFactory.getInstance()
-                .getEncodedCacheKey(imageRequest,false);
-        BinaryResource bRes= ImagePipelineFactory.getInstance()
+        CacheKey cacheKey = DefaultCacheKeyFactory.getInstance()
+                .getEncodedCacheKey(imageRequest, false);
+        BinaryResource bRes = ImagePipelineFactory.getInstance()
                 .getMainFileCache()
                 .getResource(cacheKey);
-        if(bRes == null){
+        if (bRes == null) {
             return null;
         }
         return ((FileBinaryResource) bRes).getFile();

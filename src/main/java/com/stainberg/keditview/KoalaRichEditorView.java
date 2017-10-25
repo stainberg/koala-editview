@@ -376,6 +376,17 @@ public class KoalaRichEditorView extends FrameLayout {
         setHint();
     }
 
+//    public void addImage(FileData fileData) {
+//        int index = getNextIndex();
+//        KoalaImgView imgView = new KoalaImgView(context, fileData);
+//        LinearLayout.LayoutParams lpCard = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+//        container.addView(imgView, index, lpCard);
+//        views.add(index, imgView);
+//        if (index == container.getChildCount() - 1) {
+//            addCellTextAfter("");
+//        }
+//    }
+
     public void addImage(String path) {
         int index = container.getChildCount() - 1;
         View v = container.getFocusedChild();
@@ -559,6 +570,17 @@ public class KoalaRichEditorView extends FrameLayout {
     }
 
     public void addFile(FileData data) {
+        int index = getNextIndex();
+        KoalaFileView cardView = new KoalaFileView(context, data);
+        LinearLayout.LayoutParams lpCard = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+        container.addView(cardView, index, lpCard);
+        views.add(index, cardView);
+        if (index == container.getChildCount() - 1) {
+            addCellTextAfter("");
+        }
+    }
+
+    private int getNextIndex() {
         int index = container.getChildCount();
         View v = container.getFocusedChild();
         if (v != null) {
@@ -567,13 +589,7 @@ public class KoalaRichEditorView extends FrameLayout {
         if (index == container.getChildCount() - 1) {
             index += 1;
         }
-        KoalaFileView cardView = new KoalaFileView(context, data);
-        LinearLayout.LayoutParams lpCard = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
-        container.addView(cardView, index, lpCard);
-        views.add(index, cardView);
-        if (index == container.getChildCount() - 1) {
-            addCellTextAfter("");
-        }
+        return index;
     }
 
     public void addSlider() {

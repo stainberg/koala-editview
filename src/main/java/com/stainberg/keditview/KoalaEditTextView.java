@@ -5,6 +5,7 @@ import android.content.Context;
 import android.graphics.Color;
 import android.graphics.Typeface;
 import android.support.v4.content.ContextCompat;
+import android.support.v7.widget.AppCompatImageView;
 import android.support.v7.widget.AppCompatTextView;
 import android.text.Editable;
 import android.text.Html;
@@ -20,6 +21,7 @@ import android.util.AttributeSet;
 import android.view.Gravity;
 import android.view.KeyEvent;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.FrameLayout;
 import android.widget.LinearLayout;
 
@@ -157,10 +159,10 @@ public class KoalaEditTextView extends FrameLayout implements KoalaBaseCellView 
                 }
             });
         }
-        move = new View(context);
-        FrameLayout.LayoutParams l0 = new FrameLayout.LayoutParams(120, 60);
+        move = new AppCompatImageView(context);
+        FrameLayout.LayoutParams l0 = new FrameLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
         l0.gravity = Gravity.END;
-        move.setBackgroundColor(Color.parseColor("#00FF00"));
+        move.setBackgroundResource(R.drawable.svg_menu);
         addView(move, l0);
         move.setVisibility(GONE);
     }
@@ -552,6 +554,7 @@ public class KoalaEditTextView extends FrameLayout implements KoalaBaseCellView 
     public void setEditable(boolean enable) {
         editText.setEnabled(enable);
         editText.setFocusable(enable);
+        editText.setFocusableInTouchMode(true);
     }
 
     public void setTextStyle(int syl) {

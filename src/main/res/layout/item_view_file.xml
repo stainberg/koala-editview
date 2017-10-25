@@ -54,4 +54,13 @@
         android:textColor="@color/color_9B9B9B"
         android:textSize="@dimen/text_size_12dp"
         android:textStyle="bold"/>
+
+    <android.support.v7.widget.AppCompatImageView
+        android:id="@+id/icon_drag"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentRight="true"
+        android:layout_margin="8dp"
+        android:visibility="gone"
+        app:srcCompat="@drawable/svg_menu"/>
 </RelativeLayout>
