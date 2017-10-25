@@ -8,6 +8,7 @@ import android.graphics.Color;
 import android.net.Uri;
 import android.support.annotation.Nullable;
 import android.support.v4.content.ContextCompat;
+import android.text.TextUtils;
 import android.util.AttributeSet;
 import android.view.Gravity;
 import android.view.LayoutInflater;
@@ -48,29 +49,45 @@ public class KoalaImageView extends FrameLayout implements KoalaBaseCellView {
     private int bound = getResources().getDisplayMetrics().heightPixels;
 
     public KoalaImageView(Context context) {
-        super(context);
-        init(context);
+        this(context, null, 0);
     }
 
     public KoalaImageView(Context context, @Nullable AttributeSet attrs) {
-        super(context, attrs);
-        init(context);
+        this(context, attrs, 0);
     }
 
     public KoalaImageView(Context context, @Nullable AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
-        init(context);
+        init();
     }
 
+    private FileData fileData;
+
+    @Deprecated
     public KoalaImageView(Context context, OnImageDeleteListener l, int w, int h) {
         super(context);
         width = w;
         height = h;
         listener = l;
-        init(context);
+        init();
     }
 
-    private void init(Context context) {
+    public FileData getFileData() {
+        return fileData;
+    }
+
+    public KoalaImageView(Context context, FileData fileData, OnImageDeleteListener l) {
+        super(context);
+        this.fileData = fileData;
+        width = fileData.width;
+        height = fileData.height;
+        listener = l;
+        init();
+        src = TextUtils.isEmpty(fileData.fileUrl) ? fileData.filePath : fileData.fileUrl;
+        reloadImage();
+    }
+
+    private void init() {
         setOnClickListener(onClickListener);
         View v = LayoutInflater.from(getContext()).inflate(R.layout.item_view_image, this, true);
         imageView = v.findViewById(R.id.icon);
@@ -92,11 +109,6 @@ public class KoalaImageView extends FrameLayout implements KoalaBaseCellView {
         getViewTreeObserver().removeOnScrollChangedListener(onScrollChangedListener);
         releaseImage();
         super.onDetachedFromWindow();
-    }
-
-    public void setImageSource(String source) {
-        src = source;
-        reloadImage();
     }
 
     public String getFilePath() {

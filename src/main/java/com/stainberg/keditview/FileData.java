@@ -1,6 +1,5 @@
 package com.stainberg.keditview;
 
-import android.content.Context;
 import android.support.annotation.DrawableRes;
 import android.text.TextUtils;
 
@@ -11,6 +10,11 @@ import android.text.TextUtils;
 public class FileData {
     public String fileName;
     public String filePath;
+    public String fileUrl;
+    public int width;
+    public int height;
+    public String contentType;
+    public long fileSize;
     public String fileExtension;
     public String iconUrl;
     @DrawableRes

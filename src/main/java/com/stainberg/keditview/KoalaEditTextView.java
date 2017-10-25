@@ -175,6 +175,7 @@ public class KoalaEditTextView extends FrameLayout implements KoalaBaseCellView 
                     if (statusListener != null) {
                         statusListener.setEnableFocus(false);
                     }
+                    move.setBackgroundResource(R.drawable.svg_menu_selected);
                     KoalaEditTextView.this.startDrag(ClipData.newPlainText("text", getHtmlText()), new KoalaDragShadowBuilder(KoalaEditTextView.this), new DragState(KoalaEditTextView.this), 0);
                     return true;
                 }

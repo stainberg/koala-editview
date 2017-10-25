@@ -23,7 +23,7 @@ import java.util.List;
 
 public class KoalaRichEditorView extends FrameLayout {
 
-    private LinearLayout container;
+    public LinearLayout container;
     private Context context;
     private List<KoalaBaseCellView> views;
     private int margin = 0;
@@ -376,66 +376,6 @@ public class KoalaRichEditorView extends FrameLayout {
         setHint();
     }
 
-//    public void addImage(FileData fileData) {
-//        int index = getNextIndex();
-//        KoalaImgView imgView = new KoalaImgView(context, fileData);
-//        LinearLayout.LayoutParams lpCard = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
-//        container.addView(imgView, index, lpCard);
-//        views.add(index, imgView);
-//        if (index == container.getChildCount() - 1) {
-//            addCellTextAfter("");
-//        }
-//    }
-
-    public void addImage(String path) {
-        int index = container.getChildCount() - 1;
-        View v = container.getFocusedChild();
-        if (v != null) {
-            index = container.indexOfChild(v);
-        }
-        int w, h;
-        w = getResources().getDisplayMetrics().widthPixels - margin * 2;
-        BitmapFactory.Options options = new BitmapFactory.Options();
-        options.inJustDecodeBounds = true;
-        BitmapFactory.decodeFile(path, options);
-        float ow = options.outWidth;
-        float oh = options.outHeight;
-        float scale = ow / oh;
-        h = (int) (w / scale);
-        KoalaImageView imageView = new KoalaImageView(context, onImageDeleteListener, w, h);
-        ViewGroup.LayoutParams lpimage = new ViewGroup.LayoutParams(w, h);
-        container.addView(imageView, index + 1, lpimage);
-        views.add(index + 1, imageView);
-        imageView.setImageSource(path);
-        KoalaEditTextView editTextView = new KoalaEditTextView(context, onPressEnterListener, statusListener);
-        LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
-        container.addView(editTextView, index + 2, lp);
-        views.add(index + 2, editTextView);
-        editTextView.requestFocus();
-        if (v instanceof KoalaEditTextView) {
-            if (!((KoalaEditTextView) v).isCode()) {
-                KoalaEditTextView view = (KoalaEditTextView) v;
-                CharSequence p, n;
-                int start = view.getSelectionStart();
-                if (start < view.getText().length()) {
-                    p = view.getText().subSequence(0, start);
-                    n = view.getText().subSequence(start, view.getText().length());
-                } else {
-                    p = view.getText();
-                    n = "";
-                }
-                view.setText(p);
-                editTextView.setText(n);
-                if (((KoalaEditTextView) v).isQuote()) {
-                    editTextView.setQuote();
-                }
-            }
-            editTextView.setSelection(0);
-            editTextView.resetNextSection(editTextView);
-        }
-        setHint();
-    }
-
     public void enableDrag(boolean enable) {
         for (KoalaBaseCellView v : views) {
             v.enableDrag(enable);
@@ -540,34 +480,34 @@ public class KoalaRichEditorView extends FrameLayout {
         System.out.println(sequence);
     }
 
-    public void addCellImage(String url, int width, int height) {
-        int index = container.getChildCount();
-        View v = container.getFocusedChild();
-        if (v != null) {
-            index = container.indexOfChild(v);
-        }
-        int w, h;
-        w = getResources().getDisplayMetrics().widthPixels - margin * 2;
-        float scale = ((float) width / (float) height);
-        h = (int) (w / scale);
-        KoalaImageView imageView = new KoalaImageView(context, onImageDeleteListener, w, h);
-        ViewGroup.LayoutParams lpimage = new ViewGroup.LayoutParams(w, h);
-        container.addView(imageView, index, lpimage);
-        views.add(index, imageView);
-        imageView.setImageSource(url);
-    }
+//    public void addCellImage(String url, int width, int height) {
+//        int index = container.getChildCount();
+//        View v = container.getFocusedChild();
+//        if (v != null) {
+//            index = container.indexOfChild(v);
+//        }
+//        int w, h;
+//        w = getResources().getDisplayMetrics().widthPixels - margin * 2;
+//        float scale = ((float) width / (float) height);
+//        h = (int) (w / scale);
+//        KoalaImageView imageView = new KoalaImageView(context, onImageDeleteListener, w, h);
+//        ViewGroup.LayoutParams lpimage = new ViewGroup.LayoutParams(w, h);
+//        container.addView(imageView, index, lpimage);
+//        views.add(index, imageView);
+//        imageView.setImageSource(url);
+//    }
 
-    public void addCellCard(UrlCard card) {
-        int index = container.getChildCount();
-        View v = container.getFocusedChild();
-        if (v != null) {
-            index = container.indexOfChild(v);
-        }
-        KoalaCardView cardView = new KoalaCardView(context, card);
-        LinearLayout.LayoutParams lpCard = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
-        container.addView(cardView, index, lpCard);
-        views.add(index, cardView);
-    }
+//    public void addCellCard(UrlCard card) {
+//        int index = container.getChildCount();
+//        View v = container.getFocusedChild();
+//        if (v != null) {
+//            index = container.indexOfChild(v);
+//        }
+//        KoalaCardView cardView = new KoalaCardView(context, card);
+//        LinearLayout.LayoutParams lpCard = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+//        container.addView(cardView, index, lpCard);
+//        views.add(index, cardView);
+//    }
 
     public void addFile(FileData data) {
         int index = getNextIndex();
@@ -578,6 +518,88 @@ public class KoalaRichEditorView extends FrameLayout {
         if (index == container.getChildCount() - 1) {
             addCellTextAfter("");
         }
+    }
+
+    public void addImage(FileData fileData) {
+        if (null == fileData) {
+            return;
+        }
+        int index = getNextIndex();
+        KoalaImageView imageView;
+        if (TextUtils.isEmpty(fileData.filePath)) {
+            //网络图片
+            imageView = new KoalaImageView(context, fileData, onImageDeleteListener);
+        } else {
+            int w, h;
+            w = getResources().getDisplayMetrics().widthPixels - margin * 2;
+            BitmapFactory.Options options = new BitmapFactory.Options();
+            options.inJustDecodeBounds = true;
+            BitmapFactory.decodeFile(fileData.filePath, options);
+            float ow = options.outWidth;
+            float oh = options.outHeight;
+            float scale = ow / oh;
+            h = (int) (w / scale);
+            //本地图片
+            fileData.width = w;
+            fileData.height = h;
+            imageView = new KoalaImageView(context, fileData, onImageDeleteListener);
+        }
+        ViewGroup.LayoutParams lpimage = new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, fileData.height);
+        container.addView(imageView, index + 1, lpimage);
+        views.add(index + 1, imageView);
+        if (index == container.getChildCount() - 1) {
+            addCellTextAfter("");
+        }
+    }
+
+    @Deprecated
+    public void addImage(String path) {
+//        int index = container.getChildCount() - 1;
+//        View v = container.getFocusedChild();
+//        if (v != null) {
+//            index = container.indexOfChild(v);
+//        }
+//        int w, h;
+//        w = getResources().getDisplayMetrics().widthPixels - margin * 2;
+//        BitmapFactory.Options options = new BitmapFactory.Options();
+//        options.inJustDecodeBounds = true;
+//        BitmapFactory.decodeFile(path, options);
+//        float ow = options.outWidth;
+//        float oh = options.outHeight;
+//        float scale = ow / oh;
+//        h = (int) (w / scale);
+//        KoalaImageView imageView = new KoalaImageView(context, onImageDeleteListener, w, h);
+//        ViewGroup.LayoutParams lpimage = new ViewGroup.LayoutParams(w, h);
+//        container.addView(imageView, index + 1, lpimage);
+//        views.add(index + 1, imageView);
+//        imageView.setImageSource(path);
+//        KoalaEditTextView editTextView = new KoalaEditTextView(context, onPressEnterListener, statusListener);
+//        LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+//        container.addView(editTextView, index + 2, lp);
+//        views.add(index + 2, editTextView);
+//        editTextView.requestFocus();
+//        if (v instanceof KoalaEditTextView) {
+//            if (!((KoalaEditTextView) v).isCode()) {
+//                KoalaEditTextView view = (KoalaEditTextView) v;
+//                CharSequence p, n;
+//                int start = view.getSelectionStart();
+//                if (start < view.getText().length()) {
+//                    p = view.getText().subSequence(0, start);
+//                    n = view.getText().subSequence(start, view.getText().length());
+//                } else {
+//                    p = view.getText();
+//                    n = "";
+//                }
+//                view.setText(p);
+//                editTextView.setText(n);
+//                if (((KoalaEditTextView) v).isQuote()) {
+//                    editTextView.setQuote();
+//                }
+//            }
+//            editTextView.setSelection(0);
+//            editTextView.resetNextSection(editTextView);
+//        }
+//        setHint();
     }
 
     private int getNextIndex() {
