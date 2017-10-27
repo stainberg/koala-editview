@@ -21,21 +21,29 @@ public class FileData {
     public int iconResId;
     public String desc;
 
-    private final String PDF_E = ".pdf";
+    private static final String PDF_E = ".pdf";
     protected static final String PDF = "PDF";
-    private final String PPT_E = ".ppt";
+    private static final String PPT_E = ".ppt";
     protected static final String PPT = "PPT";
-    private final String WORD_E = ".doc";
-    private final String WORD_X_E = ".docx";
+    private static final String WORD_E = ".doc";
+    private static final String WORD_X_E = ".docx";
     protected static final String DOC = "DOC";
-    private final String EXCEL_E = ".xls";
-    private final String EXCEL_X_E = ".xlsx";
+    private static final String EXCEL_E = ".xls";
+    private static final String EXCEL_X_E = ".xlsx";
     protected static final String XLS = "XLS";
-    private final String TXT_E = ".txt";
+    private static final String TXT_E = ".txt";
     protected static final String TXT = "TXT";
     protected static final String UNKNOWN = "?";
 
     public String getFileType() {
+        return getFileType(fileExtension);
+    }
+
+    public static String getFileType(String filePath) {
+        String fileExtension = filePath;
+        if (filePath.indexOf(".") != -1) {
+            fileExtension = filePath.substring(filePath.lastIndexOf("."));
+        }
         if (!TextUtils.isEmpty(fileExtension)) {
             switch (fileExtension) {
                 case PDF_E:
