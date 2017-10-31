@@ -53,6 +53,7 @@ public class FileData {
         if (filePath.indexOf(".") != -1) {
             fileExtension = filePath.substring(filePath.lastIndexOf("."));
         }
+        fileExtension = fileExtension.toLowerCase();
         if (!TextUtils.isEmpty(fileExtension)) {
             switch (fileExtension) {
                 case PDF_EXTENSION:
@@ -85,6 +86,7 @@ public class FileData {
         if (filePath.indexOf(".") != -1) {
             fileExtension = filePath.substring(filePath.lastIndexOf("."));
         }
+        fileExtension = fileExtension.toLowerCase();
         if (!TextUtils.isEmpty(fileExtension)) {
             switch (fileExtension) {
                 case PDF_EXTENSION:
