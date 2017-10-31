@@ -77,6 +77,10 @@ public class KoalaFileView extends FrameLayout implements KoalaBaseCellView {
                             iconText.setBackgroundResource(R.drawable.svg_file_ppt);
                             colorId = R.color.color_ppt;
                             break;
+                        case FileData.EPUB:
+                            iconText.setBackgroundResource(R.drawable.svg_file_epub);
+                            colorId = R.color.color_epub;
+                            break;
                         case FileData.TXT:
                             iconText.setBackgroundResource(R.drawable.svg_file_txt);
                             colorId = R.color.color_txt;
