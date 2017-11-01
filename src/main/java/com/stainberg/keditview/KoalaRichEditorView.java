@@ -305,6 +305,9 @@ public class KoalaRichEditorView extends FrameLayout {
                         if (view == dragState.view) {
                             view.setVisibility(View.INVISIBLE);
                         }
+                        for (KoalaBaseCellView v : views) {
+                            v.setEditable(false);
+                        }
                         break;
                     case DragEvent.ACTION_DROP:
                         break;
