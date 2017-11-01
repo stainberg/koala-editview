@@ -315,6 +315,12 @@ public class KoalaImageView extends FrameLayout implements KoalaBaseCellView {
 
     private void reloadImage() {
         System.out.println("reload bitmap");
+        float w = fileData.width;
+        float h = fileData.height;
+        float rate = w / h;
+        if (imageView.getAspectRatio() != rate) {
+            imageView.setAspectRatio(w / h);
+        }
         if (src.startsWith("http")) {
             imageView.setImageURI(src);
         } else {
@@ -342,9 +348,6 @@ public class KoalaImageView extends FrameLayout implements KoalaBaseCellView {
                 }
             });
         }
-        float width = fileData.width;
-        float height = fileData.height;
-        imageView.setAspectRatio(width / height);
     }
 
     private void releaseImage() {

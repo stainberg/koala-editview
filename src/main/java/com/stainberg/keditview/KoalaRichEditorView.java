@@ -550,7 +550,7 @@ public class KoalaRichEditorView extends FrameLayout {
             fileData.height = options.outHeight;
             imageView = new KoalaImageView(context, fileData, onImageDeleteListener, margin);
         }
-        ViewGroup.LayoutParams lpimage = new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, fileData.height);
+        ViewGroup.LayoutParams lpimage = new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
         container.addView(imageView, index, lpimage);
         views.add(index, imageView);
         if (addEmptyAfter && index == container.getChildCount() - 1) {
