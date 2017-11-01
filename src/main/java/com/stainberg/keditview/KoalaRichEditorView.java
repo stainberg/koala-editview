@@ -483,7 +483,7 @@ public class KoalaRichEditorView extends FrameLayout {
         if (!isAddLast) {
             View v = container.getFocusedChild();
             if (v != null) {
-                index = container.indexOfChild(v);
+                index = container.indexOfChild(v) + 1;
             }
         }
         return index;
