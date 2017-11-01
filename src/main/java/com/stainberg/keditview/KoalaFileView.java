@@ -66,34 +66,38 @@ public class KoalaFileView extends FrameLayout implements KoalaBaseCellView {
                     String type = fileData.getFileType();
                     switch (type) {
                         case FileData.DOC:
+                        case FileData.DOCX:
                             iconText.setBackgroundResource(R.drawable.svg_file_doc);
-                            colorId = R.color.color_word;
+//                            colorId = R.color.color_word;
                             break;
                         case FileData.PDF:
                             iconText.setBackgroundResource(R.drawable.svg_file_pdf);
-                            colorId = R.color.color_pdf;
+//                            colorId = R.color.color_pdf;
                             break;
                         case FileData.PPT:
+                        case FileData.PPTX:
                             iconText.setBackgroundResource(R.drawable.svg_file_ppt);
-                            colorId = R.color.color_ppt;
+//                            colorId = R.color.color_ppt;
                             break;
                         case FileData.EPUB:
                             iconText.setBackgroundResource(R.drawable.svg_file_epub);
-                            colorId = R.color.color_epub;
+//                            colorId = R.color.color_epub;
                             break;
                         case FileData.TXT:
                             iconText.setBackgroundResource(R.drawable.svg_file_txt);
-                            colorId = R.color.color_txt;
+//                            colorId = R.color.color_txt;
                             break;
                         case FileData.XLS:
+                        case FileData.XLSX:
                             iconText.setBackgroundResource(R.drawable.svg_file_xls);
-                            colorId = R.color.color_excel;
+//                            colorId = R.color.color_excel;
                             break;
                         default:
                             iconText.setBackgroundResource(R.drawable.svg_file_unknown);
-                            colorId = R.color.color_unknwon;
+//                            colorId = R.color.color_unknwon;
                             break;
                     }
+                    colorId = R.color.white_card_bg;
                 }
                 iconText.setText(TextUtils.isEmpty(fileData.getFileType()) ? "" : fileData.getFileType());
                 title.setText(TextUtils.isEmpty(fileData.fileName) ? "" : fileData.fileName);

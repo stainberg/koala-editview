@@ -29,7 +29,7 @@ public class FileData {
     private static final String PPT_EXTENSION = ".ppt";
     protected static final String PPT = "PPT";
     private static final String PPTX_EXTENSION = ".pptx";
-    protected static final String PPTX = "PPT";
+    protected static final String PPTX = "PPTX";
     private static final String WORD_EXTENSION = ".doc";
     protected static final String DOC = "DOC";
     private static final String WORD_X_EXTENSION = ".docx";
