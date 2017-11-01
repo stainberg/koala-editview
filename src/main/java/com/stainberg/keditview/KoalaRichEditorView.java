@@ -306,6 +306,9 @@ public class KoalaRichEditorView extends FrameLayout {
                         if (view == dragState.view) {
                             view.setVisibility(View.INVISIBLE);
                         }
+                        for (KoalaBaseCellView v : views) {
+                            v.setEditable(false);
+                        }
                         break;
                     case DragEvent.ACTION_DROP:
                         break;
@@ -525,6 +528,7 @@ public class KoalaRichEditorView extends FrameLayout {
         KoalaFileView cardView = new KoalaFileView(context, data);
         LinearLayout.LayoutParams lpCard = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
         container.addView(cardView, index, lpCard);
+        setDragAndDrop(cardView);
         views.add(index, cardView);
         if (addEmptyAfter && index == container.getChildCount() - 1) {
             addCellTextLast("");
@@ -552,6 +556,7 @@ public class KoalaRichEditorView extends FrameLayout {
         }
         ViewGroup.LayoutParams lpimage = new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
         container.addView(imageView, index, lpimage);
+        setDragAndDrop(imageView);
         views.add(index, imageView);
         if (addEmptyAfter && index == container.getChildCount() - 1) {
             addCellTextLast("");
