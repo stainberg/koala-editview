@@ -8,23 +8,23 @@
         android:name="a"
         android:fillColor="@color/color_excel"
         android:pathData="M3,0 L68,0 Q68 0,68 3 L68,68 Q68 68, 65 68 L3,68 Q0 68, 0 65 L0,3 Q0 0,3 0Z"/>
-    <group
-        android:translateX="17"
-        android:translateY="12">
-        <path
-            android:name="b"
-            android:fillColor="#FFFFFF"
-            android:pathData="M3,0 L23,0 L23,9 Q23 11,25 11 L34,11 L34,41 Q34 44, 31 44 L3,44 Q0 44, 0 41 L0,3 Q0 0,3 0Z"/>
-        <group
-            android:pivotX="29"
-            android:pivotY="5"
-            android:scaleX="0.7"
-            android:scaleY="0.7">
-            <path
-                android:name="c"
-                android:fillColor="#FFFFFF"
-                android:pathData="M23,0 L23,11 34,11Z"/>
-        </group>
+    <!--<group-->
+        <!--android:translateX="17"-->
+        <!--android:translateY="12">-->
+        <!--<path-->
+            <!--android:name="b"-->
+            <!--android:fillColor="#FFFFFF"-->
+            <!--android:pathData="M3,0 L23,0 L23,9 Q23 11,25 11 L34,11 L34,41 Q34 44, 31 44 L3,44 Q0 44, 0 41 L0,3 Q0 0,3 0Z"/>-->
+        <!--<group-->
+            <!--android:pivotX="29"-->
+            <!--android:pivotY="5"-->
+            <!--android:scaleX="0.7"-->
+            <!--android:scaleY="0.7">-->
+            <!--<path-->
+                <!--android:name="c"-->
+                <!--android:fillColor="#FFFFFF"-->
+                <!--android:pathData="M23,0 L23,11 34,11Z"/>-->
+        <!--</group>-->
 
-    </group>
+    <!--</group>-->
 </vector>

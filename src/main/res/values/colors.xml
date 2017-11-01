@@ -20,6 +20,7 @@
     <color name="color_pdf">#FF6B6B</color>
     <color name="color_excel">#00D99D</color>
     <color name="color_ppt">#FCAF4E</color>
+    <color name="color_epub">#6F81CA</color>
     <color name="color_txt">@color/color_9B9B9B</color>
     <color name="color_word">#6BA7FF</color>
     <color name="color_unknwon">#CBCBCB</color>
