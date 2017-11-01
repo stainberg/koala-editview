@@ -383,12 +383,19 @@ public class KoalaRichEditorView extends FrameLayout {
     }
 
     public void addCellText(String sequence) {
+        addCellText(sequence, false);
+    }
+
+    public void addCellText(String sequence, boolean center) {
         int index = container.getChildCount();
         View v = container.getFocusedChild();
         if (v != null) {
             index = container.indexOfChild(v);
         }
         KoalaEditTextView editTextView = new KoalaEditTextView(context, onPressEnterListener, statusListener);
+        if (center) {
+            editTextView.setGravity();
+        }
         LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
         container.addView(editTextView, index, lp);
         views.add(index, editTextView);
@@ -422,6 +429,10 @@ public class KoalaRichEditorView extends FrameLayout {
     }
 
     public void addCellH1(String sequence) {
+        addCellH1(sequence, false);
+    }
+
+    public void addCellH1(String sequence, boolean center) {
         int index = container.getChildCount();
         View v = container.getFocusedChild();
         if (v != null) {
@@ -429,6 +440,9 @@ public class KoalaRichEditorView extends FrameLayout {
         }
         KoalaEditTextView editTextView = new KoalaEditTextView(context, onPressEnterListener, statusListener);
         LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+        if (center) {
+            editTextView.setGravity();
+        }
         container.addView(editTextView, index, lp);
         views.add(index, editTextView);
         editTextView.setHtmlText(sequence);
@@ -436,6 +450,10 @@ public class KoalaRichEditorView extends FrameLayout {
     }
 
     public void addCellH2(String sequence) {
+        addCellH2(sequence, false);
+    }
+
+    public void addCellH2(String sequence, boolean center) {
         int index = container.getChildCount();
         View v = container.getFocusedChild();
         if (v != null) {
@@ -443,6 +461,9 @@ public class KoalaRichEditorView extends FrameLayout {
         }
         KoalaEditTextView editTextView = new KoalaEditTextView(context, onPressEnterListener, statusListener);
         LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+        if (center) {
+            editTextView.setGravity();
+        }
         container.addView(editTextView, index, lp);
         views.add(index, editTextView);
         editTextView.setHtmlText(sequence);
