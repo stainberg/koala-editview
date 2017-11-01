@@ -55,7 +55,7 @@ public class KoalaEditTextView extends FrameLayout implements KoalaBaseCellView 
     private KoalaBaseCellView prev;
     private KoalaBaseCellView next;
     int style;
-    private int gravity;
+    public int gravity;
     int section;
     private boolean quote;
     private boolean code;
@@ -511,6 +511,10 @@ public class KoalaEditTextView extends FrameLayout implements KoalaBaseCellView 
             }
         }
         return s;
+    }
+
+    public void setHint(String hint) {
+        editText.setHint(hint);
     }
 
     @Override
