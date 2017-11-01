@@ -514,6 +514,7 @@ public class KoalaRichEditorView extends FrameLayout {
         KoalaFileView cardView = new KoalaFileView(context, data);
         LinearLayout.LayoutParams lpCard = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
         container.addView(cardView, index, lpCard);
+        setDragAndDrop(cardView);
         views.add(index, cardView);
         if (index == container.getChildCount() - 1) {
             addCellTextAfter("");
@@ -546,6 +547,7 @@ public class KoalaRichEditorView extends FrameLayout {
         }
         ViewGroup.LayoutParams lpimage = new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, fileData.height);
         container.addView(imageView, index, lpimage);
+        setDragAndDrop(imageView);
         views.add(index, imageView);
         if (index == container.getChildCount() - 1) {
             addCellTextAfter("");
