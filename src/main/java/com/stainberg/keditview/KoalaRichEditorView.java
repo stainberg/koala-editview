@@ -161,13 +161,14 @@ public class KoalaRichEditorView extends FrameLayout {
         for (KoalaBaseCellView data : views) {
             if (data.getType() == KoalaBaseCellView.EDIT_VIEW) {
                 builder.append(data.getText());
-            }
-            if (data.getType() == KoalaBaseCellView.IMAGE_VIEW) {
+            } else if (data.getType() == KoalaBaseCellView.IMAGE_VIEW) {
                 builder.append(getResources().getString(R.string.draft_pic));
-            }
-            if (data.getType() == KoalaBaseCellView.CARD_VIEW) {
+            } else if (data.getType() == KoalaBaseCellView.CARD_VIEW) {
                 builder.append(getResources().getString(R.string.draft_card));
+            } else if (data instanceof KoalaFileView) {
+                builder.append(getResources().getString(R.string.draft_file));
             }
+
             if (builder.length() > 50) {
                 break;
             }
@@ -383,15 +384,11 @@ public class KoalaRichEditorView extends FrameLayout {
     }
 
     public void addCellText(String sequence) {
-        addCellText(sequence, false);
+        addCellText(sequence, false, false);
     }
 
-    public void addCellText(String sequence, boolean center) {
-        int index = container.getChildCount();
-        View v = container.getFocusedChild();
-        if (v != null) {
-            index = container.indexOfChild(v);
-        }
+    public void addCellText(String sequence, boolean center, boolean isAddLast) {
+        int index = getNextIndex(isAddLast);
         KoalaEditTextView editTextView = new KoalaEditTextView(context, onPressEnterListener, statusListener);
         if (center) {
             editTextView.setGravity();
@@ -402,7 +399,7 @@ public class KoalaRichEditorView extends FrameLayout {
         editTextView.setHtmlText(sequence);
     }
 
-    private void addCellTextAfter(String sequence) {
+    private void addCellTextLast(String sequence) {
         int index = container.getChildCount();
         KoalaEditTextView editTextView = new KoalaEditTextView(context, onPressEnterListener, statusListener);
         LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
@@ -412,12 +409,8 @@ public class KoalaRichEditorView extends FrameLayout {
         editTextView.requestFocus();
     }
 
-    public void addCellQuote(String sequence) {
-        int index = container.getChildCount();
-        View v = container.getFocusedChild();
-        if (v != null) {
-            index = container.indexOfChild(v);
-        }
+    public void addCellQuote(String sequence, boolean isAddLast) {
+        int index = getNextIndex(isAddLast);
         KoalaEditTextView editTextView = new KoalaEditTextView(context, onPressEnterListener, statusListener);
         LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
         container.addView(editTextView, index, lp);
@@ -429,15 +422,11 @@ public class KoalaRichEditorView extends FrameLayout {
     }
 
     public void addCellH1(String sequence) {
-        addCellH1(sequence, false);
+        addCellH1(sequence, false, false);
     }
 
-    public void addCellH1(String sequence, boolean center) {
-        int index = container.getChildCount();
-        View v = container.getFocusedChild();
-        if (v != null) {
-            index = container.indexOfChild(v);
-        }
+    public void addCellH1(String sequence, boolean center, boolean isAddLast) {
+        int index = getNextIndex(isAddLast);
         KoalaEditTextView editTextView = new KoalaEditTextView(context, onPressEnterListener, statusListener);
         LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
         if (center) {
@@ -450,15 +439,11 @@ public class KoalaRichEditorView extends FrameLayout {
     }
 
     public void addCellH2(String sequence) {
-        addCellH2(sequence, false);
+        addCellH2(sequence, false, false);
     }
 
-    public void addCellH2(String sequence, boolean center) {
-        int index = container.getChildCount();
-        View v = container.getFocusedChild();
-        if (v != null) {
-            index = container.indexOfChild(v);
-        }
+    public void addCellH2(String sequence, boolean center, boolean isAddLast) {
+        int index = getNextIndex(isAddLast);
         KoalaEditTextView editTextView = new KoalaEditTextView(context, onPressEnterListener, statusListener);
         LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
         if (center) {
@@ -470,12 +455,8 @@ public class KoalaRichEditorView extends FrameLayout {
         editTextView.setStyleH2();
     }
 
-    public void addCellList1(String sequence) {
-        int index = container.getChildCount();
-        View v = container.getFocusedChild();
-        if (v != null) {
-            index = container.indexOfChild(v);
-        }
+    public void addCellList1(String sequence, boolean isAddLast) {
+        int index = getNextIndex(isAddLast);
         KoalaEditTextView editTextView = new KoalaEditTextView(context, onPressEnterListener, statusListener);
         LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
         container.addView(editTextView, index, lp);
@@ -486,12 +467,8 @@ public class KoalaRichEditorView extends FrameLayout {
         System.out.println(editTextView.getText().toString());
     }
 
-    public void addCellList2(String sequence) {
-        int index = container.getChildCount();
-        View v = container.getFocusedChild();
-        if (v != null) {
-            index = container.indexOfChild(v);
-        }
+    public void addCellList2(String sequence, boolean isAddLast) {
+        int index = getNextIndex(isAddLast);
         KoalaEditTextView editTextView = new KoalaEditTextView(context, onPressEnterListener, statusListener);
         LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
         container.addView(editTextView, index, lp);
@@ -501,6 +478,16 @@ public class KoalaRichEditorView extends FrameLayout {
         System.out.println(sequence);
     }
 
+    private int getNextIndex(boolean isAddLast) {
+        int index = container.getChildCount();
+        if (!isAddLast) {
+            View v = container.getFocusedChild();
+            if (v != null) {
+                index = container.indexOfChild(v);
+            }
+        }
+        return index;
+    }
 //    public void addCellImage(String url, int width, int height) {
 //        int index = container.getChildCount();
 //        View v = container.getFocusedChild();
@@ -530,46 +517,44 @@ public class KoalaRichEditorView extends FrameLayout {
 //        views.add(index, cardView);
 //    }
 
-    public void addFile(FileData data) {
-        int index = getNextIndex();
+    public void addFile(FileData data, boolean addEmptyAfter, boolean addLast) {
+        if (null == data) {
+            return;
+        }
+        int index = getNextIndex(addLast);
         KoalaFileView cardView = new KoalaFileView(context, data);
         LinearLayout.LayoutParams lpCard = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
         container.addView(cardView, index, lpCard);
         views.add(index, cardView);
-        if (index == container.getChildCount() - 1) {
-            addCellTextAfter("");
+        if (addEmptyAfter && index == container.getChildCount() - 1) {
+            addCellTextLast("");
         }
     }
 
-    public void addImage(FileData fileData) {
+    public void addImage(FileData fileData, boolean addEmptyAfter, boolean addLast) {
         if (null == fileData) {
             return;
         }
-        int index = getNextIndex();
+        int index = getNextIndex(addLast);
         KoalaImageView imageView;
         if (TextUtils.isEmpty(fileData.filePath)) {
             //网络图片
-            imageView = new KoalaImageView(context, fileData, onImageDeleteListener);
+            imageView = new KoalaImageView(context, fileData, onImageDeleteListener, margin);
         } else {
-            int w, h;
-            w = getResources().getDisplayMetrics().widthPixels - margin * 2;
+            int h;
             BitmapFactory.Options options = new BitmapFactory.Options();
             options.inJustDecodeBounds = true;
             BitmapFactory.decodeFile(fileData.filePath, options);
-            float ow = options.outWidth;
-            float oh = options.outHeight;
-            float scale = ow / oh;
-            h = (int) (w / scale);
             //本地图片
-            fileData.width = w;
-            fileData.height = h;
-            imageView = new KoalaImageView(context, fileData, onImageDeleteListener);
+            fileData.width = options.outWidth;
+            fileData.height = options.outHeight;
+            imageView = new KoalaImageView(context, fileData, onImageDeleteListener, margin);
         }
         ViewGroup.LayoutParams lpimage = new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, fileData.height);
         container.addView(imageView, index, lpimage);
         views.add(index, imageView);
-        if (index == container.getChildCount() - 1) {
-            addCellTextAfter("");
+        if (addEmptyAfter && index == container.getChildCount() - 1) {
+            addCellTextLast("");
         }
     }
 
@@ -621,18 +606,6 @@ public class KoalaRichEditorView extends FrameLayout {
 //            editTextView.resetNextSection(editTextView);
 //        }
 //        setHint();
-    }
-
-    private int getNextIndex() {
-        int index = container.getChildCount();
-        View v = container.getFocusedChild();
-        if (v != null) {
-            index = container.indexOfChild(v) + 1;
-        }
-        if (index == container.getChildCount() - 1) {
-            index += 1;
-        }
-        return index;
     }
 
     public void addSlider() {

@@ -76,7 +76,7 @@ public class KoalaImageView extends FrameLayout implements KoalaBaseCellView {
         return fileData;
     }
 
-    public KoalaImageView(Context context, FileData fileData, OnImageDeleteListener l) {
+    public KoalaImageView(Context context, FileData fileData, OnImageDeleteListener l, int margin) {
         super(context);
         this.fileData = fileData;
         width = fileData.width;
@@ -91,10 +91,6 @@ public class KoalaImageView extends FrameLayout implements KoalaBaseCellView {
         setOnClickListener(onClickListener);
         View v = LayoutInflater.from(getContext()).inflate(R.layout.item_view_image, this, true);
         imageView = v.findViewById(R.id.icon);
-        ViewGroup.LayoutParams lp = imageView.getLayoutParams();
-        lp.width = width;
-        lp.height = height;
-        imageView.setLayoutParams(lp);
         delete = v.findViewById(R.id.icon_delete);
         delete.setOnClickListener(onDeleteImageListener);
 
@@ -346,6 +342,9 @@ public class KoalaImageView extends FrameLayout implements KoalaBaseCellView {
                 }
             });
         }
+        float width = fileData.width;
+        float height = fileData.height;
+        imageView.setAspectRatio(width / height);
     }
 
     private void releaseImage() {

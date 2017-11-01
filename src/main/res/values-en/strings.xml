@@ -2,5 +2,6 @@
 
     <string name="draft_pic">[IMAGE]</string>
     <string name="draft_card">[CARD]</string>
+    <string name="draft_file">[FILE]</string>
     <string name="unknown_file">[unknownFileType]</string>
 </resources>
