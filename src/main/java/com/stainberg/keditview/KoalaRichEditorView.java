@@ -308,6 +308,9 @@ public class KoalaRichEditorView extends FrameLayout {
                         }
                         for (KoalaBaseCellView v : views) {
                             v.setEditable(false);
+                            if(v instanceof KoalaImageView) {
+                                ((KoalaImageView) v).releaseImage();
+                            }
                         }
                         break;
                     case DragEvent.ACTION_DROP:
@@ -315,6 +318,7 @@ public class KoalaRichEditorView extends FrameLayout {
                     case DragEvent.ACTION_DRAG_ENDED:
                         for (KoalaBaseCellView v : views) {
                             v.setEditable(true);
+                            v.reload();
                         }
                         if (view == dragState.view) {
                             view.setVisibility(View.VISIBLE);
@@ -353,10 +357,12 @@ public class KoalaRichEditorView extends FrameLayout {
         }
         LinearLayout.LayoutParams lpCard = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
         container.addView(cardView, index + 1, lpCard);
+        setDragAndDrop(cardView);
         views.add(index + 1, cardView);
         KoalaEditTextView editTextView = new KoalaEditTextView(context, onPressEnterListener, statusListener);
         LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
         container.addView(editTextView, index + 2, lp);
+        setDragAndDrop(editTextView);
         views.add(index + 2, editTextView);
         editTextView.requestFocus();
         if (v instanceof KoalaEditTextView) {
@@ -398,6 +404,7 @@ public class KoalaRichEditorView extends FrameLayout {
         }
         LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
         container.addView(editTextView, index, lp);
+        setDragAndDrop(editTextView);
         views.add(index, editTextView);
         editTextView.setHtmlText(sequence);
     }
@@ -407,6 +414,7 @@ public class KoalaRichEditorView extends FrameLayout {
         KoalaEditTextView editTextView = new KoalaEditTextView(context, onPressEnterListener, statusListener);
         LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
         container.addView(editTextView, index, lp);
+        setDragAndDrop(editTextView);
         views.add(index, editTextView);
         editTextView.setHtmlText(sequence);
         editTextView.requestFocus();
@@ -417,6 +425,7 @@ public class KoalaRichEditorView extends FrameLayout {
         KoalaEditTextView editTextView = new KoalaEditTextView(context, onPressEnterListener, statusListener);
         LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
         container.addView(editTextView, index, lp);
+        setDragAndDrop(editTextView);
         views.add(index, editTextView);
         editTextView.setHtmlText(sequence);
         editTextView.setQuote();
@@ -436,6 +445,7 @@ public class KoalaRichEditorView extends FrameLayout {
             editTextView.setGravity();
         }
         container.addView(editTextView, index, lp);
+        setDragAndDrop(editTextView);
         views.add(index, editTextView);
         editTextView.setHtmlText(sequence);
         editTextView.setStyleH1();
@@ -453,6 +463,8 @@ public class KoalaRichEditorView extends FrameLayout {
             editTextView.setGravity();
         }
         container.addView(editTextView, index, lp);
+        setDragAndDrop(editTextView);
+        setDragAndDrop(editTextView);
         views.add(index, editTextView);
         editTextView.setHtmlText(sequence);
         editTextView.setStyleH2();
@@ -463,6 +475,7 @@ public class KoalaRichEditorView extends FrameLayout {
         KoalaEditTextView editTextView = new KoalaEditTextView(context, onPressEnterListener, statusListener);
         LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
         container.addView(editTextView, index, lp);
+        setDragAndDrop(editTextView);
         views.add(index, editTextView);
         editTextView.setHtmlText(sequence);
         editTextView.setSection(KoalaEditTextView.SECTION_NUMBER);
@@ -475,6 +488,7 @@ public class KoalaRichEditorView extends FrameLayout {
         KoalaEditTextView editTextView = new KoalaEditTextView(context, onPressEnterListener, statusListener);
         LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
         container.addView(editTextView, index, lp);
+        setDragAndDrop(editTextView);
         views.add(index, editTextView);
         editTextView.setHtmlText(sequence);
         editTextView.setSection(KoalaEditTextView.SECTION_DOT);
@@ -669,6 +683,7 @@ public class KoalaRichEditorView extends FrameLayout {
                 KoalaEditTextView editTextView = new KoalaEditTextView(context, onPressEnterListener, statusListener);
                 LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
                 container.addView(editTextView, index, lp);
+                setDragAndDrop(editTextView);
                 views.add(index, editTextView);
                 editTextView.requestFocus();
                 editTextView.setSelection(0);
@@ -695,8 +710,8 @@ public class KoalaRichEditorView extends FrameLayout {
                 editTextView.setText(n);
                 LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
                 container.addView(editTextView, index + 1, lp);
-                views.add(index + 1, editTextView);
                 setDragAndDrop(editTextView);
+                views.add(index + 1, editTextView);
                 editTextView.requestFocus();
                 editTextView.setSelection(0);
                 if (view.section == 1) {
@@ -779,6 +794,7 @@ public class KoalaRichEditorView extends FrameLayout {
                 for (int i = 1; i < ss.length + 1; i++) {
                     KoalaEditTextView c = new KoalaEditTextView(context, onPressEnterListener, statusListener);
                     container.addView(c, index + i, lp);
+                    setDragAndDrop(c);
                     views.add(index + i, c);
                     c.setText(ss[i - 1]);
                     c.setSection(section);
@@ -800,6 +816,7 @@ public class KoalaRichEditorView extends FrameLayout {
                     } else {
                         KoalaEditTextView c = new KoalaEditTextView(context, onPressEnterListener, statusListener);
                         container.addView(c, index + i, lp);
+                        setDragAndDrop(c);
                         views.add(index + i, c);
                         c.setText(ss[i]);
                         c.setSection(section);
@@ -811,6 +828,7 @@ public class KoalaRichEditorView extends FrameLayout {
             if (n != null) {
                 KoalaEditTextView ne = new KoalaEditTextView(context, onPressEnterListener, statusListener);
                 container.addView(ne, index);
+                setDragAndDrop(ne);
                 views.add(index, ne);
                 ne.setText(n);
                 ne.setQuote();

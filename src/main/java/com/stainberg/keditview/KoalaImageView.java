@@ -4,16 +4,13 @@ import android.content.ClipData;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.graphics.Color;
 import android.net.Uri;
 import android.support.annotation.Nullable;
 import android.support.v4.content.ContextCompat;
 import android.text.TextUtils;
 import android.util.AttributeSet;
-import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.view.ViewGroup;
 import android.view.ViewTreeObserver;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
@@ -93,9 +90,7 @@ public class KoalaImageView extends FrameLayout implements KoalaBaseCellView {
         imageView = v.findViewById(R.id.icon);
         delete = v.findViewById(R.id.icon_delete);
         delete.setOnClickListener(onDeleteImageListener);
-
         drag = v.findViewById(R.id.icon_drag);
-
         visible = false;
         getViewTreeObserver().addOnScrollChangedListener(onScrollChangedListener);
     }
@@ -157,20 +152,18 @@ public class KoalaImageView extends FrameLayout implements KoalaBaseCellView {
         imageView.getLocationInWindow(location);
         if (location[1] < 0) {
             if (location[1] < -(height + bound) && visible) {
-                visible = false;
+                releaseImage();
                 return;
             }
             if (location[1] > -(height + bound) && !visible) {
-                visible = true;
                 reloadImage();
             }
         } else {
             if ((location[1] > getResources().getDisplayMetrics().heightPixels + bound && visible)) {
-                visible = false;
+                releaseImage();
                 return;
             }
             if ((location[1] < getResources().getDisplayMetrics().heightPixels + bound && !visible)) {
-                visible = true;
                 reloadImage();
             }
         }
@@ -348,9 +341,10 @@ public class KoalaImageView extends FrameLayout implements KoalaBaseCellView {
                 }
             });
         }
+        visible = true;
     }
 
-    private void releaseImage() {
+    public void releaseImage() {
         System.out.println("release bitmap");
         if (src.startsWith("http")) {
             imageView.setImageBitmap(null);
@@ -363,6 +357,7 @@ public class KoalaImageView extends FrameLayout implements KoalaBaseCellView {
             }
             bitmap = null;
         }
+        visible = false;
     }
 
     private OnClickListener onClickListener = new OnClickListener() {
@@ -390,22 +385,18 @@ public class KoalaImageView extends FrameLayout implements KoalaBaseCellView {
             imageView.getLocationInWindow(location);
             if (location[1] < 0) {
                 if (location[1] < -(height + bound) && visible) {
-                    visible = false;
                     releaseImage();
                     return;
                 }
                 if (location[1] > -(height + bound) && !visible) {
-                    visible = true;
                     reloadImage();
                 }
             } else {
                 if ((location[1] > getResources().getDisplayMetrics().heightPixels + bound && visible)) {
-                    visible = false;
                     releaseImage();
                     return;
                 }
                 if ((location[1] < getResources().getDisplayMetrics().heightPixels + bound && !visible)) {
-                    visible = true;
                     reloadImage();
                 }
             }
