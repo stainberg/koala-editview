@@ -835,7 +835,7 @@ public class KoalaRichEditorView extends FrameLayout {
         }
     };
 
-    private void setHint() {
+    public void setHint() {
         if (container.getChildAt(0) instanceof KoalaEditTextView) {
             KoalaEditTextView v = (KoalaEditTextView) container.getChildAt(0);
             if (container.getChildCount() == 1 && v.getEditView().length() == 0) {
@@ -843,6 +843,13 @@ public class KoalaRichEditorView extends FrameLayout {
             } else {
                 v.getEditView().setHint("");
             }
+        }
+    }
+
+    public void clearHint() {
+        if (container.getChildAt(0) instanceof KoalaEditTextView) {
+            KoalaEditTextView v = (KoalaEditTextView) container.getChildAt(0);
+            v.getEditView().setHint("");
         }
     }
 

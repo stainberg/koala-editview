@@ -513,6 +513,10 @@ public class KoalaEditTextView extends FrameLayout implements KoalaBaseCellView 
         return s;
     }
 
+    public void setHint(String hint) {
+        editText.setHint(hint);
+    }
+
     @Override
     public void setHtmlText(String html) {
         Spanned spanned = Html.fromHtml(html, null, new HtmlTagHandler());
