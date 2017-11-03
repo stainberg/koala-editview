@@ -1,5 +1,7 @@
 package com.stainberg.keditview;
 
+import java.util.List;
+
 /**
  * Created by Stainberg on 7/5/17.
  */
@@ -39,7 +41,7 @@ public interface KoalaBaseCellView {
     void addCode();
     void setText(CharSequence sequence);
     CharSequence getText();
-    String getHtmlText();
+    List<String> getHtmlText();
     void setHtmlText(String html);
     boolean isQuote();
     boolean isCode();
@@ -49,4 +51,6 @@ public interface KoalaBaseCellView {
     int getImageHeight();
     void setEditable(boolean enable);
     void enableDrag(boolean enable);
+    void startDrag();
+    void endDrag();
 }

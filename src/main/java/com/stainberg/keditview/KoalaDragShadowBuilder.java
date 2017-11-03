@@ -17,7 +17,7 @@ public class KoalaDragShadowBuilder extends View.DragShadowBuilder {
         final View view = getView();
         if (view != null) {
             outShadowSize.set(view.getWidth(), view.getHeight());
-            outShadowTouchPoint.set(outShadowSize.x - 45, outShadowSize.y / 2);
+            outShadowTouchPoint.set(outShadowSize.x, outShadowSize.y / 2);
         }
     }
 }

@@ -1,5 +1,7 @@
 package com.stainberg.keditview;
 
+import android.animation.Animator;
+import android.animation.ObjectAnimator;
 import android.content.ClipData;
 import android.content.Context;
 import android.graphics.Bitmap;
@@ -14,6 +16,8 @@ import android.view.View;
 import android.view.ViewTreeObserver;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
 
 import com.facebook.binaryresource.BinaryResource;
 import com.facebook.binaryresource.FileBinaryResource;
@@ -25,13 +29,14 @@ import com.facebook.imagepipeline.request.ImageRequest;
 import com.facebook.imagepipeline.request.ImageRequestBuilder;
 
 import java.io.File;
+import java.util.List;
 
 /**
  * Created by Stainberg on 7/5/17.
  */
 
 public class KoalaImageView extends FrameLayout implements KoalaBaseCellView {
-
+    private boolean dg;
     private SimpleDraweeView imageView;
     private ImageView delete;
     private ImageView drag;
@@ -44,6 +49,8 @@ public class KoalaImageView extends FrameLayout implements KoalaBaseCellView {
     private int width, height;
     private Bitmap bitmap;
     private int bound = getResources().getDisplayMetrics().heightPixels;
+    private int cardHeight = 0;
+    private int margin;
 
     public KoalaImageView(Context context) {
         this(context, null, 0);
@@ -75,7 +82,9 @@ public class KoalaImageView extends FrameLayout implements KoalaBaseCellView {
 
     public KoalaImageView(Context context, FileData fileData, OnImageDeleteListener l, int margin) {
         super(context);
+        dg = false;
         this.fileData = fileData;
+        this.margin = margin;
         width = fileData.width;
         height = fileData.height;
         listener = l;
@@ -85,9 +94,14 @@ public class KoalaImageView extends FrameLayout implements KoalaBaseCellView {
     }
 
     private void init() {
+        float x, y;
+        x = getResources().getDisplayMetrics().widthPixels - 2 * margin;
+        y = x / ((float) width / (float) height);
         setOnClickListener(onClickListener);
         View v = LayoutInflater.from(getContext()).inflate(R.layout.item_view_image, this, true);
         imageView = v.findViewById(R.id.icon);
+        RelativeLayout.LayoutParams lp = new RelativeLayout.LayoutParams((int) x, (int) y);
+        imageView.setLayoutParams(lp);
         delete = v.findViewById(R.id.icon_delete);
         delete.setOnClickListener(onDeleteImageListener);
         drag = v.findViewById(R.id.icon_drag);
@@ -243,8 +257,8 @@ public class KoalaImageView extends FrameLayout implements KoalaBaseCellView {
 
     @Deprecated
     @Override
-    public String getHtmlText() {
-        return "";
+    public List<String> getHtmlText() {
+        return null;
     }
 
     @Override
@@ -296,7 +310,7 @@ public class KoalaImageView extends FrameLayout implements KoalaBaseCellView {
             drag.setOnLongClickListener(new OnLongClickListener() {
                 @Override
                 public boolean onLongClick(View v) {
-                    KoalaImageView.this.startDrag(ClipData.newPlainText("text", getUrl()), new KoalaDragShadowBuilder(KoalaImageView.this), new DragState(KoalaImageView.this), 0);
+                    startDrag();
                     return true;
                 }
             });
@@ -304,6 +318,57 @@ public class KoalaImageView extends FrameLayout implements KoalaBaseCellView {
             drag.setOnLongClickListener(null);
             drag.setVisibility(GONE);
         }
+    }
+
+    @Override
+    public void startDrag() {
+        dg = true;
+        if(cardHeight == 0) {
+            cardHeight = this.getHeight();
+        }
+        ObjectAnimator animator = ObjectAnimator.ofInt(new AnimCard(this), "height", this.getHeight(), (int)(KoalaImageView.this.getResources().getDimension(R.dimen.card_file_height)));
+        animator.setDuration(getDuration(this));
+        animator.addListener(new Animator.AnimatorListener() {
+
+                    @Override
+                    public void onAnimationStart(Animator animation) {
+
+                    }
+
+                    @Override
+                    public void onAnimationEnd(Animator animation) {
+                        LinearLayout.LayoutParams lp = (LinearLayout.LayoutParams) KoalaImageView.this.getLayoutParams();
+                        lp.height = (int)(KoalaImageView.this.getResources().getDimension(R.dimen.card_file_height));
+                        KoalaImageView.this.setLayoutParams(lp);
+                        KoalaImageView.this.startDrag(ClipData.newPlainText("text", getUrl()), new KoalaDragShadowBuilder(KoalaImageView.this), new DragState(KoalaImageView.this), 0);
+                    }
+
+                    @Override
+                    public void onAnimationCancel(Animator animation) {
+
+                    }
+
+                    @Override
+                    public void onAnimationRepeat(Animator animation) {
+
+                    }
+                });
+        animator.start();
+    }
+
+    @Override
+    public void endDrag() {
+        if(dg) {
+            System.out.print("123 end image Drag \n");
+            dg = false;
+            ObjectAnimator animator = ObjectAnimator.ofInt(new AnimCard(this), "height", (int) (KoalaImageView.this.getResources().getDimension(R.dimen.card_file_height)), cardHeight);
+            animator.setDuration(getDuration(this));
+            animator.start();
+        }
+    }
+
+    private int getDuration(View view) {
+        return 100;
     }
 
     private void reloadImage() {

@@ -14,6 +14,8 @@ import android.widget.TextView;
 
 import com.facebook.drawee.view.SimpleDraweeView;
 
+import java.util.List;
+
 /**
  * Created by Stainberg on 7/5/17.
  */
@@ -183,6 +185,16 @@ public class KoalaCardView extends FrameLayout implements KoalaBaseCellView {
     }
 
     @Override
+    public void startDrag() {
+
+    }
+
+    @Override
+    public void endDrag() {
+
+    }
+
+    @Override
     public void setPosition(int idx) {
         index = idx;
     }
@@ -342,8 +354,8 @@ public class KoalaCardView extends FrameLayout implements KoalaBaseCellView {
 
     @Deprecated
     @Override
-    public String getHtmlText() {
-        return "";
+    public List<String> getHtmlText() {
+        return null;
     }
 
     @Override

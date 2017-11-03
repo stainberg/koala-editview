@@ -1,8 +1,9 @@
 package com.stainberg.keditview;
 
+import android.animation.Animator;
+import android.animation.ObjectAnimator;
 import android.content.ClipData;
 import android.content.Context;
-import android.graphics.Color;
 import android.graphics.Typeface;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.AppCompatImageView;
@@ -25,12 +26,14 @@ import android.view.ViewGroup;
 import android.widget.FrameLayout;
 import android.widget.LinearLayout;
 
-import org.apache.commons.lang.StringEscapeUtils;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 import org.xml.sax.XMLReader;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Created by Stainberg on 7/5/17.
@@ -44,7 +47,7 @@ public class KoalaEditTextView extends FrameLayout implements KoalaBaseCellView 
     public static final int S_B = 1 << 3;
     public static final int S_Q = 1 << 4;
     public static final int S_L = 1 << 5;
-
+    private boolean drag;
     private View move;
     private KoalaEditText editText;
     private AppCompatTextView sectionText;
@@ -54,6 +57,7 @@ public class KoalaEditTextView extends FrameLayout implements KoalaBaseCellView 
     private OnHintSetListener onHintSetListener;
     private KoalaBaseCellView prev;
     private KoalaBaseCellView next;
+    private int cardHeight = 0;
     int style;
     public int gravity;
     int section;
@@ -104,6 +108,7 @@ public class KoalaEditTextView extends FrameLayout implements KoalaBaseCellView 
     }
 
     private void init(Context context) {
+        drag = false;
         style = STYLE_NORMAL;
         gravity = GRAVITY_LEFT;
         section = SECTION_NULL;
@@ -169,23 +174,74 @@ public class KoalaEditTextView extends FrameLayout implements KoalaBaseCellView 
 
     public void enableDrag(boolean enable) {
         if (enable) {
+            move.setVisibility(VISIBLE);
             move.setOnLongClickListener(new OnLongClickListener() {
                 @Override
                 public boolean onLongClick(View v) {
-                    if (statusListener != null) {
-                        statusListener.setEnableFocus(false);
-                    }
-                    move.setBackgroundResource(R.drawable.svg_menu_selected);
-                    KoalaEditTextView.this.startDrag(ClipData.newPlainText("text", getHtmlText()), new KoalaDragShadowBuilder(KoalaEditTextView.this), new DragState(KoalaEditTextView.this), 0);
+                    startDrag();
                     return true;
                 }
             });
-            move.setVisibility(VISIBLE);
         } else {
             move.setOnLongClickListener(null);
             move.setVisibility(GONE);
             setEditable(true);
         }
+    }
+
+    @Override
+    public void startDrag() {
+        drag = true;
+        if (statusListener != null) {
+            statusListener.setEnableFocus(false);
+        }
+        move.setBackgroundResource(R.drawable.svg_menu_selected);
+        if(cardHeight == 0) {
+            cardHeight = this.getHeight();
+        }
+        ObjectAnimator animator = ObjectAnimator.ofInt(new AnimCard(this), "height", this.getHeight(), (int)(KoalaEditTextView.this.getResources().getDimension(R.dimen.card_file_height)));
+        animator.setDuration(getDuration(this));
+        animator.addListener(new Animator.AnimatorListener() {
+
+            @Override
+            public void onAnimationStart(Animator animation) {
+
+            }
+
+            @Override
+            public void onAnimationEnd(Animator animation) {
+                LinearLayout.LayoutParams lp = (LinearLayout.LayoutParams) KoalaEditTextView.this.getLayoutParams();
+                lp.height = (int)(KoalaEditTextView.this.getResources().getDimension(R.dimen.card_file_height));
+                KoalaEditTextView.this.setLayoutParams(lp);
+                KoalaEditTextView.this.startDrag(ClipData.newPlainText("text", getText()), new KoalaDragShadowBuilder(KoalaEditTextView.this), new DragState(KoalaEditTextView.this), 0);
+            }
+
+            @Override
+            public void onAnimationCancel(Animator animation) {
+
+            }
+
+            @Override
+            public void onAnimationRepeat(Animator animation) {
+
+            }
+        });
+        animator.start();
+    }
+
+    @Override
+    public void endDrag() {
+        if(drag) {
+            System.out.print("123 end edit Drag \n");
+            drag = false;
+            ObjectAnimator animator = ObjectAnimator.ofInt(new AnimCard(this), "height", (int) (KoalaEditTextView.this.getResources().getDimension(R.dimen.card_file_height)), cardHeight);
+            animator.setDuration(getDuration(this));
+            animator.start();
+        }
+    }
+
+    private int getDuration(View view) {
+        return 100;
     }
 
     public int getSelectionStart() {
@@ -491,12 +547,13 @@ public class KoalaEditTextView extends FrameLayout implements KoalaBaseCellView 
     }
 
     @Override
-    public String getHtmlText() {
-        String s = StringEscapeUtils.unescapeHtml(Html.toHtml(editText.getText()));
+    public List<String> getHtmlText() {
+        List<String> result = new ArrayList<>();
+        String s = Html.toHtml(editText.getText());
         s = s.replaceAll("<strike>", "<del>");
         s = s.replaceAll("</strike>", "</del>");
         if (TextUtils.isEmpty(s)) {
-            return null;
+            return result;
         }
         if (s.substring(s.length() - 1, s.length()).equals("\n")) {
             s = s.substring(0, s.length() - 1);
@@ -507,10 +564,26 @@ public class KoalaEditTextView extends FrameLayout implements KoalaBaseCellView 
         for (int i = 0; i < allElements.size(); i++) {
             Element e = allElements.get(i);
             if (e.tagName().equals("p")) {
-                return e.html();
+                result.add(e.html());
+            } else if(e.tagName().equals("div")) {
+                result.addAll(getText(e));
             }
         }
-        return s;
+        return result;
+    }
+
+    private List<String> getText(Element element) {
+        List<String> result = new ArrayList<>();
+        Elements allElements = element.children();
+        for (int i = 0; i < allElements.size(); i++) {
+            Element e = allElements.get(i);
+            if (e.tagName().equals("p")) {
+                result.add(e.html());
+            } else if(e.tagName().equals("div")) {
+                result.addAll(getText(e));
+            }
+        }
+        return result;
     }
 
     public void setHint(String hint) {

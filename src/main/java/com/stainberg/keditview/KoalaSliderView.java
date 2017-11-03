@@ -8,6 +8,8 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
 
+import java.util.List;
+
 /**
  * Created by Stainberg on 7/5/17.
  */
@@ -191,6 +193,16 @@ public class KoalaSliderView extends FrameLayout implements KoalaBaseCellView {
 
     }
 
+    @Override
+    public void startDrag() {
+
+    }
+
+    @Override
+    public void endDrag() {
+
+    }
+
     @Deprecated
     @Override
     public void setText(CharSequence sequence) {
@@ -205,8 +217,8 @@ public class KoalaSliderView extends FrameLayout implements KoalaBaseCellView {
 
     @Deprecated
     @Override
-    public String getHtmlText() {
-        return "";
+    public List<String> getHtmlText() {
+        return null;
     }
 
     @Override

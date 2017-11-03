@@ -6,7 +6,6 @@ import android.graphics.BitmapFactory;
 import android.support.annotation.Nullable;
 import android.text.TextUtils;
 import android.util.AttributeSet;
-import android.util.Log;
 import android.view.DragEvent;
 import android.view.View;
 import android.view.ViewGroup;
@@ -72,6 +71,7 @@ public class KoalaRichEditorView extends FrameLayout {
 
     public void swapViewGroupChildren(ViewGroup viewGroup, View firstView, View secondView) {
         LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+        LinearLayout.LayoutParams lp1 = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, (int) getResources().getDimension(R.dimen.card_file_height));
         int firstIndex = viewGroup.indexOfChild(firstView);
         int secondIndex = viewGroup.indexOfChild(secondView);
         if (firstIndex < secondIndex) {
@@ -79,7 +79,7 @@ public class KoalaRichEditorView extends FrameLayout {
             views.remove(secondView);
             viewGroup.removeViewAt(firstIndex);
             views.remove(firstView);
-            viewGroup.addView(secondView, firstIndex, lp);
+            viewGroup.addView(secondView, firstIndex, lp1);
             secondView.setVisibility(VISIBLE);
             views.add(firstIndex, (KoalaBaseCellView) secondView);
             viewGroup.addView(firstView, secondIndex, lp);
@@ -90,15 +90,12 @@ public class KoalaRichEditorView extends FrameLayout {
             views.remove(firstView);
             viewGroup.removeViewAt(secondIndex);
             views.remove(secondView);
-            firstView.setVisibility(VISIBLE);
             viewGroup.addView(firstView, secondIndex, lp);
+            firstView.setVisibility(VISIBLE);
             views.add(secondIndex, (KoalaBaseCellView) firstView);
+            viewGroup.addView(secondView, firstIndex, lp1);
             secondView.setVisibility(VISIBLE);
-            viewGroup.addView(secondView, firstIndex, lp);
             views.add(firstIndex, (KoalaBaseCellView) secondView);
-        }
-        for (KoalaBaseCellView v : views) {
-            Log.v("333", v.getText().toString());
         }
     }
 
@@ -119,7 +116,7 @@ public class KoalaRichEditorView extends FrameLayout {
     }
 
     private int getDuration(View view) {
-        return view.getResources().getInteger(android.R.integer.config_shortAnimTime);
+        return 100;
     }
 
     public void postOnPreDraw(View view, final Runnable runnable) {
@@ -313,17 +310,6 @@ public class KoalaRichEditorView extends FrameLayout {
                             }
                         }
                         break;
-                    case DragEvent.ACTION_DROP:
-                        break;
-                    case DragEvent.ACTION_DRAG_ENDED:
-                        for (KoalaBaseCellView v : views) {
-                            v.setEditable(true);
-                            v.reload();
-                        }
-                        if (view == dragState.view) {
-                            view.setVisibility(View.VISIBLE);
-                        }
-                        break;
                     case DragEvent.ACTION_DRAG_LOCATION: {
                         if (view == dragState.view) {
                             break;
@@ -335,6 +321,29 @@ public class KoalaRichEditorView extends FrameLayout {
                         }
                         break;
                     }
+                    case DragEvent.ACTION_DROP:
+                        for (KoalaBaseCellView v : views) {
+                            v.setEditable(true);
+                            v.reload();
+                            v.endDrag();
+                            if (view == dragState.view) {
+                                v.reload();
+                                v.endDrag();
+                                view.setVisibility(View.VISIBLE);
+                            }
+                        }
+                        break;
+                    case DragEvent.ACTION_DRAG_ENDED:
+                        for (KoalaBaseCellView v : views) {
+                            v.setEditable(true);
+                            if (view == dragState.view) {
+                                v.reload();
+                                v.endDrag();
+                                view.setVisibility(View.VISIBLE);
+                            }
+                        }
+
+                        break;
                 }
                 return true;
             }

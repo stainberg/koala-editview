@@ -5,10 +5,16 @@
                 android:layout_height="wrap_content"
                 android:background="@drawable/widget_view_card_bg">
 
+    <!--<com.facebook.drawee.view.SimpleDraweeView-->
+        <!--android:id="@+id/drag_shadow"-->
+        <!--android:layout_width="match_parent"-->
+        <!--android:layout_height="@dimen/card_file_height"/>-->
+
     <com.facebook.drawee.view.SimpleDraweeView
         android:id="@+id/icon"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"/>
+        android:layout_height="wrap_content"
+        android:scaleType="fitXY"/>
 
     <android.support.v7.widget.AppCompatImageView
         android:id="@+id/icon_delete"
