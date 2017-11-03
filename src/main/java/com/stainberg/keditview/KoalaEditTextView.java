@@ -196,10 +196,10 @@ public class KoalaEditTextView extends FrameLayout implements KoalaBaseCellView 
             statusListener.setEnableFocus(false);
         }
         move.setBackgroundResource(R.drawable.svg_menu_selected);
-        if(cardHeight == 0) {
+        if (cardHeight == 0) {
             cardHeight = this.getHeight();
         }
-        ObjectAnimator animator = ObjectAnimator.ofInt(new AnimCard(this), "height", this.getHeight(), (int)(KoalaEditTextView.this.getResources().getDimension(R.dimen.card_file_height)));
+        ObjectAnimator animator = ObjectAnimator.ofInt(new AnimCard(this), "height", this.getHeight(), (int) (KoalaEditTextView.this.getResources().getDimension(R.dimen.card_file_height)));
         animator.setDuration(getDuration(this));
         animator.addListener(new Animator.AnimatorListener() {
 
@@ -211,7 +211,7 @@ public class KoalaEditTextView extends FrameLayout implements KoalaBaseCellView 
             @Override
             public void onAnimationEnd(Animator animation) {
                 LinearLayout.LayoutParams lp = (LinearLayout.LayoutParams) KoalaEditTextView.this.getLayoutParams();
-                lp.height = (int)(KoalaEditTextView.this.getResources().getDimension(R.dimen.card_file_height));
+                lp.height = (int) (KoalaEditTextView.this.getResources().getDimension(R.dimen.card_file_height));
                 KoalaEditTextView.this.setLayoutParams(lp);
                 KoalaEditTextView.this.startDrag(ClipData.newPlainText("text", getText()), new KoalaDragShadowBuilder(KoalaEditTextView.this), new DragState(KoalaEditTextView.this), 0);
             }
@@ -231,7 +231,7 @@ public class KoalaEditTextView extends FrameLayout implements KoalaBaseCellView 
 
     @Override
     public void endDrag() {
-        if(drag) {
+        if (drag) {
             System.out.print("123 end edit Drag \n");
             drag = false;
             ObjectAnimator animator = ObjectAnimator.ofInt(new AnimCard(this), "height", (int) (KoalaEditTextView.this.getResources().getDimension(R.dimen.card_file_height)), cardHeight);
@@ -565,9 +565,12 @@ public class KoalaEditTextView extends FrameLayout implements KoalaBaseCellView 
             Element e = allElements.get(i);
             if (e.tagName().equals("p")) {
                 result.add(e.html());
-            } else if(e.tagName().equals("div")) {
+            } else if (e.tagName().equals("div")) {
                 result.addAll(getText(e));
             }
+        }
+        if (result.isEmpty()) {
+            result.add("");
         }
         return result;
     }
@@ -579,7 +582,7 @@ public class KoalaEditTextView extends FrameLayout implements KoalaBaseCellView 
             Element e = allElements.get(i);
             if (e.tagName().equals("p")) {
                 result.add(e.html());
-            } else if(e.tagName().equals("div")) {
+            } else if (e.tagName().equals("div")) {
                 result.addAll(getText(e));
             }
         }
