@@ -373,8 +373,8 @@ public class KoalaImageView extends FrameLayout implements KoalaBaseCellView {
 
     private void reloadImage() {
         System.out.println("reload bitmap");
-        float w = fileData.width;
-        float h = fileData.height;
+        float w = width;
+        float h = height;
         float rate = w / h;
         if (imageView.getAspectRatio() != rate) {
             imageView.setAspectRatio(w / h);
@@ -392,7 +392,7 @@ public class KoalaImageView extends FrameLayout implements KoalaBaseCellView {
                     options.inJustDecodeBounds = true;
                     BitmapFactory.decodeFile(src, options);
                     int w = options.outWidth;
-                    float scale = w / width;
+                    float scale = w / 800;
                     int s = (int) Math.ceil(scale);
                     options.inJustDecodeBounds = false;
                     options.inSampleSize = s;
