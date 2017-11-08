@@ -8,6 +8,7 @@ import android.text.TextUtils;
  */
 
 public class FileData {
+    public int type;//0 image 1 file
     public String fileName;
     public String filePath;
     public String fileUrl;
@@ -49,34 +50,12 @@ public class FileData {
     }
 
     public static String getFileType(String filePath) {
-        String fileExtension = filePath;
-        if (filePath.indexOf(".") != -1) {
-            fileExtension = filePath.substring(filePath.lastIndexOf("."));
-        }
-        fileExtension = fileExtension.toLowerCase();
-        if (!TextUtils.isEmpty(fileExtension)) {
-            switch (fileExtension) {
-                case PDF_EXTENSION:
-                    return PDF;
-                case PPT_EXTENSION:
-                    return PPT;
-                case PPTX_EXTENSION:
-                    return PPTX;
-                case WORD_EXTENSION:
-                    return DOC;
-                case WORD_X_EXTENSION:
-                    return DOCX;
-                case EXCEL_EXTENSION:
-                    return XLS;
-                case EXCEL_X_EXTENSION:
-                    return XLSX;
-                case TXT_EXTENSION:
-                    return TXT;
-                case EPUB_EXTENSION:
-                    return EPUB;
-                default:
-                    break;
+        if (!TextUtils.isEmpty(filePath) && filePath.indexOf(".") != -1) {
+            filePath = filePath.substring(filePath.lastIndexOf(".") + 1);
+            if (TextUtils.isEmpty(filePath)) {
+                return UNKNOWN;
             }
+            return filePath.toUpperCase();
         }
         return UNKNOWN;
     }

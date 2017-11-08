@@ -305,7 +305,7 @@ public class KoalaRichEditorView extends FrameLayout {
                         }
                         for (KoalaBaseCellView v : views) {
                             v.setEditable(false);
-                            if(v instanceof KoalaImageView) {
+                            if (v instanceof KoalaImageView) {
                                 ((KoalaImageView) v).releaseImage();
                             }
                         }
@@ -547,6 +547,7 @@ public class KoalaRichEditorView extends FrameLayout {
         if (null == data) {
             return;
         }
+        data.type = 1;
         int index = getNextIndex(addLast);
         KoalaFileView cardView = new KoalaFileView(context, data);
         LinearLayout.LayoutParams lpCard = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
@@ -562,6 +563,7 @@ public class KoalaRichEditorView extends FrameLayout {
         if (null == fileData) {
             return;
         }
+        fileData.type = 0;
         int index = getNextIndex(addLast);
         KoalaImageView imageView;
         if (TextUtils.isEmpty(fileData.filePath)) {
