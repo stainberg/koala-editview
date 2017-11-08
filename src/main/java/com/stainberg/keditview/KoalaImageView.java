@@ -5,7 +5,6 @@ import android.animation.ObjectAnimator;
 import android.content.ClipData;
 import android.content.Context;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.support.annotation.Nullable;
 import android.support.v4.content.ContextCompat;
@@ -22,9 +21,16 @@ import android.widget.RelativeLayout;
 import com.facebook.binaryresource.BinaryResource;
 import com.facebook.binaryresource.FileBinaryResource;
 import com.facebook.cache.common.CacheKey;
+import com.facebook.common.executors.CallerThreadExecutor;
+import com.facebook.common.references.CloseableReference;
+import com.facebook.datasource.DataSource;
+import com.facebook.drawee.backends.pipeline.Fresco;
 import com.facebook.drawee.view.SimpleDraweeView;
 import com.facebook.imagepipeline.cache.DefaultCacheKeyFactory;
+import com.facebook.imagepipeline.core.ImagePipeline;
 import com.facebook.imagepipeline.core.ImagePipelineFactory;
+import com.facebook.imagepipeline.datasource.BaseBitmapDataSubscriber;
+import com.facebook.imagepipeline.image.CloseableImage;
 import com.facebook.imagepipeline.request.ImageRequest;
 import com.facebook.imagepipeline.request.ImageRequestBuilder;
 
@@ -85,28 +91,28 @@ public class KoalaImageView extends FrameLayout implements KoalaBaseCellView {
         dg = false;
         this.fileData = fileData;
         this.margin = margin;
-        width = fileData.width;
-        height = fileData.height;
         listener = l;
+        src = TextUtils.isEmpty(fileData.fileUrl) ? Uri.fromFile(new File(fileData.filePath)).toString() : fileData.fileUrl;
         init();
-        src = TextUtils.isEmpty(fileData.fileUrl) ? fileData.filePath : fileData.fileUrl;
         reloadImage();
     }
 
     private void init() {
-        float x, y;
-        x = getResources().getDisplayMetrics().widthPixels - 2 * margin;
-        y = x / ((float) width / (float) height);
-        setOnClickListener(onClickListener);
-        View v = LayoutInflater.from(getContext()).inflate(R.layout.item_view_image, this, true);
-        imageView = v.findViewById(R.id.icon);
-        RelativeLayout.LayoutParams lp = new RelativeLayout.LayoutParams((int) x, (int) y);
-        imageView.setLayoutParams(lp);
+        final View v = LayoutInflater.from(getContext()).inflate(R.layout.item_view_image, this, true);
         delete = v.findViewById(R.id.icon_delete);
         delete.setOnClickListener(onDeleteImageListener);
         drag = v.findViewById(R.id.icon_drag);
         visible = false;
+        setOnClickListener(onClickListener);
         getViewTreeObserver().addOnScrollChangedListener(onScrollChangedListener);
+        width = fileData.width;
+        height = fileData.height;
+        float x, y;
+        x = getResources().getDisplayMetrics().widthPixels - 2 * margin;
+        y = x / ((float) width / (float) height);
+        imageView = v.findViewById(R.id.icon);
+        RelativeLayout.LayoutParams lp = new RelativeLayout.LayoutParams((int) x, 0);
+        imageView.setLayoutParams(lp);
     }
 
     @Override
@@ -373,56 +379,97 @@ public class KoalaImageView extends FrameLayout implements KoalaBaseCellView {
 
     private void reloadImage() {
         System.out.println("reload bitmap");
-        float w = width;
-        float h = height;
-        float rate = w / h;
-        if (imageView.getAspectRatio() != rate) {
-            imageView.setAspectRatio(w / h);
-        }
-        if (src.startsWith("http")) {
-            imageView.setImageURI(src);
-        } else {
-            if (bitmap != null) {
-                return;
-            }
-            KoalaImageLoadPoll.getPoll().handle(new Runnable() {
-                @Override
-                public void run() {
-                    BitmapFactory.Options options = new BitmapFactory.Options();
-                    options.inJustDecodeBounds = true;
-                    BitmapFactory.decodeFile(src, options);
-                    int w = options.outWidth;
-                    float scale = w / 800;
-                    int s = (int) Math.ceil(scale);
-                    options.inJustDecodeBounds = false;
-                    options.inSampleSize = s;
-                    bitmap = BitmapFactory.decodeFile(src, options);
-                    post(new Runnable() {
-                        @Override
-                        public void run() {
-                            imageView.setImageBitmap(bitmap);
-                        }
-                    });
-                }
-            });
-        }
         visible = true;
+        if(bitmap != null) {
+            return;
+        }
+        ImageRequest imageRequest = ImageRequestBuilder.newBuilderWithSource(Uri.parse(src)).setProgressiveRenderingEnabled(true).build();
+        ImagePipeline imagePipeline = Fresco.getImagePipeline();
+        DataSource<CloseableReference<CloseableImage>> dataSource = imagePipeline.fetchDecodedImage(imageRequest, getContext());
+        dataSource.subscribe(new BaseBitmapDataSubscriber() {
+            @Override
+            public void onNewResultImpl(@Nullable final Bitmap b) {
+                post(new Runnable() {
+                    @Override
+                    public void run() {
+                        bitmap = Bitmap.createBitmap(b);
+                        width = b.getWidth();
+                        height = b.getHeight();
+                        float x, y;
+                        x = getResources().getDisplayMetrics().widthPixels - 2 * margin;
+                        y = x / ((float) width / (float) height);
+                        RelativeLayout.LayoutParams lp = (RelativeLayout.LayoutParams) imageView.getLayoutParams();
+                        lp.height = (int) y;
+                        lp.width = (int) x;
+                        imageView.setLayoutParams(lp);
+                        imageView.setImageBitmap(bitmap);
+                    }
+                });
+            }
+            @Override
+            public void onFailureImpl(DataSource dataSource) {
+                // No cleanup required here.
+            }
+        }, CallerThreadExecutor.getInstance());
+//
+//
+//        float w = width;
+//        float h = height;
+//        float rate = w / h;
+//        if (imageView.getAspectRatio() != rate) {
+//            imageView.setAspectRatio(w / h);
+//        }
+//        if (src.startsWith("http")) {
+//            imageView.setImageURI(src);
+//        } else {
+//            if (bitmap != null) {
+//                return;
+//            }
+//            KoalaImageLoadPoll.getPoll().handle(new Runnable() {
+//                @Override
+//                public void run() {
+//                    BitmapFactory.Options options = new BitmapFactory.Options();
+//                    options.inJustDecodeBounds = true;
+//                    BitmapFactory.decodeFile(src, options);
+//                    int w = options.outWidth;
+//                    float scale = w / 800;
+//                    int s = (int) Math.ceil(scale);
+//                    options.inJustDecodeBounds = false;
+//                    options.inSampleSize = s;
+//                    bitmap = BitmapFactory.decodeFile(src, options);
+//                    post(new Runnable() {
+//                        @Override
+//                        public void run() {
+//                            imageView.setImageBitmap(bitmap);
+//                        }
+//                    });
+//                }
+//            });
+//        }
+//        visible = true;
     }
 
     public void releaseImage() {
         System.out.println("release bitmap");
-        if (src.startsWith("http")) {
-            imageView.setImageBitmap(null);
-            imageView.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.gray_placeholder));
-        } else {
-            if (bitmap != null && !bitmap.isRecycled()) {
-                imageView.setImageBitmap(null);
-                imageView.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.gray_placeholder));
-                bitmap.recycle();
-            }
+        visible = false;
+        imageView.setImageBitmap(null);
+        imageView.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.gray_placeholder));
+        if(bitmap != null) {
+            bitmap.recycle();
             bitmap = null;
         }
-        visible = false;
+
+//        if (src.startsWith("http")) {
+//
+//        } else {
+//            if (bitmap != null && !bitmap.isRecycled()) {
+//                imageView.setImageBitmap(null);
+//                imageView.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.gray_placeholder));
+//                bitmap.recycle();
+//            }
+//
+//        }
+
     }
 
     private OnClickListener onClickListener = new OnClickListener() {
