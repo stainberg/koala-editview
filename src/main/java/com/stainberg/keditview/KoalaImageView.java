@@ -1,8 +1,5 @@
 package com.stainberg.keditview;
 
-import android.animation.Animator;
-import android.animation.ObjectAnimator;
-import android.content.ClipData;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.net.Uri;
@@ -16,7 +13,6 @@ import android.view.View;
 import android.view.ViewTreeObserver;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 
 import com.facebook.binaryresource.BinaryResource;
@@ -143,6 +139,12 @@ public class KoalaImageView extends FrameLayout implements KoalaBaseCellView {
         getViewTreeObserver().removeOnScrollChangedListener(onScrollChangedListener);
         releaseImage();
         super.onDetachedFromWindow();
+    }
+
+    @Override
+    protected void onAttachedToWindow() {
+        reload();
+        super.onAttachedToWindow();
     }
 
     public String getFilePath() {
