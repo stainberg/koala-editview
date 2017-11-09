@@ -48,7 +48,6 @@ internal class EditorContainer : LinearLayout , View.OnTouchListener {
         val top = location[1]
         val bottom = top + scrollView.height
         val y = ev.rawY
-        Log.e("AAA" , "y=$y top=$top bottom=$bottom offset=$offset topViewOffset=$topViewOffset bottomViewOffset=$bottomViewOffset")
         if (y - topViewOffset - offset < top) {
             val offset = (Math.abs(y - topViewOffset - offset - top)).toInt()
             scrollView.fling(-offset)
@@ -70,7 +69,6 @@ internal class EditorContainer : LinearLayout , View.OnTouchListener {
             val preCenter = location[1] + pre.height / 2
             if (currentCenter < preCenter) {
                 isSwapped = true
-                Log.e("AAA" , "<<<<<< position=$position currentCenter=$currentCenter preCenter=$preCenter")
                 swap(pre , position - 1 , currentView , false)
             }
         }
@@ -79,7 +77,6 @@ internal class EditorContainer : LinearLayout , View.OnTouchListener {
             next.getLocationOnScreen(location)
             val nextCenter = location[1] + next.height / 2
             if (currentCenter > nextCenter) {
-                Log.e("AAA" , ">>>>>> position=$position currentCenter=$currentCenter preCenter=$nextCenter")
                 swap(currentView , position , next , true)
             }
         }
