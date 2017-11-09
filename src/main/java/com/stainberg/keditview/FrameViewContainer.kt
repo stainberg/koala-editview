@@ -9,6 +9,12 @@ import android.support.v7.widget.*
 import android.util.*
 import android.view.*
 import android.widget.*
+import android.graphics.Bitmap
+import android.renderscript.*
+import android.renderscript.Allocation
+import android.R.attr.radius
+import android.renderscript.ScriptIntrinsicBlur
+
 
 /**
  * Created by Lynn.
@@ -80,7 +86,7 @@ internal class FrameViewContainer : FrameLayout {
         currentEvent = event
     }
 
-    fun initFloatingView(view : View) {
+    fun initFloatingView(view : View , minHeight : Int) {
         destroyFloatingView()
         view.isDrawingCacheEnabled = true
         val bmp = Bitmap.createBitmap(view.drawingCache)
@@ -88,10 +94,23 @@ internal class FrameViewContainer : FrameLayout {
         val img = AppCompatImageView(context)
         img.setBackgroundColor(Color.RED)
         img.setPadding(0 , 0 , 0 , 0)
-        img.setImageBitmap(bmp)
+        img.setImageBitmap(blurBitmap(bmp , minHeight , 0.4f))
         img.layoutParams = ViewGroup.LayoutParams(view.width , view.height)
-        img.measure(view.width , view.height)
-        img.layout(0 , 0 , view.width , view.height)
+        img.measure(view.width , minHeight)
+        img.layout(0 , 0 , view.width , minHeight)
         floatingView = img
+    }
+
+    fun blurBitmap(image : Bitmap , height : Int , blurRadius : Float) : Bitmap {
+        val bmp = Bitmap.createScaledBitmap(image , image.width , height , true)
+        val renderScript = RenderScript.create(context)
+        val input = Allocation.createFromBitmap(renderScript , bmp)
+        val output = Allocation.createTyped(renderScript , input.type)
+        val scriptIntrinsicBlur = ScriptIntrinsicBlur.create(renderScript , Element.U8_4(renderScript))
+        scriptIntrinsicBlur.setRadius(15f)
+        scriptIntrinsicBlur.setInput(input)
+        scriptIntrinsicBlur.forEach(output)
+        output.copyTo(bmp)
+        return bmp
     }
 }

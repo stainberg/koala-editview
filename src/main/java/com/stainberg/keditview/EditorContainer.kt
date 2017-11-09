@@ -146,7 +146,7 @@ internal class EditorContainer : LinearLayout , View.OnTouchListener {
                         val top = selectedView!!.top - getParentScrollY()
                         val tf = tf.get()!!
                         tf.initStartOffset(MotionEvent.obtain(ev) , top)
-                        tf.initFloatingView(selectedView!!)
+                        tf.initFloatingView(selectedView!! , minHeight)
                     }
                     parent?.requestDisallowInterceptTouchEvent(true)
                 }
@@ -177,8 +177,7 @@ internal class EditorContainer : LinearLayout , View.OnTouchListener {
                     selectedView?.visibility = View.INVISIBLE
                 }
             } else if ((MotionEvent.ACTION_UP == ev.action) or (MotionEvent.ACTION_CANCEL == ev.action)) {
-                forceLargeImage()
-                maxHeight = 0
+                largeImage()
                 tf.get()!!.refresh()
                 dispatchDrag(ev)
                 if (selectedView?.visibility != View.VISIBLE) {
@@ -191,88 +190,24 @@ internal class EditorContainer : LinearLayout , View.OnTouchListener {
         }
     }
 
-    private fun forceLargeImage() {
-        clearSmallAnim()
-        largeImage()
-    }
-
-    private fun clearSmallAnim() {
-        smallAnim?.cancel()
-        smallAnim?.removeAllListeners()
-        smallAnim?.removeAllUpdateListeners()
-    }
-
-    private var isImgSmalling = false
-    private var isImgLarging = false
     private var minHeight = context.dp2px(50f).toInt()
     private var maxHeight = 0
-    private var smallAnim : ObjectAnimator? = null
-    private var largeAnim : ObjectAnimator? = null
 
     private fun smallImage() {
         if (maxHeight == 0) return
-        smallAnim?.let { clearSmallAnim() }
         val currentView = selectedView ?: return
-        smallAnim = ObjectAnimator.ofInt(ObjAnim(SoftReference(currentView)) , "animValue" , currentView.layoutParams.height , minHeight).setDuration(50)
-        smallAnim!!.addListener(object : Animator.AnimatorListener {
-            override fun onAnimationRepeat(animation : Animator?) {
-            }
-
-            override fun onAnimationEnd(animation : Animator?) {
-                isImgSmalling = false
-            }
-
-            override fun onAnimationCancel(animation : Animator?) {
-                isImgSmalling = false
-            }
-
-            override fun onAnimationStart(animation : Animator?) {
-                isImgSmalling = true
-            }
-        })
-        smallAnim!!.addUpdateListener {
-            if (tf.get() == null) {
-                tf = SoftReference(parent.parent as FrameViewContainer)
-            }
-            tf.get()!!.initFloatingView(currentView)
-        }
-        smallAnim!!.start()
+        val lp = currentView.layoutParams
+        lp.height = minHeight
+        currentView.layoutParams = lp
     }
 
     private fun largeImage() {
         if (maxHeight == 0) return
         val currentView = selectedView ?: return
-        largeAnim = ObjectAnimator.ofInt(ObjAnim(SoftReference(currentView)) , "animValue" , currentView.layoutParams.height , maxHeight).setDuration(50)
-        largeAnim!!.addListener(object : Animator.AnimatorListener {
-            override fun onAnimationRepeat(animation : Animator?) {
-            }
-
-            override fun onAnimationEnd(animation : Animator?) {
-                isImgLarging = false
-                if (tf.get() == null) {
-                    tf = SoftReference(parent.parent as FrameViewContainer)
-                }
-                tf.get()!!.destroyFloatingView()
-            }
-
-            override fun onAnimationCancel(animation : Animator?) {
-                isImgLarging = false
-            }
-
-            override fun onAnimationStart(animation : Animator?) {
-                isImgLarging = true
-            }
-        })
-        largeAnim!!.start()
-    }
-
-    private class ObjAnim(view : SoftReference<View?>) {
-        private val sr = view
-        fun setAnimValue(x : Int) {
-            val p = sr.get()?.layoutParams ?: return
-            p.height = x
-            sr.get()?.layoutParams = p
-        }
+        val lp = currentView.layoutParams
+        lp.height = maxHeight
+        currentView.layoutParams = lp
+        maxHeight = 0
     }
 
     private fun isLongPressing() : Boolean {
