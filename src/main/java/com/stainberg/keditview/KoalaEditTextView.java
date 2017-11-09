@@ -222,6 +222,11 @@ public class KoalaEditTextView extends FrameLayout implements KoalaBaseCellView 
         }
     }
 
+    @Override
+    public void release() {
+
+    }
+
     private int getDuration(View view) {
         return 100;
     }
@@ -313,26 +318,6 @@ public class KoalaEditTextView extends FrameLayout implements KoalaBaseCellView 
     public void append(CharSequence text, int start) {
         editText.append(text, 0, text.length());
         editText.setSelection(start);
-    }
-
-    @Override
-    public void setPrevView(KoalaBaseCellView v) {
-        prev = v;
-    }
-
-    @Override
-    public void setNextView(KoalaBaseCellView v) {
-        next = v;
-    }
-
-    @Override
-    public KoalaBaseCellView getPrevView() {
-        return prev;
-    }
-
-    @Override
-    public KoalaBaseCellView getNextView() {
-        return next;
     }
 
     @Override
