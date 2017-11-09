@@ -2,7 +2,9 @@ package com.stainberg.keditview;
 
 import android.content.Context;
 import android.graphics.Bitmap;
-import android.net.Uri;
+import android.graphics.BitmapFactory;
+import android.graphics.Matrix;
+import android.support.media.ExifInterface;
 import android.support.annotation.Nullable;
 import android.support.v4.content.ContextCompat;
 import android.text.TextUtils;
@@ -15,23 +17,8 @@ import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
 
-import com.facebook.binaryresource.BinaryResource;
-import com.facebook.binaryresource.FileBinaryResource;
-import com.facebook.cache.common.CacheKey;
-import com.facebook.common.executors.CallerThreadExecutor;
-import com.facebook.common.references.CloseableReference;
-import com.facebook.datasource.DataSource;
-import com.facebook.drawee.backends.pipeline.Fresco;
 import com.facebook.drawee.view.SimpleDraweeView;
-import com.facebook.imagepipeline.cache.DefaultCacheKeyFactory;
-import com.facebook.imagepipeline.core.ImagePipeline;
-import com.facebook.imagepipeline.core.ImagePipelineFactory;
-import com.facebook.imagepipeline.datasource.BaseBitmapDataSubscriber;
-import com.facebook.imagepipeline.image.CloseableImage;
-import com.facebook.imagepipeline.request.ImageRequest;
-import com.facebook.imagepipeline.request.ImageRequestBuilder;
 
-import java.io.File;
 import java.util.List;
 
 import static com.stainberg.keditview.UtilsKt.eventInView;
@@ -41,12 +28,9 @@ import static com.stainberg.keditview.UtilsKt.eventInView;
  */
 
 public class KoalaImageView extends FrameLayout implements KoalaBaseCellView {
-    private boolean dg;
     private SimpleDraweeView imageView;
     private ImageView delete;
     private ImageView drag;
-    private KoalaBaseCellView prev;
-    private KoalaBaseCellView next;
     private OnImageDeleteListener listener;
     private String src;
     private boolean visible;
@@ -85,11 +69,10 @@ public class KoalaImageView extends FrameLayout implements KoalaBaseCellView {
 
     public KoalaImageView(Context context, FileData fileData, OnImageDeleteListener l, int margin) {
         super(context);
-        dg = false;
         this.fileData = fileData;
         this.margin = margin;
         listener = l;
-        src = TextUtils.isEmpty(fileData.fileUrl) ? Uri.fromFile(new File(fileData.filePath)).toString() : fileData.fileUrl;
+        src = TextUtils.isEmpty(fileData.fileUrl) ? fileData.filePath : fileData.fileUrl;
         init();
         reloadImage();
     }
@@ -129,7 +112,7 @@ public class KoalaImageView extends FrameLayout implements KoalaBaseCellView {
         x = getResources().getDisplayMetrics().widthPixels - 2 * margin;
         y = x / ((float) width / (float) height);
         imageView = v.findViewById(R.id.icon);
-        RelativeLayout.LayoutParams lp = new RelativeLayout.LayoutParams((int) x, 0);
+        RelativeLayout.LayoutParams lp = new RelativeLayout.LayoutParams((int) x, (int) y);
         imageView.setLayoutParams(lp);
     }
 
@@ -297,42 +280,69 @@ public class KoalaImageView extends FrameLayout implements KoalaBaseCellView {
 
     private void reloadImage() {
         System.out.println("reload bitmap");
-        visible = true;
-        if (bitmap != null) {
-            return;
+        float w = width;
+        float h = height;
+        float rate = w / h;
+        if (imageView.getAspectRatio() != rate) {
+            imageView.setAspectRatio(w / h);
         }
-        ImageRequest imageRequest = ImageRequestBuilder.newBuilderWithSource(Uri.parse(src)).setProgressiveRenderingEnabled(true).build();
-        ImagePipeline imagePipeline = Fresco.getImagePipeline();
-        DataSource<CloseableReference<CloseableImage>> dataSource = imagePipeline.fetchDecodedImage(imageRequest, getContext());
-        dataSource.subscribe(new BaseBitmapDataSubscriber() {
-            @Override
-            public void onNewResultImpl(@Nullable final Bitmap b) {
-                if (null == b) {
-                    return;
-                }
-                post(new Runnable() {
-                    @Override
-                    public void run() {
-                        bitmap = Bitmap.createBitmap(b);
-                        width = b.getWidth();
-                        height = b.getHeight();
-                        float x, y;
-                        x = getResources().getDisplayMetrics().widthPixels - 2 * margin;
-                        y = x / ((float) width / (float) height);
-                        RelativeLayout.LayoutParams lp = (RelativeLayout.LayoutParams) imageView.getLayoutParams();
-                        lp.height = (int) y;
-                        lp.width = (int) x;
-                        imageView.setLayoutParams(lp);
-                        imageView.setImageBitmap(bitmap);
-                    }
-                });
+        if (src.startsWith("http")) {
+            imageView.setImageURI(src);
+        } else {
+            if (bitmap != null) {
+                return;
             }
+            KoalaImageLoadPoll.getPoll().handle(new Runnable() {
+                @Override
+                public void run() {
+                    try {
+                        BitmapFactory.Options options = new BitmapFactory.Options();
+                        options.inJustDecodeBounds = true;
+                        BitmapFactory.decodeFile(src, options);
+                        int w = options.outWidth;
+                        float scale = w / 800;
+                        int s = (int) Math.ceil(scale);
+                        options.inJustDecodeBounds = false;
+                        options.inSampleSize = s;
+                        bitmap = BitmapFactory.decodeFile(src, options);
+                        int digree;
+                        ExifInterface exif = new ExifInterface(src);
+                        int ori = exif.getAttributeInt(ExifInterface.TAG_ORIENTATION,
+                                ExifInterface.ORIENTATION_UNDEFINED);
+                        switch (ori) {
+                            case ExifInterface.ORIENTATION_ROTATE_90:
+                                digree = 90;
+                                break;
+                            case ExifInterface.ORIENTATION_ROTATE_180:
+                                digree = 180;
+                                break;
+                            case ExifInterface.ORIENTATION_ROTATE_270:
+                                digree = 270;
+                                break;
+                            default:
+                                digree = 0;
+                                break;
+                        }
+                        if (digree != 0) {
+                            Matrix m = new Matrix();
+                            m.postRotate(digree);
+                            bitmap = Bitmap.createBitmap(bitmap, 0, 0, bitmap.getWidth(), bitmap.getHeight(), m, true);
+                            imageView.setImageBitmap(bitmap);
+                        }
+                        post(new Runnable() {
+                            @Override
+                            public void run() {
+                                imageView.setImageBitmap(bitmap);
+                            }
+                        });
+                    } catch (Exception e) {
 
-            @Override
-            public void onFailureImpl(DataSource dataSource) {
-                // No cleanup required here.
-            }
-        }, CallerThreadExecutor.getInstance());
+                    }
+
+                }
+            });
+        }
+        visible = true;
     }
 
     public void releaseImage() {
@@ -392,16 +402,4 @@ public class KoalaImageView extends FrameLayout implements KoalaBaseCellView {
         void delete(KoalaBaseCellView v);
     }
 
-    public static File getFrescoCache(String url) {
-        ImageRequest imageRequest = ImageRequestBuilder.newBuilderWithSource(Uri.parse(url)).build();
-        CacheKey cacheKey = DefaultCacheKeyFactory.getInstance()
-                .getEncodedCacheKey(imageRequest, false);
-        BinaryResource bRes = ImagePipelineFactory.getInstance()
-                .getMainFileCache()
-                .getResource(cacheKey);
-        if (bRes == null) {
-            return null;
-        }
-        return ((FileBinaryResource) bRes).getFile();
-    }
 }

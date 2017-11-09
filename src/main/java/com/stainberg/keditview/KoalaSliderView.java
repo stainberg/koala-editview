@@ -16,9 +16,6 @@ import java.util.List;
 
 public class KoalaSliderView extends FrameLayout implements KoalaBaseCellView {
 
-    private KoalaBaseCellView prev;
-    private KoalaBaseCellView next;
-
     public KoalaSliderView(Context context) {
         super(context);
         init(context);

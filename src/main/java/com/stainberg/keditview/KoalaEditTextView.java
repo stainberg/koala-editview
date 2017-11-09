@@ -47,16 +47,12 @@ public class KoalaEditTextView extends FrameLayout implements KoalaBaseCellView 
     public static final int S_B = 1 << 3;
     public static final int S_Q = 1 << 4;
     public static final int S_L = 1 << 5;
-    private boolean drag;
     private View move;
     private KoalaEditText editText;
     private AppCompatTextView sectionText;
     private OnEditListener listener;
     private OnEditTextStatusListener statusListener;
     private OnHintSetListener onHintSetListener;
-    private KoalaBaseCellView prev;
-    private KoalaBaseCellView next;
-    private int cardHeight = 0;
     int style;
     public int gravity;
     int section;
@@ -107,7 +103,6 @@ public class KoalaEditTextView extends FrameLayout implements KoalaBaseCellView 
     }
 
     private void init(Context context) {
-        drag = false;
         style = STYLE_NORMAL;
         gravity = GRAVITY_LEFT;
         section = SECTION_NULL;
@@ -376,6 +371,7 @@ public class KoalaEditTextView extends FrameLayout implements KoalaBaseCellView 
                 cleanSection(KoalaEditTextView.this);
             }
         }
+        KoalaBaseCellView next = KoalaRichEditorView.getNext((ViewGroup) getParent(), KoalaEditTextView.this);
         if (next != null && next instanceof KoalaEditTextView && ((KoalaEditTextView) next).section != SECTION_NULL) {
             resetNextSection(KoalaEditTextView.this);
         }
@@ -620,13 +616,14 @@ public class KoalaEditTextView extends FrameLayout implements KoalaBaseCellView 
         LayoutParams lpEdit = (LayoutParams) v.editText.getLayoutParams();
         lpEdit.leftMargin = (int) (getResources().getDimension(R.dimen.section_margin)) + (int) (getResources().getDimension(R.dimen.section_text_margin));
         v.editText.setLayoutParams(lpEdit);
-        if (v.prev != null) {
-            if (v.prev instanceof KoalaEditTextView) {
-                if (((KoalaEditTextView) v.prev).section == 1) {
-                    if (((KoalaEditTextView) v.prev).quote) {
+        KoalaBaseCellView prev = KoalaRichEditorView.getPrev((ViewGroup) getParent(), v);
+        if (prev != null) {
+            if (prev instanceof KoalaEditTextView) {
+                if (((KoalaEditTextView) prev).section == 1) {
+                    if (((KoalaEditTextView) prev).quote) {
                         v.sectionIndex = 1;
                     } else {
-                        v.sectionIndex = ((KoalaEditTextView) v.prev).sectionIndex + 1;
+                        v.sectionIndex = ((KoalaEditTextView) prev).sectionIndex + 1;
                     }
                 } else {
                     v.sectionIndex = 1;
@@ -665,55 +662,59 @@ public class KoalaEditTextView extends FrameLayout implements KoalaBaseCellView 
         LayoutParams lpEdit = (LayoutParams) v.editText.getLayoutParams();
         lpEdit.leftMargin = 0;
         v.editText.setLayoutParams(lpEdit);
+        KoalaBaseCellView next = KoalaRichEditorView.getNext((ViewGroup) getParent(), KoalaEditTextView.this);
         if (next != null && next instanceof KoalaEditTextView && ((KoalaEditTextView) next).section != SECTION_NULL) {
             resetNextSection(KoalaEditTextView.this);
         }
     }
 
     void setNextSection(KoalaEditTextView v) {
-        if (v != null && v.prev != null && v.prev instanceof KoalaEditTextView) {
-            if (((KoalaEditTextView) v.prev).section == v.section && v.section == SECTION_NUMBER && !v.quote) {
+        KoalaBaseCellView prev = KoalaRichEditorView.getPrev((ViewGroup) getParent(), v);
+        KoalaBaseCellView next = KoalaRichEditorView.getNext((ViewGroup) getParent(), v);
+        if (v != null && prev != null && prev instanceof KoalaEditTextView) {
+            if (((KoalaEditTextView) prev).section == v.section && v.section == SECTION_NUMBER && !v.quote) {
                 v.setNumberSection(v);
-            } else if (((KoalaEditTextView) v.prev).section == v.section && v.section == SECTION_DOT && !v.quote) {
+            } else if (((KoalaEditTextView) prev).section == v.section && v.section == SECTION_DOT && !v.quote) {
                 v.setDotSection(v);
             }
-            if (v.next instanceof KoalaEditTextView && v.section == ((KoalaEditTextView) v.next).section) {
-                v.setNextSection((KoalaEditTextView) v.next);
+            if (next instanceof KoalaEditTextView && v.section == ((KoalaEditTextView) next).section) {
+                v.setNextSection((KoalaEditTextView) next);
             }
         }
     }
 
     public void resetNextSection(KoalaEditTextView v) {
         if (v != null) {
-            if (v.next != null && v.next instanceof KoalaEditTextView) {
+            KoalaBaseCellView next = KoalaRichEditorView.getNext((ViewGroup) getParent(), v);
+            if (next != null && next instanceof KoalaEditTextView) {
                 if (!v.quote) {
-                    if (((KoalaEditTextView) v.next).section == v.section) {
+                    if (((KoalaEditTextView) next).section == v.section) {
                         if (v.section == SECTION_NUMBER) {
-                            ((KoalaEditTextView) v.next).setNumberSection((KoalaEditTextView) v.next);
+                            ((KoalaEditTextView) next).setNumberSection((KoalaEditTextView) next);
                         } else if (v.section == SECTION_DOT) {
-                            ((KoalaEditTextView) v.next).setDotSection((KoalaEditTextView) v.next);
+                            ((KoalaEditTextView) next).setDotSection((KoalaEditTextView) next);
                         } else {
-                            ((KoalaEditTextView) v.next).cleanSection((KoalaEditTextView) v.next);
+                            ((KoalaEditTextView) next).cleanSection((KoalaEditTextView) next);
                         }
                     } else {
-                        if (((KoalaEditTextView) v.next).section == SECTION_NUMBER) {
-                            ((KoalaEditTextView) v.next).setNumberSection((KoalaEditTextView) v.next);
-                        } else if (((KoalaEditTextView) v.next).section == SECTION_DOT) {
-                            ((KoalaEditTextView) v.next).setDotSection((KoalaEditTextView) v.next);
+                        if (((KoalaEditTextView) next).section == SECTION_NUMBER) {
+                            ((KoalaEditTextView) next).setNumberSection((KoalaEditTextView) next);
+                        } else if (((KoalaEditTextView) next).section == SECTION_DOT) {
+                            ((KoalaEditTextView) next).setDotSection((KoalaEditTextView) next);
                         } else {
-                            ((KoalaEditTextView) v.next).cleanSection((KoalaEditTextView) v.next);
+                            ((KoalaEditTextView) next).cleanSection((KoalaEditTextView) next);
                         }
                     }
                 } else {
-                    if (((KoalaEditTextView) v.next).section == SECTION_NUMBER) {
-                        ((KoalaEditTextView) v.next).setNumberSection((KoalaEditTextView) v.next);
-                    } else if (((KoalaEditTextView) v.next).section == SECTION_DOT) {
-                        ((KoalaEditTextView) v.next).setDotSection((KoalaEditTextView) v.next);
+                    if (((KoalaEditTextView) next).section == SECTION_NUMBER) {
+                        ((KoalaEditTextView) next).setNumberSection((KoalaEditTextView) next);
+                    } else if (((KoalaEditTextView) next).section == SECTION_DOT) {
+                        ((KoalaEditTextView) next).setDotSection((KoalaEditTextView) next);
                     } else {
-                        ((KoalaEditTextView) v.next).cleanSection((KoalaEditTextView) v.next);
+                        ((KoalaEditTextView) next).cleanSection((KoalaEditTextView) next);
                     }
                 }
-                v.resetNextSection((KoalaEditTextView) v.next);
+                v.resetNextSection((KoalaEditTextView) next);
             }
         }
     }
@@ -839,8 +840,9 @@ public class KoalaEditTextView extends FrameLayout implements KoalaBaseCellView 
                     return false;
                 }
             } else if (start == 0 && keyCode == KeyEvent.KEYCODE_DEL && event.getAction() == KeyEvent.ACTION_DOWN) {
+                KoalaBaseCellView prev = KoalaRichEditorView.getNext((ViewGroup) getParent(), KoalaEditTextView.this);
                 if (quote) {
-                    if (KoalaEditTextView.this.prev == null) {
+                    if (prev == null) {
                         cleanAllQuote(KoalaEditTextView.this);
                         return false;
                     } else {

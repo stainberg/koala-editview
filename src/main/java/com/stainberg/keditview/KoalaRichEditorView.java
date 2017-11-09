@@ -3,6 +3,7 @@ package com.stainberg.keditview;
 import android.animation.ObjectAnimator;
 import android.content.Context;
 import android.graphics.BitmapFactory;
+import android.media.ExifInterface;
 import android.support.annotation.Nullable;
 import android.support.v4.widget.NestedScrollView;
 import android.text.TextUtils;
@@ -435,9 +436,31 @@ public class KoalaRichEditorView extends FrameLayout {
             BitmapFactory.Options options = new BitmapFactory.Options();
             options.inJustDecodeBounds = true;
             BitmapFactory.decodeFile(fileData.filePath, options);
-            //本地图片
             fileData.width = options.outWidth;
             fileData.height = options.outHeight;
+            //本地图片
+            boolean c;
+            try {
+                ExifInterface exif = new ExifInterface(fileData.filePath);
+                int ori = exif.getAttributeInt(ExifInterface.TAG_ORIENTATION,
+                        ExifInterface.ORIENTATION_UNDEFINED);
+                switch (ori) {
+                    case ExifInterface.ORIENTATION_ROTATE_90:
+                    case ExifInterface.ORIENTATION_ROTATE_270:
+                        c = true;
+                        break;
+                    default:
+                        c = false;
+                        break;
+                }
+                if(c) {
+                    int w = fileData.width;
+                    fileData.width = fileData.height;
+                    fileData.height = w;
+                }
+            } catch (Exception e) {
+
+            }
             imageView = new KoalaImageView(context, fileData, onImageDeleteListener, margin);
         }
         ViewGroup.LayoutParams lpimage = new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
@@ -718,6 +741,28 @@ public class KoalaRichEditorView extends FrameLayout {
             }
         }
     };
+
+    static KoalaBaseCellView getPrev(ViewGroup parent, View v) {
+        int index = parent.indexOfChild(v);
+        if(index > 0) {
+            View prev = parent.getChildAt(index - 1);
+            if(prev instanceof KoalaBaseCellView) {
+                return (KoalaBaseCellView) prev;
+            }
+        }
+        return null;
+    }
+
+    static KoalaBaseCellView getNext(ViewGroup parent, View v) {
+        int index = parent.indexOfChild(v);
+        if(index < parent.getChildCount() - 1) {
+            View next = parent.getChildAt(index + 1);
+            if(next instanceof KoalaBaseCellView) {
+                return (KoalaBaseCellView) next;
+            }
+        }
+        return null;
+    }
 
     public interface OnStatusListener {
         void setEnableKeyBoard(boolean enableKeyBoard);
