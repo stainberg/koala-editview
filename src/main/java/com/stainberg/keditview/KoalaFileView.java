@@ -11,13 +11,19 @@ import android.support.annotation.StyleRes;
 import android.text.TextUtils;
 import android.util.AttributeSet;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.widget.FrameLayout;
 import android.widget.TextView;
 
 import com.facebook.drawee.view.SimpleDraweeView;
+import com.stainberg.keditview.FileData;
+import com.stainberg.keditview.KoalaBaseCellView;
+import com.stainberg.keditview.R;
 
 import java.util.List;
+
+import static com.stainberg.keditview.UtilsKt.eventInView;
 
 /**
  * Created by Stainberg on 7/5/17.
@@ -121,16 +127,6 @@ public class KoalaFileView extends FrameLayout implements KoalaBaseCellView {
     private void init() {
         View v = LayoutInflater.from(getContext()).inflate(R.layout.item_view_file, this, true);
         drag = v.findViewById(R.id.icon_drag);
-    }
-
-    @Override
-    public void setPosition(int index) {
-
-    }
-
-    @Override
-    public int getPosition() {
-        return 0;
     }
 
     @Override
@@ -259,44 +255,36 @@ public class KoalaFileView extends FrameLayout implements KoalaBaseCellView {
     }
 
     @Override
-    public int getImageWidth() {
-        return 0;
-    }
-
-    @Override
-    public int getImageHeight() {
-        return 0;
-    }
-
-    @Override
     public void setEditable(boolean enable) {
 
+    }
+    private boolean isDragEnabled = false;
+
+    @Override
+    public boolean onInterceptTouchEvent(MotionEvent ev) {
+        if (null != drag && drag.getVisibility() == View.VISIBLE) {
+            isDragEnabled = eventInView(ev, drag);
+            if (isDragEnabled) {
+                return isDragEnabled;
+            }
+        }
+        return super.onInterceptTouchEvent(ev);
+    }
+
+    @Override
+    public boolean onTouchEvent(MotionEvent event) {
+        if (isDragEnabled) {
+            return false;
+        }
+        return super.onTouchEvent(event);
     }
 
     @Override
     public void enableDrag(boolean enable) {
         if (enable) {
-            drag.setOnLongClickListener(new OnLongClickListener() {
-                @Override
-                public boolean onLongClick(View v) {
-                    KoalaFileView.this.startDrag(ClipData.newPlainText("text", getUrl()), new KoalaDragShadowBuilder(KoalaFileView.this), new DragState(KoalaFileView.this), 0);
-                    return true;
-                }
-            });
             drag.setVisibility(VISIBLE);
         } else {
-            drag.setOnLongClickListener(null);
             drag.setVisibility(GONE);
         }
-    }
-
-    @Override
-    public void startDrag() {
-
-    }
-
-    @Override
-    public void endDrag() {
-
     }
 }

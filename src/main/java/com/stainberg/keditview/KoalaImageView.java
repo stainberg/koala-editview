@@ -11,6 +11,7 @@ import android.support.v4.content.ContextCompat;
 import android.text.TextUtils;
 import android.util.AttributeSet;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewTreeObserver;
 import android.widget.FrameLayout;
@@ -37,6 +38,8 @@ import com.facebook.imagepipeline.request.ImageRequestBuilder;
 import java.io.File;
 import java.util.List;
 
+import static com.stainberg.keditview.UtilsKt.eventInView;
+
 /**
  * Created by Stainberg on 7/5/17.
  */
@@ -46,7 +49,6 @@ public class KoalaImageView extends FrameLayout implements KoalaBaseCellView {
     private SimpleDraweeView imageView;
     private ImageView delete;
     private ImageView drag;
-    private int index;
     private KoalaBaseCellView prev;
     private KoalaBaseCellView next;
     private OnImageDeleteListener listener;
@@ -97,6 +99,27 @@ public class KoalaImageView extends FrameLayout implements KoalaBaseCellView {
         reloadImage();
     }
 
+    private boolean isDragEnabled = false;
+
+    @Override
+    public boolean onInterceptTouchEvent(MotionEvent ev) {
+        if (null != drag && drag.getVisibility() == View.VISIBLE) {
+            isDragEnabled = eventInView(ev, drag);
+            if (isDragEnabled) {
+                return isDragEnabled;
+            }
+        }
+        return super.onInterceptTouchEvent(ev);
+    }
+
+    @Override
+    public boolean onTouchEvent(MotionEvent event) {
+        if (isDragEnabled) {
+            return false;
+        }
+        return super.onTouchEvent(event);
+    }
+
     private void init() {
         final View v = LayoutInflater.from(getContext()).inflate(R.layout.item_view_image, this, true);
         delete = v.findViewById(R.id.icon_delete);
@@ -124,16 +147,6 @@ public class KoalaImageView extends FrameLayout implements KoalaBaseCellView {
 
     public String getFilePath() {
         return src;
-    }
-
-    @Override
-    public void setPosition(int idx) {
-        index = idx;
-    }
-
-    @Override
-    public int getPosition() {
-        return index;
     }
 
     @Override
@@ -295,16 +308,6 @@ public class KoalaImageView extends FrameLayout implements KoalaBaseCellView {
     }
 
     @Override
-    public int getImageWidth() {
-        return width;
-    }
-
-    @Override
-    public int getImageHeight() {
-        return height;
-    }
-
-    @Override
     public void setEditable(boolean enable) {
 
     }
@@ -313,63 +316,8 @@ public class KoalaImageView extends FrameLayout implements KoalaBaseCellView {
     public void enableDrag(boolean enable) {
         if (enable) {
             drag.setVisibility(VISIBLE);
-            drag.setOnLongClickListener(new OnLongClickListener() {
-                @Override
-                public boolean onLongClick(View v) {
-                    startDrag();
-                    return true;
-                }
-            });
         } else {
-            drag.setOnLongClickListener(null);
             drag.setVisibility(GONE);
-        }
-    }
-
-    @Override
-    public void startDrag() {
-        dg = true;
-        if(cardHeight == 0) {
-            cardHeight = this.getHeight();
-        }
-        ObjectAnimator animator = ObjectAnimator.ofInt(new AnimCard(this), "height", this.getHeight(), (int)(KoalaImageView.this.getResources().getDimension(R.dimen.card_file_height)));
-        animator.setDuration(getDuration(this));
-        animator.addListener(new Animator.AnimatorListener() {
-
-                    @Override
-                    public void onAnimationStart(Animator animation) {
-
-                    }
-
-                    @Override
-                    public void onAnimationEnd(Animator animation) {
-                        LinearLayout.LayoutParams lp = (LinearLayout.LayoutParams) KoalaImageView.this.getLayoutParams();
-                        lp.height = (int)(KoalaImageView.this.getResources().getDimension(R.dimen.card_file_height));
-                        KoalaImageView.this.setLayoutParams(lp);
-                        KoalaImageView.this.startDrag(ClipData.newPlainText("text", getUrl()), new KoalaDragShadowBuilder(KoalaImageView.this), new DragState(KoalaImageView.this), 0);
-                    }
-
-                    @Override
-                    public void onAnimationCancel(Animator animation) {
-
-                    }
-
-                    @Override
-                    public void onAnimationRepeat(Animator animation) {
-
-                    }
-                });
-        animator.start();
-    }
-
-    @Override
-    public void endDrag() {
-        if(dg) {
-            System.out.print("123 end image Drag \n");
-            dg = false;
-            ObjectAnimator animator = ObjectAnimator.ofInt(new AnimCard(this), "height", (int) (KoalaImageView.this.getResources().getDimension(R.dimen.card_file_height)), cardHeight);
-            animator.setDuration(getDuration(this));
-            animator.start();
         }
     }
 
@@ -380,7 +328,7 @@ public class KoalaImageView extends FrameLayout implements KoalaBaseCellView {
     private void reloadImage() {
         System.out.println("reload bitmap");
         visible = true;
-        if(bitmap != null) {
+        if (bitmap != null) {
             return;
         }
         ImageRequest imageRequest = ImageRequestBuilder.newBuilderWithSource(Uri.parse(src)).setProgressiveRenderingEnabled(true).build();
@@ -389,6 +337,9 @@ public class KoalaImageView extends FrameLayout implements KoalaBaseCellView {
         dataSource.subscribe(new BaseBitmapDataSubscriber() {
             @Override
             public void onNewResultImpl(@Nullable final Bitmap b) {
+                if (null == b) {
+                    return;
+                }
                 post(new Runnable() {
                     @Override
                     public void run() {
@@ -406,6 +357,7 @@ public class KoalaImageView extends FrameLayout implements KoalaBaseCellView {
                     }
                 });
             }
+
             @Override
             public void onFailureImpl(DataSource dataSource) {
                 // No cleanup required here.
@@ -454,7 +406,7 @@ public class KoalaImageView extends FrameLayout implements KoalaBaseCellView {
         visible = false;
         imageView.setImageBitmap(null);
         imageView.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.gray_placeholder));
-        if(bitmap != null) {
+        if (bitmap != null) {
             bitmap.recycle();
             bitmap = null;
         }

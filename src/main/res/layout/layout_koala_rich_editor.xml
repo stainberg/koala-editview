@@ -1,27 +1,27 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
-              android:layout_width="match_parent"
-              android:layout_height="match_parent">
+<com.stainberg.keditview.FrameViewContainer xmlns:android="http://schemas.android.com/apk/res/android"
+                                            android:layout_width="match_parent"
+                                            android:layout_height="match_parent">
 
 
-    <com.stainberg.keditview.KoalaScrollView
+    <android.support.v4.widget.NestedScrollView
+        android:id="@+id/koala_rich_editor_srollview"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:id="@+id/koala_rich_editor_srollview"
-        android:scrollbars="none"
+        android:descendantFocusability="afterDescendants"
         android:focusable="true"
         android:focusableInTouchMode="true"
-        android:descendantFocusability="afterDescendants" >
+        android:scrollbars="none">
 
-        <LinearLayout
+        <com.stainberg.keditview.EditorContainer
+            android:id="@+id/koala_rich_editor_container"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:id="@+id/koala_rich_editor_container">
+            android:orientation="vertical">
 
 
-        </LinearLayout>
+        </com.stainberg.keditview.EditorContainer>
 
-    </com.stainberg.keditview.KoalaScrollView>
+    </android.support.v4.widget.NestedScrollView>
 
-</FrameLayout>
+</com.stainberg.keditview.FrameViewContainer>

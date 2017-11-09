@@ -1,8 +1,5 @@
 package com.stainberg.keditview;
 
-import android.animation.Animator;
-import android.animation.ObjectAnimator;
-import android.content.ClipData;
 import android.content.Context;
 import android.graphics.Typeface;
 import android.support.v4.content.ContextCompat;
@@ -21,6 +18,7 @@ import android.text.style.StyleSpan;
 import android.util.AttributeSet;
 import android.view.Gravity;
 import android.view.KeyEvent;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
@@ -34,6 +32,8 @@ import org.xml.sax.XMLReader;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import static com.stainberg.keditview.UtilsKt.eventInView;
 
 /**
  * Created by Stainberg on 7/5/17.
@@ -51,7 +51,6 @@ public class KoalaEditTextView extends FrameLayout implements KoalaBaseCellView 
     private View move;
     private KoalaEditText editText;
     private AppCompatTextView sectionText;
-    private int index;
     private OnEditListener listener;
     private OnEditTextStatusListener statusListener;
     private OnHintSetListener onHintSetListener;
@@ -165,6 +164,7 @@ public class KoalaEditTextView extends FrameLayout implements KoalaBaseCellView 
             });
         }
         move = new AppCompatImageView(context);
+        move.setId(R.id.icon_drag);
         FrameLayout.LayoutParams l0 = new FrameLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
         l0.gravity = Gravity.END;
         move.setBackgroundResource(R.drawable.svg_menu);
@@ -172,71 +172,53 @@ public class KoalaEditTextView extends FrameLayout implements KoalaBaseCellView 
         move.setVisibility(GONE);
     }
 
+    private boolean isDragEnabled = false;
+
+    @Override
+    public boolean onInterceptTouchEvent(MotionEvent ev) {
+        if (null != move && move.getVisibility() == View.VISIBLE) {
+            isDragEnabled = eventInView(ev, move);
+            if (isDragEnabled) {
+                return isDragEnabled;
+            }
+        }
+        return super.onInterceptTouchEvent(ev);
+    }
+
+    @Override
+    public boolean onTouchEvent(MotionEvent event) {
+        if (isDragEnabled) {
+            return false;
+        }
+        return super.onTouchEvent(event);
+    }
+
+    private View coverView;
+
     public void enableDrag(boolean enable) {
         if (enable) {
+            if (null != coverView) {
+                removeView(coverView);
+            }
+            editText.setCursorVisible(false);
+            editText.setFocusable(false);
+            editText.setFocusableInTouchMode(false);
+            editText.setEnabled(false);
+            coverView = new View(getContext());
+            coverView.setLayoutParams(new LayoutParams(LayoutParams.MATCH_PARENT, getHeight()));
+            addView(coverView);
+            removeView(move);
+            addView(move);
             move.setVisibility(VISIBLE);
-            move.setOnLongClickListener(new OnLongClickListener() {
-                @Override
-                public boolean onLongClick(View v) {
-                    startDrag();
-                    return true;
-                }
-            });
         } else {
-            move.setOnLongClickListener(null);
+            editText.setCursorVisible(true);
+            editText.setFocusable(true);
+            editText.setFocusableInTouchMode(true);
+            editText.setEnabled(true);
+            removeView(coverView);
+            coverView = null;
             move.setVisibility(GONE);
             setEditable(true);
-        }
-    }
-
-    @Override
-    public void startDrag() {
-        drag = true;
-        if (statusListener != null) {
-            statusListener.setEnableFocus(false);
-        }
-        move.setBackgroundResource(R.drawable.svg_menu_selected);
-        if (cardHeight == 0) {
-            cardHeight = this.getHeight();
-        }
-        ObjectAnimator animator = ObjectAnimator.ofInt(new AnimCard(this), "height", this.getHeight(), (int) (KoalaEditTextView.this.getResources().getDimension(R.dimen.card_file_height)));
-        animator.setDuration(getDuration(this));
-        animator.addListener(new Animator.AnimatorListener() {
-
-            @Override
-            public void onAnimationStart(Animator animation) {
-
-            }
-
-            @Override
-            public void onAnimationEnd(Animator animation) {
-                LinearLayout.LayoutParams lp = (LinearLayout.LayoutParams) KoalaEditTextView.this.getLayoutParams();
-                lp.height = (int) (KoalaEditTextView.this.getResources().getDimension(R.dimen.card_file_height));
-                KoalaEditTextView.this.setLayoutParams(lp);
-                KoalaEditTextView.this.startDrag(ClipData.newPlainText("text", getText()), new KoalaDragShadowBuilder(KoalaEditTextView.this), new DragState(KoalaEditTextView.this), 0);
-            }
-
-            @Override
-            public void onAnimationCancel(Animator animation) {
-
-            }
-
-            @Override
-            public void onAnimationRepeat(Animator animation) {
-
-            }
-        });
-        animator.start();
-    }
-
-    @Override
-    public void endDrag() {
-        if (drag) {
-            System.out.print("123 end edit Drag \n");
-            drag = false;
-            ObjectAnimator animator = ObjectAnimator.ofInt(new AnimCard(this), "height", (int) (KoalaEditTextView.this.getResources().getDimension(R.dimen.card_file_height)), cardHeight);
-            animator.setDuration(getDuration(this));
-            animator.start();
         }
     }
 
@@ -331,16 +313,6 @@ public class KoalaEditTextView extends FrameLayout implements KoalaBaseCellView 
     public void append(CharSequence text, int start) {
         editText.append(text, 0, text.length());
         editText.setSelection(start);
-    }
-
-    @Override
-    public void setPosition(int idx) {
-        index = idx;
-    }
-
-    @Override
-    public int getPosition() {
-        return index;
     }
 
     @Override
@@ -617,18 +589,6 @@ public class KoalaEditTextView extends FrameLayout implements KoalaBaseCellView 
     @Override
     public int getSection() {
         return section;
-    }
-
-    @Deprecated
-    @Override
-    public int getImageWidth() {
-        return 0;
-    }
-
-    @Deprecated
-    @Override
-    public int getImageHeight() {
-        return 0;
     }
 
     @Override

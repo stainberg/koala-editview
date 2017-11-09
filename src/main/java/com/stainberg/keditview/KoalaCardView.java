@@ -1,6 +1,5 @@
 package com.stainberg.keditview;
 
-import android.content.ClipData;
 import android.content.Context;
 import android.graphics.Color;
 import android.support.annotation.Nullable;
@@ -23,7 +22,6 @@ import java.util.List;
 public class KoalaCardView extends FrameLayout implements KoalaBaseCellView {
 
     private View move;
-    private int index;
     private KoalaBaseCellView prev;
     private KoalaBaseCellView next;
     private UrlCard data;
@@ -67,7 +65,7 @@ public class KoalaCardView extends FrameLayout implements KoalaBaseCellView {
                 imageApp.setImageURI(getThumbnailUrl(data.thumbnail));
                 SimpleDraweeView iconApp = v.findViewById(R.id.card_type_image);
                 iconApp.setImageURI(CardInfo.getIconByCode(data.typeI));
-                if(!TextUtils.isEmpty(data.typeI)) {
+                if (!TextUtils.isEmpty(data.typeI)) {
                     iconApp.setVisibility(VISIBLE);
                 }
                 iconApp.setVisibility(VISIBLE);
@@ -85,7 +83,7 @@ public class KoalaCardView extends FrameLayout implements KoalaBaseCellView {
                 imageVideo.setImageURI(getThumbnailUrl(data.thumbnail));
                 SimpleDraweeView iconVideo = v.findViewById(R.id.card_type_image);
                 iconVideo.setImageURI(CardInfo.getIconByCode(data.typeI));
-                if(!TextUtils.isEmpty(data.typeI)) {
+                if (!TextUtils.isEmpty(data.typeI)) {
                     iconVideo.setVisibility(VISIBLE);
                 }
                 break;
@@ -102,7 +100,7 @@ public class KoalaCardView extends FrameLayout implements KoalaBaseCellView {
                 imageMusic.setImageURI(getThumbnailUrl(data.thumbnail));
                 SimpleDraweeView iconMusic = v.findViewById(R.id.card_type_image);
                 iconMusic.setImageURI(CardInfo.getIconByCode(data.typeI));
-                if(!TextUtils.isEmpty(data.typeI)) {
+                if (!TextUtils.isEmpty(data.typeI)) {
                     iconMusic.setVisibility(VISIBLE);
                 }
                 break;
@@ -129,7 +127,7 @@ public class KoalaCardView extends FrameLayout implements KoalaBaseCellView {
                 imageShop.setImageURI(getThumbnailUrl(data.thumbnail));
                 SimpleDraweeView iconShop = v.findViewById(R.id.card_type_image);
                 iconShop.setImageURI(CardInfo.getIconByCode(data.typeI));
-                if(!TextUtils.isEmpty(data.typeI)) {
+                if (!TextUtils.isEmpty(data.typeI)) {
                     iconShop.setVisibility(VISIBLE);
                 }
                 break;
@@ -146,7 +144,7 @@ public class KoalaCardView extends FrameLayout implements KoalaBaseCellView {
                 imageLink.setImageURI(getThumbnailUrl(data.thumbnail));
                 SimpleDraweeView iconLink = v.findViewById(R.id.card_type_image);
                 iconLink.setImageURI(CardInfo.getIconByCode(data.typeI));
-                if(!TextUtils.isEmpty(data.typeI)) {
+                if (!TextUtils.isEmpty(data.typeI)) {
                     iconLink.setVisibility(VISIBLE);
                 }
                 break;
@@ -155,8 +153,9 @@ public class KoalaCardView extends FrameLayout implements KoalaBaseCellView {
         lp.topMargin = (int) getResources().getDimension(R.dimen.cell_top_margin);
         lp.bottomMargin = (int) getResources().getDimension(R.dimen.cell_bottom_margin);
         v.setBackgroundResource(R.drawable.shape_card_bg);
-        addView(v ,lp);
+        addView(v, lp);
         move = new View(context);
+        move.setId(R.id.icon_drag);
         FrameLayout.LayoutParams l0 = new FrameLayout.LayoutParams(120, 60);
         l0.gravity = Gravity.END;
         move.setBackgroundColor(Color.parseColor("#00FF00"));
@@ -164,44 +163,16 @@ public class KoalaCardView extends FrameLayout implements KoalaBaseCellView {
         move.setVisibility(GONE);
     }
 
-    private  String getThumbnailUrl(String url) {
+    private String getThumbnailUrl(String url) {
         return (TextUtils.isEmpty(url)) ? CardInfo.getIconByCode("default") : url;
     }
 
     public void enableDrag(boolean enable) {
-        if(enable) {
-            move.setOnLongClickListener(new OnLongClickListener() {
-                @Override
-                public boolean onLongClick(View v) {
-                    KoalaCardView.this.startDrag(ClipData.newPlainText("text", data.url), new KoalaDragShadowBuilder(KoalaCardView.this), new DragState(KoalaCardView.this), 0);
-                    return true;
-                }
-            });
+        if (enable) {
             move.setVisibility(VISIBLE);
         } else {
-            move.setOnLongClickListener(null);
             move.setVisibility(GONE);
         }
-    }
-
-    @Override
-    public void startDrag() {
-
-    }
-
-    @Override
-    public void endDrag() {
-
-    }
-
-    @Override
-    public void setPosition(int idx) {
-        index = idx;
-    }
-
-    @Override
-    public int getPosition() {
-        return index;
     }
 
     @Override
@@ -320,18 +291,6 @@ public class KoalaCardView extends FrameLayout implements KoalaBaseCellView {
 
     @Override
     public int getSection() {
-        return 0;
-    }
-
-    @Deprecated
-    @Override
-    public int getImageWidth() {
-        return 0;
-    }
-
-    @Deprecated
-    @Override
-    public int getImageHeight() {
         return 0;
     }
 

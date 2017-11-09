@@ -24,7 +24,6 @@ class EditList<T> extends ArrayList<T> {
             }
             for (int i = 0; i < size(); i++) {
                 KoalaBaseCellView vv = (KoalaBaseCellView) get(i);
-                vv.setPosition(i);
             }
         } else {
             throw new IllegalArgumentException("T mast be implements KoalaBaseCellView");
@@ -55,7 +54,6 @@ class EditList<T> extends ArrayList<T> {
             }
             for (int i = 0; i < size(); i++) {
                 KoalaBaseCellView vv = (KoalaBaseCellView) get(i);
-                vv.setPosition(i);
             }
         } else {
             throw new IllegalArgumentException("T mast be implements KoalaBaseCellView");
@@ -78,10 +76,6 @@ class EditList<T> extends ArrayList<T> {
                 v.setPrevView(null);
                 v.setNextView(null);
                 boolean flag = super.remove(o);
-                for (int i = 0; i < size(); i++) {
-                    KoalaBaseCellView vv = (KoalaBaseCellView) get(i);
-                    vv.setPosition(i);
-                }
                 return flag;
             }
         } else {

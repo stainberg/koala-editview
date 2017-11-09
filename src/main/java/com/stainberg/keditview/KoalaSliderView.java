@@ -8,6 +8,9 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
 
+import com.stainberg.keditview.KoalaBaseCellView;
+import com.stainberg.keditview.R;
+
 import java.util.List;
 
 /**
@@ -16,7 +19,6 @@ import java.util.List;
 
 public class KoalaSliderView extends FrameLayout implements KoalaBaseCellView {
 
-    private int index;
     private KoalaBaseCellView prev;
     private KoalaBaseCellView next;
 
@@ -40,16 +42,6 @@ public class KoalaSliderView extends FrameLayout implements KoalaBaseCellView {
         LayoutParams lp = new LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, (int) getResources().getDimension(R.dimen.slider_heigh));
         v.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.gray_placeholder_bg));
         addView(v ,lp);
-    }
-
-    @Override
-    public void setPosition(int idx) {
-        index = idx;
-    }
-
-    @Override
-    public int getPosition() {
-        return index;
     }
 
     @Override
@@ -171,18 +163,6 @@ public class KoalaSliderView extends FrameLayout implements KoalaBaseCellView {
         return 0;
     }
 
-    @Deprecated
-    @Override
-    public int getImageWidth() {
-        return 0;
-    }
-
-    @Deprecated
-    @Override
-    public int getImageHeight() {
-        return 0;
-    }
-
     @Override
     public void setEditable(boolean enable) {
 
@@ -190,16 +170,6 @@ public class KoalaSliderView extends FrameLayout implements KoalaBaseCellView {
 
     @Override
     public void enableDrag(boolean enable) {
-
-    }
-
-    @Override
-    public void startDrag() {
-
-    }
-
-    @Override
-    public void endDrag() {
 
     }
 
