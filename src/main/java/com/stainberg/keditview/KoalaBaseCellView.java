@@ -18,12 +18,7 @@ public interface KoalaBaseCellView {
     int CARD_FILE_VIEW = 8;
     int CARD_SHOP_VIEW = 9;
     int CARD_APP_VIEW = 10;
-    int CARD_HEAD = 11;
 
-    void setPrevView(KoalaBaseCellView v);
-    void setNextView(KoalaBaseCellView v);
-    KoalaBaseCellView getPrevView();
-    KoalaBaseCellView getNextView();
     String getUrl();
     int getType();
     void reload();
@@ -47,4 +42,5 @@ public interface KoalaBaseCellView {
     int getSection();
     void setEditable(boolean enable);
     void enableDrag(boolean enable);
+    void release();
 }

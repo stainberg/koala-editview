@@ -1,6 +1,5 @@
 package com.stainberg.keditview;
 
-import android.content.ClipData;
 import android.content.Context;
 import android.os.Build;
 import android.support.annotation.AttrRes;
@@ -17,9 +16,6 @@ import android.widget.FrameLayout;
 import android.widget.TextView;
 
 import com.facebook.drawee.view.SimpleDraweeView;
-import com.stainberg.keditview.FileData;
-import com.stainberg.keditview.KoalaBaseCellView;
-import com.stainberg.keditview.R;
 
 import java.util.List;
 
@@ -127,26 +123,6 @@ public class KoalaFileView extends FrameLayout implements KoalaBaseCellView {
     private void init() {
         View v = LayoutInflater.from(getContext()).inflate(R.layout.item_view_file, this, true);
         drag = v.findViewById(R.id.icon_drag);
-    }
-
-    @Override
-    public void setPrevView(KoalaBaseCellView v) {
-
-    }
-
-    @Override
-    public void setNextView(KoalaBaseCellView v) {
-
-    }
-
-    @Override
-    public KoalaBaseCellView getPrevView() {
-        return null;
-    }
-
-    @Override
-    public KoalaBaseCellView getNextView() {
-        return null;
     }
 
     @Override
@@ -286,5 +262,10 @@ public class KoalaFileView extends FrameLayout implements KoalaBaseCellView {
         } else {
             drag.setVisibility(GONE);
         }
+    }
+
+    @Override
+    public void release() {
+
     }
 }

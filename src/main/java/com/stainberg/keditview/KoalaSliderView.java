@@ -8,9 +8,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
 
-import com.stainberg.keditview.KoalaBaseCellView;
-import com.stainberg.keditview.R;
-
 import java.util.List;
 
 /**
@@ -42,26 +39,6 @@ public class KoalaSliderView extends FrameLayout implements KoalaBaseCellView {
         LayoutParams lp = new LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, (int) getResources().getDimension(R.dimen.slider_heigh));
         v.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.gray_placeholder_bg));
         addView(v ,lp);
-    }
-
-    @Override
-    public void setPrevView(KoalaBaseCellView v) {
-        prev = v;
-    }
-
-    @Override
-    public void setNextView(KoalaBaseCellView v) {
-        next = v;
-    }
-
-    @Override
-    public KoalaBaseCellView getPrevView() {
-        return prev;
-    }
-
-    @Override
-    public KoalaBaseCellView getNextView() {
-        return next;
     }
 
     @Deprecated
@@ -170,6 +147,11 @@ public class KoalaSliderView extends FrameLayout implements KoalaBaseCellView {
 
     @Override
     public void enableDrag(boolean enable) {
+
+    }
+
+    @Override
+    public void release() {
 
     }
 

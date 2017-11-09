@@ -53,7 +53,6 @@ public class KoalaImageView extends FrameLayout implements KoalaBaseCellView {
     private int width, height;
     private Bitmap bitmap;
     private int bound = getResources().getDisplayMetrics().heightPixels;
-    private int cardHeight = 0;
     private int margin;
 
     public KoalaImageView(Context context) {
@@ -134,41 +133,8 @@ public class KoalaImageView extends FrameLayout implements KoalaBaseCellView {
         imageView.setLayoutParams(lp);
     }
 
-    @Override
-    protected void onDetachedFromWindow() {
-        getViewTreeObserver().removeOnScrollChangedListener(onScrollChangedListener);
-        releaseImage();
-        super.onDetachedFromWindow();
-    }
-
-    @Override
-    protected void onAttachedToWindow() {
-        reload();
-        super.onAttachedToWindow();
-    }
-
     public String getFilePath() {
         return src;
-    }
-
-    @Override
-    public void setPrevView(KoalaBaseCellView v) {
-        prev = v;
-    }
-
-    @Override
-    public void setNextView(KoalaBaseCellView v) {
-        next = v;
-    }
-
-    @Override
-    public KoalaBaseCellView getPrevView() {
-        return prev;
-    }
-
-    @Override
-    public KoalaBaseCellView getNextView() {
-        return next;
     }
 
     @Override
@@ -323,8 +289,10 @@ public class KoalaImageView extends FrameLayout implements KoalaBaseCellView {
         }
     }
 
-    private int getDuration(View view) {
-        return 100;
+    @Override
+    public void release() {
+        getViewTreeObserver().removeOnScrollChangedListener(onScrollChangedListener);
+        releaseImage();
     }
 
     private void reloadImage() {
@@ -365,46 +333,9 @@ public class KoalaImageView extends FrameLayout implements KoalaBaseCellView {
                 // No cleanup required here.
             }
         }, CallerThreadExecutor.getInstance());
-//
-//
-//        float w = width;
-//        float h = height;
-//        float rate = w / h;
-//        if (imageView.getAspectRatio() != rate) {
-//            imageView.setAspectRatio(w / h);
-//        }
-//        if (src.startsWith("http")) {
-//            imageView.setImageURI(src);
-//        } else {
-//            if (bitmap != null) {
-//                return;
-//            }
-//            KoalaImageLoadPoll.getPoll().handle(new Runnable() {
-//                @Override
-//                public void run() {
-//                    BitmapFactory.Options options = new BitmapFactory.Options();
-//                    options.inJustDecodeBounds = true;
-//                    BitmapFactory.decodeFile(src, options);
-//                    int w = options.outWidth;
-//                    float scale = w / 800;
-//                    int s = (int) Math.ceil(scale);
-//                    options.inJustDecodeBounds = false;
-//                    options.inSampleSize = s;
-//                    bitmap = BitmapFactory.decodeFile(src, options);
-//                    post(new Runnable() {
-//                        @Override
-//                        public void run() {
-//                            imageView.setImageBitmap(bitmap);
-//                        }
-//                    });
-//                }
-//            });
-//        }
-//        visible = true;
     }
 
     public void releaseImage() {
-        System.out.println("release bitmap");
         visible = false;
         imageView.setImageBitmap(null);
         imageView.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.gray_placeholder));
@@ -412,18 +343,6 @@ public class KoalaImageView extends FrameLayout implements KoalaBaseCellView {
             bitmap.recycle();
             bitmap = null;
         }
-
-//        if (src.startsWith("http")) {
-//
-//        } else {
-//            if (bitmap != null && !bitmap.isRecycled()) {
-//                imageView.setImageBitmap(null);
-//                imageView.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.gray_placeholder));
-//                bitmap.recycle();
-//            }
-//
-//        }
-
     }
 
     private OnClickListener onClickListener = new OnClickListener() {

@@ -22,8 +22,6 @@ import java.util.List;
 public class KoalaCardView extends FrameLayout implements KoalaBaseCellView {
 
     private View move;
-    private KoalaBaseCellView prev;
-    private KoalaBaseCellView next;
     private UrlCard data;
 
     public KoalaCardView(Context context) {
@@ -176,23 +174,8 @@ public class KoalaCardView extends FrameLayout implements KoalaBaseCellView {
     }
 
     @Override
-    public void setPrevView(KoalaBaseCellView v) {
-        prev = v;
-    }
+    public void release() {
 
-    @Override
-    public void setNextView(KoalaBaseCellView v) {
-        next = v;
-    }
-
-    @Override
-    public KoalaBaseCellView getPrevView() {
-        return prev;
-    }
-
-    @Override
-    public KoalaBaseCellView getNextView() {
-        return next;
     }
 
     @Deprecated
