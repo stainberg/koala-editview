@@ -19,23 +19,23 @@ import java.lang.ref.*
  * Created by Stainberg on 7/5/17.
  */
 
-class KoalaFileView : FrameLayout , KoalaBaseCellView {
+class KoalaFileView : FrameLayout, KoalaBaseCellView {
 
-    lateinit var fileData : FileData
+    lateinit var fileData: FileData
     private var isDragEnabled = false
 
-    @JvmOverloads constructor(context : Context , attrs : AttributeSet? = null , @AttrRes defStyleAttr : Int = 0) : super(context , attrs , defStyleAttr) {
+    @JvmOverloads constructor(context: Context, attrs: AttributeSet? = null, @AttrRes defStyleAttr: Int = 0) : super(context, attrs, defStyleAttr) {
         init()
     }
 
     @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
-    constructor(context : Context , attrs : AttributeSet? , @AttrRes defStyleAttr : Int , @StyleRes defStyleRes : Int) : super(context , attrs , defStyleAttr , defStyleRes) {
+    constructor(context: Context, attrs: AttributeSet?, @AttrRes defStyleAttr: Int, @StyleRes defStyleRes: Int) : super(context, attrs, defStyleAttr, defStyleRes) {
         init()
     }
 
-    private var listener : SoftReference<KoalaRichEditorView.Companion.IOnFileClickListener?> = SoftReference(null)
+    private var listener: SoftReference<KoalaRichEditorView.Companion.IOnFileClickListener?> = SoftReference(null)
 
-    constructor(context : Context , fileData : FileData , lis : KoalaRichEditorView.Companion.IOnFileClickListener?) : this(context) {
+    constructor(context: Context, fileData: FileData, lis: KoalaRichEditorView.Companion.IOnFileClickListener?) : this(context) {
         this.fileData = fileData
         listener = SoftReference(lis)
         if (childCount == 1) {
@@ -55,12 +55,12 @@ class KoalaFileView : FrameLayout , KoalaBaseCellView {
                 } else {
                     val type = fileData.fileType
                     when (type) {
-                        FileData.DOC , FileData.DOCX -> iconText.setBackgroundResource(R.drawable.svg_file_doc)
+                        FileData.DOC, FileData.DOCX -> iconText.setBackgroundResource(R.drawable.svg_file_doc)
                         FileData.PDF -> iconText.setBackgroundResource(R.drawable.svg_file_pdf)
-                        FileData.PPT , FileData.PPTX -> iconText.setBackgroundResource(R.drawable.svg_file_ppt)
+                        FileData.PPT, FileData.PPTX -> iconText.setBackgroundResource(R.drawable.svg_file_ppt)
                         FileData.EPUB -> iconText.setBackgroundResource(R.drawable.svg_file_epub)
                         FileData.TXT -> iconText.setBackgroundResource(R.drawable.svg_file_txt)
-                        FileData.XLS , FileData.XLSX -> iconText.setBackgroundResource(R.drawable.svg_file_xls)
+                        FileData.XLS, FileData.XLSX -> iconText.setBackgroundResource(R.drawable.svg_file_xls)
                         else -> iconText.setBackgroundResource(R.drawable.svg_file_unknown)
                     }//                            colorId = R.color.color_word;
                     //                            colorId = R.color.color_pdf;
@@ -85,20 +85,19 @@ class KoalaFileView : FrameLayout , KoalaBaseCellView {
     }
 
     private fun init() {
-        LayoutInflater.from(context).inflate(R.layout.item_view_file , this , true)
+        LayoutInflater.from(context).inflate(R.layout.item_view_file, this, true)
         findViewById<View>(R.id.left).setOnClickListener {
-            Log.e("ABCDEFG" , "Left")
+            Log.e("ABCDEFG", "Left")
         }
         findViewById<View>(R.id.right).setOnClickListener {
-            Log.e("ABCDEFG" , "Right")
+            Log.e("ABCDEFG", "Right")
         }
         findViewById<View>(R.id.center).setOnClickListener {
             listener.get()?.onFileClick((parent as ViewGroup).indexOfChild(this))
         }
-        enableCard(context , card_container , card_view , false)
     }
 
-    override fun obtainUrl() : String {
+    override fun obtainUrl(): String {
         return ""
     }
 
@@ -126,7 +125,7 @@ class KoalaFileView : FrameLayout , KoalaBaseCellView {
 
     }
 
-    override fun setSection(st : Int) {
+    override fun setSection(st: Int) {
 
     }
 
@@ -146,45 +145,45 @@ class KoalaFileView : FrameLayout , KoalaBaseCellView {
 
     }
 
-    override fun setText(sequence : CharSequence) {
+    override fun setText(sequence: CharSequence) {
 
     }
 
-    override fun obtainText() : CharSequence {
+    override fun obtainText(): CharSequence {
         return ""
     }
 
-    override fun obtainHtmlText() : List<String> {
+    override fun obtainHtmlText(): List<String> {
         return emptyList()
     }
 
-    override fun setHtmlText(html : String) {
+    override fun setHtmlText(html: String) {
 
     }
 
-    override fun ifQuote() : Boolean {
+    override fun ifQuote(): Boolean {
         return false
     }
 
-    override fun ifCode() : Boolean {
+    override fun ifCode(): Boolean {
         return false
     }
 
-    override fun obtainStyle() : Int {
+    override fun obtainStyle(): Int {
         return 0
     }
 
-    override fun obtainSection() : Int {
+    override fun obtainSection(): Int {
         return 0
     }
 
-    override fun setEditable(enable : Boolean) {
+    override fun setEditable(enable: Boolean) {
 
     }
 
-    override fun onInterceptTouchEvent(ev : MotionEvent) : Boolean {
+    override fun onInterceptTouchEvent(ev: MotionEvent): Boolean {
         if (icon_drag.visibility == View.VISIBLE) {
-            isDragEnabled = eventInView(ev , icon_drag)
+            isDragEnabled = eventInView(ev, icon_drag)
             if (isDragEnabled) {
                 return isDragEnabled
             }
@@ -192,14 +191,13 @@ class KoalaFileView : FrameLayout , KoalaBaseCellView {
         return super.onInterceptTouchEvent(ev)
     }
 
-    override fun onTouchEvent(event : MotionEvent) : Boolean {
+    override fun onTouchEvent(event: MotionEvent): Boolean {
         return if (isDragEnabled) {
             false
         } else super.onTouchEvent(event)
     }
 
-    override fun enableDrag(enable : Boolean) {
-        enableCard(context , card_container , card_view , enable)
+    override fun enableDrag(enable: Boolean) {
         if (enable) {
             icon_drag.visibility = View.VISIBLE
         } else {

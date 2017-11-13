@@ -13,37 +13,37 @@ import java.lang.ref.*
  * Created by Lynn.
  */
 
-internal class EditorContainer : LinearLayout , View.OnTouchListener {
-    constructor(context : Context?) : super(context)
-    constructor(context : Context? , attrs : AttributeSet?) : super(context , attrs)
-    constructor(context : Context? , attrs : AttributeSet? , defStyleAttr : Int) : super(context , attrs , defStyleAttr)
-    constructor(context : Context? , attrs : AttributeSet? , defStyleAttr : Int , defStyleRes : Int) : super(context , attrs , defStyleAttr , defStyleRes)
+internal class EditorContainer : LinearLayout, View.OnTouchListener {
+    constructor(context: Context?) : super(context)
+    constructor(context: Context?, attrs: AttributeSet?) : super(context, attrs)
+    constructor(context: Context?, attrs: AttributeSet?, defStyleAttr: Int) : super(context, attrs, defStyleAttr)
+    constructor(context: Context?, attrs: AttributeSet?, defStyleAttr: Int, defStyleRes: Int) : super(context, attrs, defStyleAttr, defStyleRes)
 
     init {
         setOnTouchListener(this)
     }
 
-    private var selectedView : View? = null
-    private var downPoint : MotionEvent? = null
-    private val gd = GestureDetector(context , GestureDetector.SimpleOnGestureListener())
+    private var selectedView: View? = null
+    private var downPoint: MotionEvent? = null
+    private val gd = GestureDetector(context, GestureDetector.SimpleOnGestureListener())
     private val offset = context.dp2px(40f)
     private var topViewOffset = 0
     private var bottomViewOffset = 0
     private var isDragEnabled = true
 
-    private fun getLocationView(ev : MotionEvent) : View? {
+    private fun getLocationView(ev: MotionEvent): View? {
         return (0 until childCount)
                 .map { getChildAt(it) }
-                .firstOrNull { isTouchPointInView(it , ev.rawX.toInt() , ev.rawY.toInt()) }
+                .firstOrNull { isTouchPointInView(it, ev.rawX.toInt(), ev.rawY.toInt()) }
     }
 
-    private fun getParentScrollY() : Int {
+    private fun getParentScrollY(): Int {
         return (parent as NestedScrollView).scrollY
     }
 
-    private fun checkMoveIfNeeded(ev : MotionEvent) {
+    private fun checkMoveIfNeeded(ev: MotionEvent) {
         val scrollView = (parent as NestedScrollView?) ?: return
-        val location = intArrayOf(0 , 0)
+        val location = intArrayOf(0, 0)
         scrollView.getLocationOnScreen(location)
         val top = location[1]
         val bottom = top + scrollView.height
@@ -57,19 +57,19 @@ internal class EditorContainer : LinearLayout , View.OnTouchListener {
         }
     }
 
-    private fun swapIfNeeded(ev : MotionEvent) {
+    private fun swapIfNeeded(ev: MotionEvent) {
         val currentView = selectedView ?: return
         val position = indexOfChild(currentView)
         var isSwapped = false
         val currentCenter = ev.y - topViewOffset + currentView.height / 2
-        val location = intArrayOf(0 , 0)
+        val location = intArrayOf(0, 0)
         if (position > 0) {
             val pre = getChildAt(position - 1)
             pre.getLocationOnScreen(location)
             val preCenter = location[1] + pre.height / 2
             if (currentCenter < preCenter) {
                 isSwapped = true
-                swap(pre , position - 1 , currentView , false)
+                swap(pre, position - 1, currentView, false)
             }
         }
         if (!isSwapped && position < childCount - 1) {
@@ -77,35 +77,35 @@ internal class EditorContainer : LinearLayout , View.OnTouchListener {
             next.getLocationOnScreen(location)
             val nextCenter = location[1] + next.height / 2
             if (currentCenter > nextCenter) {
-                swap(currentView , position , next , true)
+                swap(currentView, position, next, true)
             }
         }
     }
 
-    private fun swap(first : View , firstIndex : Int , second : View , isSwapAfter : Boolean) {
+    private fun swap(first: View, firstIndex: Int, second: View, isSwapAfter: Boolean) {
         val firstHeight = first.height.toFloat()
         val secondHeight = second.height.toFloat()
         removeView(first)
         removeView(second)
-        addView(first , firstIndex)
-        addView(second , firstIndex)
-        var anim : Animation
+        addView(first, firstIndex)
+        addView(second, firstIndex)
+        var anim: Animation
         if (isSwapAfter) {
-            anim = TranslateAnimation(0f , 0f , firstHeight , 0f)
+            anim = TranslateAnimation(0f, 0f, firstHeight, 0f)
             anim.duration = 100
             second.startAnimation(anim)
         } else {
-            anim = TranslateAnimation(0f , 0f , -secondHeight , 0f)
+            anim = TranslateAnimation(0f, 0f, -secondHeight, 0f)
             anim.duration = 100
             first.startAnimation(anim)
         }
     }
 
-    fun setDragEnabled(enable : Boolean) {
+    fun setDragEnabled(enable: Boolean) {
         isDragEnabled = enable
     }
 
-    private fun isTouchPointInView(view : View? , x : Int , y : Int) : Boolean {
+    private fun isTouchPointInView(view: View?, x: Int, y: Int): Boolean {
         if (view == null) {
             return false
         }
@@ -124,13 +124,13 @@ internal class EditorContainer : LinearLayout , View.OnTouchListener {
         return flag
     }
 
-    override fun onViewAdded(child : View?) {
+    override fun onViewAdded(child: View?) {
         super.onViewAdded(child)
         child?.setOnClickListener { }
     }
 
-    private var tf : SoftReference<FrameViewContainer?> = SoftReference(null)
-    override fun onTouch(view : View? , ev : MotionEvent?) : Boolean {
+    private var tf: SoftReference<FrameViewContainer?> = SoftReference(null)
+    override fun onTouch(view: View?, ev: MotionEvent?): Boolean {
         val flag = super.onTouchEvent(ev)
         if (null == view || null == ev) return flag
         if (tf.get() == null) {
@@ -146,14 +146,13 @@ internal class EditorContainer : LinearLayout , View.OnTouchListener {
                     downPoint = MotionEvent.obtain(ev)
                     selectedView = getLocationView(ev)
                     if (selectedView != null) {
-                        maxHeight = selectedView!!.layoutParams.height
-                        val location = intArrayOf(0 , 0)
-                        (parent as View).getLocationOnScreen(location)
+                        initSize()
+                        smallImage()
+
                         val top = selectedView!!.top - getParentScrollY()
                         val tf = tf.get()!!
-                        tf.initStartOffset(MotionEvent.obtain(ev) , top)
-                        tf.initFloatingView(selectedView!! , minHeight)
-                        smallImage()
+                        tf.initStartOffset(MotionEvent.obtain(ev), top)
+                        tf.initFloatingView(selectedView!!, minHeight)
                         if (selectedView?.visibility != View.INVISIBLE) {
                             selectedView?.visibility = View.INVISIBLE
                         }
@@ -165,7 +164,7 @@ internal class EditorContainer : LinearLayout , View.OnTouchListener {
                     tf.get()!!.refresh()
                     dispatchDrag(ev)
                 }
-                MotionEvent.ACTION_CANCEL ,
+                MotionEvent.ACTION_CANCEL,
                 MotionEvent.ACTION_UP -> {
                     tf.get()!!.destroyFloatingView()
                     downPoint?.recycle()
@@ -187,7 +186,11 @@ internal class EditorContainer : LinearLayout , View.OnTouchListener {
         }
     }
 
-    private var minHeight = context.dp2px(50f).toInt()
+    private fun initSize() {
+        maxHeight = selectedView!!.layoutParams.height
+    }
+
+    private var minHeight = context.dp2px(70f).toInt()
     private var maxHeight = 0
 
     private fun smallImage() {
@@ -207,10 +210,20 @@ internal class EditorContainer : LinearLayout , View.OnTouchListener {
         maxHeight = 0
     }
 
-    private fun dispatchDrag(ev : MotionEvent) {
+    private fun dispatchDrag(ev: MotionEvent) {
         post {
             checkMoveIfNeeded(ev)
             swapIfNeeded(ev)
+        }
+    }
+
+    companion object {
+        class ObjAnim(val sr: SoftReference<View>) {
+            fun setValue(x: Int) {
+                val lp = sr.get()?.layoutParams
+                lp?.height = x
+                sr.get()?.layoutParams = lp
+            }
         }
     }
 }

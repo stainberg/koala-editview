@@ -22,7 +22,7 @@ internal fun eventInView(ev : MotionEvent , view : View) : Boolean {
     return (ev.x > view.left) and (ev.x < view.right) and (ev.y > view.top) and (ev.y < view.bottom)
 }
 
-internal fun enableCard(ctx : Context , cardContainer : View , cardView : CardView , enable : Boolean) {
+internal fun enableCard(ctx : Context , cardView : CardView , enable : Boolean) {
 //    val lp = cardContainer.layoutParams as ViewGroup.MarginLayoutParams
     val offset = ctx.dp2px(4f)
     if (enable) {

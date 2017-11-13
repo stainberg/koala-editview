@@ -1,66 +1,58 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-                xmlns:app="http://schemas.android.com/apk/res-auto"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content">
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginBottom="4dp"
+    android:layout_marginTop="4dp"
+    android:background="@android:color/transparent">
 
-    <FrameLayout
-        android:id="@+id/card_container"
+    <RelativeLayout
+        android:id="@+id/content_bg"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="4dp"
-        android:layout_marginTop="4dp">
+        android:layout_marginLeft="20dp"
+        android:layout_marginRight="20dp"
+        android:background="@drawable/shape_corners">
 
-        <android.support.v7.widget.CardView
-            android:id="@+id/card_view"
+        <com.facebook.drawee.view.SimpleDraweeView
+            android:id="@+id/icon"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="0.5dp"
-            android:layout_marginLeft="20dp"
-            android:layout_marginRight="20dp"
-            android:layout_marginTop="0.5dp"
-            app:cardCornerRadius="3dp"
-            app:cardElevation="4dp">
+            app:roundBottomLeft="true"
+            app:roundBottomRight="true"
+            app:roundTopLeft="true"
+            app:roundTopRight="true"
+            app:roundedCornerRadius="3dp"
+            app:roundingBorderColor="@color/gray_text"
+            app:roundingBorderWidth="1dp" />
 
 
-            <RelativeLayout
+        <LinearLayout
+            android:id="@+id/touch_container"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <View
+                android:id="@+id/left"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content">
+                android:layout_height="match_parent"
+                android:layout_weight="1" />
 
-                <com.facebook.drawee.view.SimpleDraweeView
-                    android:id="@+id/icon"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:scaleType="fitXY"/>
+            <View
+                android:id="@+id/center"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_weight="1" />
 
-
-                <LinearLayout
-                    android:id="@+id/touch_container"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="horizontal">
-
-                    <View
-                        android:id="@+id/left"
-                        android:layout_width="match_parent"
-                        android:layout_height="match_parent"
-                        android:layout_weight="1"/>
-
-                    <View
-                        android:id="@+id/center"
-                        android:layout_width="match_parent"
-                        android:layout_height="match_parent"
-                        android:layout_weight="1"/>
-
-                    <View
-                        android:id="@+id/right"
-                        android:layout_width="match_parent"
-                        android:layout_height="match_parent"
-                        android:layout_weight="1"/>
-                </LinearLayout>
-            </RelativeLayout>
-        </android.support.v7.widget.CardView>
-    </FrameLayout>
+            <View
+                android:id="@+id/right"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_weight="1" />
+        </LinearLayout>
+    </RelativeLayout>
 
     <android.support.v7.widget.AppCompatImageView
         android:id="@+id/icon_drag"
@@ -69,5 +61,5 @@
         android:layout_alignParentRight="true"
         android:padding="8dp"
         android:visibility="gone"
-        app:srcCompat="@drawable/svg_drag_icon"/>
+        app:srcCompat="@drawable/svg_drag_icon" />
 </RelativeLayout>

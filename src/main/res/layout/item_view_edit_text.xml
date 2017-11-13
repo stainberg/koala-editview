@@ -1,63 +1,49 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-                xmlns:app="http://schemas.android.com/apk/res-auto"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content">
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginBottom="4dp"
+    android:layout_marginTop="4dp"
+    android:background="@android:color/transparent">
 
-    <FrameLayout
-        android:id="@+id/card_container"
+    <RelativeLayout
+        android:id="@+id/content_bg"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="4dp"
-        android:layout_marginTop="4dp">
+        android:layout_marginLeft="20dp"
+        android:layout_marginRight="20dp">
 
-        <android.support.v7.widget.CardView
-            android:id="@+id/card_view"
+        <android.support.v7.widget.AppCompatTextView
+            android:id="@+id/section_text"
+            android:layout_width="30dp"
+            android:layout_height="wrap_content"
+            android:gravity="right"
+            android:lineSpacingMultiplier="1.5"
+            android:maxLines="1"
+            android:paddingTop="4dp"
+            android:singleLine="true"
+            android:textColor="@color/gray_text"
+            android:textSize="@dimen/text_size_16dp"
+            android:visibility="gone" />
+
+        <com.stainberg.keditview.KoalaEditText
+            android:id="@+id/edit_text"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="0.5dp"
-            android:layout_marginLeft="20dp"
-            android:layout_marginRight="20dp"
-            android:layout_marginTop="0.5dp"
-            app:cardCornerRadius="3dp"
-            app:cardElevation="4dp">
+            android:layout_toRightOf="@+id/section_text"
+            android:background="@null"
+            android:gravity="left"
+            android:lineSpacingMultiplier="1.5"
+            android:padding="4dp"
+            android:textColor="@color/gray_text"
+            android:textSize="@dimen/text_size_16dp" />
 
-            <RelativeLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content">
-
-                <android.support.v7.widget.AppCompatTextView
-                    android:id="@+id/section_text"
-                    android:layout_width="30dp"
-                    android:layout_height="wrap_content"
-                    android:gravity="right"
-                    android:lineSpacingMultiplier="1.5"
-                    android:maxLines="1"
-                    android:paddingTop="4dp"
-                    android:singleLine="true"
-                    android:textColor="@color/gray_text"
-                    android:textSize="@dimen/text_size_16dp"
-                    android:visibility="gone"/>
-
-                <com.stainberg.keditview.KoalaEditText
-                    android:id="@+id/edit_text"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_toRightOf="@+id/section_text"
-                    android:background="@null"
-                    android:gravity="left"
-                    android:lineSpacingMultiplier="1.5"
-                    android:padding="4dp"
-                    android:textColor="@color/gray_text"
-                    android:textSize="@dimen/text_size_16dp"/>
-
-                <View
-                    android:id="@+id/cover_view"
-                    android:layout_width="match_parent"
-                    android:layout_height="0dp"/>
-            </RelativeLayout>
-        </android.support.v7.widget.CardView>
-    </FrameLayout>
+        <View
+            android:id="@+id/cover_view"
+            android:layout_width="match_parent"
+            android:layout_height="0dp" />
+    </RelativeLayout>
 
     <android.support.v7.widget.AppCompatImageView
         android:id="@+id/icon_drag"
@@ -66,5 +52,5 @@
         android:layout_alignParentRight="true"
         android:padding="8dp"
         android:visibility="gone"
-        app:srcCompat="@drawable/svg_drag_icon"/>
+        app:srcCompat="@drawable/svg_drag_icon" />
 </RelativeLayout>

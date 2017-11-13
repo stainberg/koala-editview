@@ -10,7 +10,6 @@ import android.text.TextUtils
 import android.util.*
 import android.view.*
 import android.widget.FrameLayout
-
 import kotlinx.android.synthetic.main.item_view_image.view.*
 
 import java.lang.ref.*
@@ -19,19 +18,19 @@ import java.lang.ref.*
  * Created by Stainberg on 7/5/17.
  */
 
-class KoalaImageView : FrameLayout , KoalaBaseCellView {
-    var filePath : String = ""
-    private var visible : Boolean = false
-    private var imgWidth : Int = 0
-    private var imgHeight : Int = 0
-    private var bitmap : Bitmap? = null
+class KoalaImageView : FrameLayout, KoalaBaseCellView {
+    var filePath: String = ""
+    private var visible: Boolean = false
+    private var imgWidth: Int = 0
+    private var imgHeight: Int = 0
+    private var bitmap: Bitmap? = null
     private val bound = resources.displayMetrics.heightPixels
 
-    lateinit var fileData : FileData
+    lateinit var fileData: FileData
 
     private var isDragEnabled = false
 
-    private var onScrollChangedListener : ViewTreeObserver.OnScrollChangedListener = ViewTreeObserver.OnScrollChangedListener {
+    private var onScrollChangedListener: ViewTreeObserver.OnScrollChangedListener = ViewTreeObserver.OnScrollChangedListener {
         val location = IntArray(2)
         icon.getLocationInWindow(location)
         if (location[1] < 0) {
@@ -53,13 +52,13 @@ class KoalaImageView : FrameLayout , KoalaBaseCellView {
         }
     }
 
-    @JvmOverloads constructor(context : Context , attrs : AttributeSet? = null , defStyleAttr : Int = 0) : super(context , attrs , defStyleAttr) {
+    @JvmOverloads constructor(context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0) : super(context, attrs, defStyleAttr) {
         init()
     }
 
-    private lateinit var sr : SoftReference<KoalaRichEditorView.Companion.IOnImageClickListener?>
+    private lateinit var sr: SoftReference<KoalaRichEditorView.Companion.IOnImageClickListener?>
 
-    constructor(context : Context , fileData : FileData , lis : KoalaRichEditorView.Companion.IOnImageClickListener?) : super(context) {
+    constructor(context: Context, fileData: FileData, lis: KoalaRichEditorView.Companion.IOnImageClickListener?) : super(context) {
         this.sr = SoftReference(lis)
         this.fileData = fileData
         filePath = if (TextUtils.isEmpty(fileData.fileUrl)) fileData.filePath else fileData.fileUrl
@@ -67,9 +66,9 @@ class KoalaImageView : FrameLayout , KoalaBaseCellView {
         reloadImage()
     }
 
-    override fun onInterceptTouchEvent(ev : MotionEvent) : Boolean {
+    override fun onInterceptTouchEvent(ev: MotionEvent): Boolean {
         if (icon_drag.visibility == View.VISIBLE) {
-            isDragEnabled = eventInView(ev , icon_drag)
+            isDragEnabled = eventInView(ev, icon_drag)
             if (isDragEnabled) {
                 return isDragEnabled
             }
@@ -77,19 +76,19 @@ class KoalaImageView : FrameLayout , KoalaBaseCellView {
         return super.onInterceptTouchEvent(ev)
     }
 
-    override fun onTouchEvent(event : MotionEvent) : Boolean {
+    override fun onTouchEvent(event: MotionEvent): Boolean {
         return if (isDragEnabled) {
             false
         } else super.onTouchEvent(event)
     }
 
     private fun init() {
-        val v = LayoutInflater.from(context).inflate(R.layout.item_view_image , this , true)
+        val v = LayoutInflater.from(context).inflate(R.layout.item_view_image, this, true)
         v.findViewById<View>(R.id.left).setOnClickListener {
-            Log.e("ABCDEFG" , "Left")
+            Log.e("ABCDEFG", "Left")
         }
         v.findViewById<View>(R.id.right).setOnClickListener {
-            Log.e("ABCDEFG" , "Right")
+            Log.e("ABCDEFG", "Right")
         }
         v.findViewById<View>(R.id.center).setOnClickListener {
             sr.get()?.onImageClick((parent as ViewGroup).indexOfChild(this))
@@ -98,9 +97,9 @@ class KoalaImageView : FrameLayout , KoalaBaseCellView {
         viewTreeObserver.addOnScrollChangedListener(onScrollChangedListener)
         imgWidth = fileData?.width ?: 0
         imgHeight = fileData?.height ?: 0
-        icon.measure(MeasureSpec.AT_MOST , MeasureSpec.UNSPECIFIED)
-        val x : Float = context.screenWidth - context.dp2px(20f) * 2
-        val y : Float = x / (imgWidth.toFloat() / imgHeight.toFloat())
+        icon.measure(MeasureSpec.AT_MOST, MeasureSpec.UNSPECIFIED)
+        val x: Float = context.screenWidth - context.dp2px(20f) * 2
+        val y: Float = x / (imgWidth.toFloat() / imgHeight.toFloat())
 
         var lp = icon.layoutParams
         lp.width = x.toInt()
@@ -111,11 +110,9 @@ class KoalaImageView : FrameLayout , KoalaBaseCellView {
         lp.width = x.toInt()
         lp.height = y.toInt()
         touch_container.layoutParams = lp
-
-        enableCard(context , card_container , card_view , false)
     }
 
-    override fun obtainUrl() : String {
+    override fun obtainUrl(): String {
         return filePath
     }
 
@@ -167,7 +164,7 @@ class KoalaImageView : FrameLayout , KoalaBaseCellView {
     }
 
     @Deprecated("")
-    override fun setSection(st : Int) {
+    override fun setSection(st: Int) {
 
     }
 
@@ -192,52 +189,53 @@ class KoalaImageView : FrameLayout , KoalaBaseCellView {
     }
 
     @Deprecated("")
-    override fun setText(sequence : CharSequence) {
+    override fun setText(sequence: CharSequence) {
 
     }
 
     @Deprecated("")
-    override fun obtainText() : CharSequence {
+    override fun obtainText(): CharSequence {
         return ""
     }
 
     @Deprecated("")
-    override fun obtainHtmlText() : List<String> {
+    override fun obtainHtmlText(): List<String> {
         return emptyList()
     }
 
-    override fun setHtmlText(html : String) {
+    override fun setHtmlText(html: String) {
 
     }
 
     @Deprecated("")
-    override fun ifQuote() : Boolean {
+    override fun ifQuote(): Boolean {
         return false
     }
 
     @Deprecated("")
-    override fun ifCode() : Boolean {
+    override fun ifCode(): Boolean {
         return false
     }
 
-    override fun obtainStyle() : Int {
+    override fun obtainStyle(): Int {
         return 0
     }
 
-    override fun obtainSection() : Int {
+    override fun obtainSection(): Int {
         return 0
     }
 
-    override fun setEditable(enable : Boolean) {
+    override fun setEditable(enable: Boolean) {
 
     }
 
-    override fun enableDrag(enable : Boolean) {
-        enableCard(context , card_container , card_view , enable)
+    override fun enableDrag(enable: Boolean) {
         if (enable) {
+            content_bg.setBackgroundResource(R.drawable.widget_view_card_bg)
             icon_drag.visibility = View.VISIBLE
             touch_container.visibility = View.GONE
         } else {
+            content_bg.setBackgroundResource(R.drawable.widget_view_card_bg)
             icon_drag.visibility = View.GONE
             touch_container.visibility = View.VISIBLE
         }
@@ -266,17 +264,17 @@ class KoalaImageView : FrameLayout , KoalaBaseCellView {
                 try {
                     val options = BitmapFactory.Options()
                     options.inJustDecodeBounds = true
-                    BitmapFactory.decodeFile(filePath , options)
+                    BitmapFactory.decodeFile(filePath, options)
                     val w = options.outWidth
                     val scale = (w / 800).toFloat()
                     val s = Math.ceil(scale.toDouble()).toInt()
                     options.inJustDecodeBounds = false
                     options.inSampleSize = s
-                    bitmap = BitmapFactory.decodeFile(filePath , options)
-                    val digree : Int
+                    bitmap = BitmapFactory.decodeFile(filePath, options)
+                    val digree: Int
                     val exif = ExifInterface(filePath)
-                    val ori = exif.getAttributeInt(ExifInterface.TAG_ORIENTATION ,
-                                                   ExifInterface.ORIENTATION_UNDEFINED)
+                    val ori = exif.getAttributeInt(ExifInterface.TAG_ORIENTATION,
+                            ExifInterface.ORIENTATION_UNDEFINED)
                     when (ori) {
                         ExifInterface.ORIENTATION_ROTATE_90 -> digree = 90
                         ExifInterface.ORIENTATION_ROTATE_180 -> digree = 180
@@ -286,11 +284,11 @@ class KoalaImageView : FrameLayout , KoalaBaseCellView {
                     if (digree != 0) {
                         val m = Matrix()
                         m.postRotate(digree.toFloat())
-                        bitmap = Bitmap.createBitmap(bitmap!! , 0 , 0 , bitmap!!.width , bitmap!!.height , m , true)
+                        bitmap = Bitmap.createBitmap(bitmap!!, 0, 0, bitmap!!.width, bitmap!!.height, m, true)
                         icon.setImageBitmap(bitmap)
                     }
                     post { icon.setImageBitmap(bitmap) }
-                } catch (e : Exception) {
+                } catch (e: Exception) {
 
                 }
             })
@@ -301,7 +299,7 @@ class KoalaImageView : FrameLayout , KoalaBaseCellView {
     fun releaseImage() {
         visible = false
         icon.setImageBitmap(null)
-        icon.setBackgroundColor(ContextCompat.getColor(context , R.color.gray_placeholder))
+        icon.setBackgroundColor(ContextCompat.getColor(context, R.color.gray_placeholder))
         if (bitmap != null) {
             bitmap!!.recycle()
             bitmap = null
@@ -310,7 +308,7 @@ class KoalaImageView : FrameLayout , KoalaBaseCellView {
 
     companion object {
         interface OnImageDeleteListener {
-            fun delete(v : KoalaBaseCellView)
+            fun delete(v: KoalaBaseCellView)
         }
     }
 }
