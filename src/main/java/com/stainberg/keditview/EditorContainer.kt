@@ -124,13 +124,19 @@ internal class EditorContainer : LinearLayout , View.OnTouchListener {
         return flag
     }
 
+    override fun onViewAdded(child : View?) {
+        super.onViewAdded(child)
+        child?.setOnClickListener { }
+    }
+
     private var tf : SoftReference<FrameViewContainer?> = SoftReference(null)
     override fun onTouch(view : View? , ev : MotionEvent?) : Boolean {
-        if (null == view || null == ev) return super.onTouchEvent(ev)
+        val flag = super.onTouchEvent(ev)
+        if (null == view || null == ev) return flag
         if (tf.get() == null) {
             tf = SoftReference(parent.parent as FrameViewContainer)
         }
-        if (isDragEnabled) {
+        if (isDragEnabled && !flag) {
             gd.onTouchEvent(ev)
             when (ev.action) {
                 MotionEvent.ACTION_DOWN -> {
@@ -147,46 +153,37 @@ internal class EditorContainer : LinearLayout , View.OnTouchListener {
                         val tf = tf.get()!!
                         tf.initStartOffset(MotionEvent.obtain(ev) , top)
                         tf.initFloatingView(selectedView!! , minHeight)
+                        smallImage()
+                        if (selectedView?.visibility != View.INVISIBLE) {
+                            selectedView?.visibility = View.INVISIBLE
+                        }
                     }
                     parent?.requestDisallowInterceptTouchEvent(true)
                 }
                 MotionEvent.ACTION_MOVE -> {
-                    if (!isLongPressing()) {
-                        parent?.requestDisallowInterceptTouchEvent(false)
-                    } else {
-                        tf.get()!!.setCurrentPosition(MotionEvent.obtain(ev))
-                    }
+                    tf.get()!!.setCurrentPosition(MotionEvent.obtain(ev))
+                    tf.get()!!.refresh()
+                    dispatchDrag(ev)
                 }
                 MotionEvent.ACTION_CANCEL ,
                 MotionEvent.ACTION_UP -> {
                     tf.get()!!.destroyFloatingView()
                     downPoint?.recycle()
                     downPoint = null
+                    largeImage()
+                    tf.get()!!.refresh()
+                    dispatchDrag(ev)
+                    if (selectedView?.visibility != View.VISIBLE) {
+                        selectedView?.visibility = View.VISIBLE
+                    }
                     parent?.requestDisallowInterceptTouchEvent(false)
                 }
                 else -> {
                 }
             }
-            if (isInLongPress()) {
-                if (selectedView?.layoutParams?.height ?: 0 == maxHeight) {
-                    smallImage()
-                }
-                tf.get()!!.refresh()
-                dispatchDrag(ev)
-                if (selectedView?.visibility != View.INVISIBLE) {
-                    selectedView?.visibility = View.INVISIBLE
-                }
-            } else if ((MotionEvent.ACTION_UP == ev.action) or (MotionEvent.ACTION_CANCEL == ev.action)) {
-                largeImage()
-                tf.get()!!.refresh()
-                dispatchDrag(ev)
-                if (selectedView?.visibility != View.VISIBLE) {
-                    selectedView?.visibility = View.VISIBLE
-                }
-            }
             return true
         } else {
-            return super.onTouchEvent(ev)
+            return flag
         }
     }
 
@@ -208,22 +205,6 @@ internal class EditorContainer : LinearLayout , View.OnTouchListener {
         lp.height = maxHeight
         currentView.layoutParams = lp
         maxHeight = 0
-    }
-
-    private fun isLongPressing() : Boolean {
-        val method = gd::class.java.getDeclaredField("mAlwaysInTapRegion")
-        method.isAccessible = true
-        val result = method.getBoolean(gd)
-        method.isAccessible = false
-        return result
-    }
-
-    private fun isInLongPress() : Boolean {
-        val method = gd::class.java.getDeclaredField("mInLongPress")
-        method.isAccessible = true
-        val result = method.getBoolean(gd)
-        method.isAccessible = false
-        return result
     }
 
     private fun dispatchDrag(ev : MotionEvent) {

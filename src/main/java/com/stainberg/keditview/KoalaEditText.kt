@@ -8,7 +8,7 @@ import android.util.AttributeSet
  * Created by Stainberg on 8/2/17.
  */
 
-internal class KoalaEditText : AppCompatEditText {
+class KoalaEditText : AppCompatEditText {
 
     private var changedListener : OnSelectionChangedListener? = null
 
@@ -27,7 +27,9 @@ internal class KoalaEditText : AppCompatEditText {
         changedListener?.onSelectionChanged(selStart , selEnd)
     }
 
-    internal interface OnSelectionChangedListener {
-        fun onSelectionChanged(selStart : Int , selEnd : Int)
+    companion object {
+        interface OnSelectionChangedListener {
+            fun onSelectionChanged(selStart : Int , selEnd : Int)
+        }
     }
 }
