@@ -231,11 +231,9 @@ class KoalaImageView : FrameLayout, KoalaBaseCellView {
 
     override fun enableDrag(enable: Boolean) {
         if (enable) {
-            content_bg.setBackgroundResource(R.drawable.widget_view_card_bg)
             icon_drag.visibility = View.VISIBLE
             touch_container.visibility = View.GONE
         } else {
-            content_bg.setBackgroundResource(R.drawable.widget_view_card_bg)
             icon_drag.visibility = View.GONE
             touch_container.visibility = View.VISIBLE
         }

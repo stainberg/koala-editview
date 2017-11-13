@@ -18,15 +18,7 @@
         <com.facebook.drawee.view.SimpleDraweeView
             android:id="@+id/icon"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            app:roundBottomLeft="true"
-            app:roundBottomRight="true"
-            app:roundTopLeft="true"
-            app:roundTopRight="true"
-            app:roundedCornerRadius="3dp"
-            app:roundingBorderColor="@color/gray_text"
-            app:roundingBorderWidth="1dp" />
-
+            android:layout_height="wrap_content" />
 
         <LinearLayout
             android:id="@+id/touch_container"
