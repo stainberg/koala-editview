@@ -10,6 +10,7 @@ import android.view.*
 import android.widget.FrameLayout
 import com.facebook.drawee.backends.pipeline.Fresco
 import com.facebook.imagepipeline.common.ResizeOptions
+import com.facebook.imagepipeline.request.ImageRequest
 import com.facebook.imagepipeline.request.ImageRequestBuilder
 import kotlinx.android.synthetic.main.item_view_image.view.*
 import java.io.File
@@ -31,7 +32,7 @@ class KoalaImageView : FrameLayout, KoalaBaseCellView {
     private var defaultImageViewWidth: Int = 0
     private var defaultImageViewHeight: Int = 0
     private val bound = resources.displayMetrics.heightPixels
-
+    private val request : ImageRequest
     lateinit var fileData: FileData
 
     private var isDragEnabled = false
@@ -58,8 +59,9 @@ class KoalaImageView : FrameLayout, KoalaBaseCellView {
         }
     }
 
-    @JvmOverloads constructor(context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0) : super(context, attrs, defStyleAttr) {
+    @JvmOverloads constructor(context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0, request: ImageRequest) : super(context, attrs, defStyleAttr) {
         init()
+        this.request = request
     }
 
     private lateinit var sr: SoftReference<KoalaRichEditorView.Companion.IOnImageClickListener?>
@@ -69,6 +71,26 @@ class KoalaImageView : FrameLayout, KoalaBaseCellView {
         this.fileData = fileData
         filePath = if (TextUtils.isEmpty(fileData.fileUrl)) Uri.fromFile(File(fileData.filePath)).toString() else fileData.fileUrl
         init()
+
+        var w : Float
+        var h : Float
+        if(fileData.width < fileData.height) {
+            w = fileData.width.toFloat()
+            while (w > 1000) {
+                w -= 200
+            }
+            h = fileData.height /(fileData.width / w)
+        } else {
+            h = fileData.height.toFloat()
+            while (h > 1000) {
+                h -= 200
+            }
+            w = fileData.width.toFloat() / fileData.height.toFloat() * h
+        }
+
+        request = ImageRequestBuilder.newBuilderWithSource(Uri.parse(filePath))
+                .setResizeOptions(ResizeOptions(w.toInt(), h.toInt()))
+                .build()
         reloadImage()
     }
 
@@ -123,14 +145,6 @@ class KoalaImageView : FrameLayout, KoalaBaseCellView {
         lp.width = defaultImageViewWidth
         lp.height = defaultImageViewHeight
         icon.layoutParams = lp
-
-        val request = ImageRequestBuilder.newBuilderWithSource(Uri.parse(filePath))
-                .setResizeOptions(ResizeOptions(100, (imgHeight/whRate).toInt()))
-                .build()
-        icon.controller = Fresco.newDraweeControllerBuilder()
-//                .setOldController(mDraweeView.getController())
-                .setImageRequest(request)
-                .build()
     }
 
     override fun obtainUrl(): String {
@@ -279,7 +293,7 @@ class KoalaImageView : FrameLayout, KoalaBaseCellView {
     }
 
     private fun reloadImage() {
-        icon.setImageURI(filePath)
+        icon.controller = Fresco.newDraweeControllerBuilder().setImageRequest(request).build()
         visible = true
     }
 
