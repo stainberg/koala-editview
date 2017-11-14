@@ -12,9 +12,8 @@ import android.view.inputmethod.InputMethodManager
 import android.widget.FrameLayout
 import android.widget.LinearLayout
 import kotlinx.android.synthetic.main.item_view_edit_text.view.*
-import java.lang.ref.*
-
-import java.util.ArrayList
+import java.lang.ref.SoftReference
+import java.util.*
 
 /**
  * Created by Stainberg on 7/5/17.
@@ -658,6 +657,10 @@ class KoalaRichEditorView @JvmOverloads constructor(context : Context , attrs : 
                 v.edit_text!!.hint = ""
             }
         }
+    }
+
+    fun release() {
+        container.removeAllViews()
     }
 
     fun clearHint() {
