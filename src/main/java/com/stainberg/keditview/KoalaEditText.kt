@@ -10,26 +10,26 @@ import android.util.AttributeSet
 
 class KoalaEditText : AppCompatEditText {
 
-    private var changedListener : OnSelectionChangedListener? = null
+    private var changedListener: OnSelectionChangedListener? = null
 
-    constructor(context : Context) : super(context) {}
+    constructor(context: Context) : super(context) {}
 
-    constructor(context : Context , attrs : AttributeSet) : super(context , attrs) {}
+    constructor(context: Context, attrs: AttributeSet) : super(context, attrs) {}
 
-    constructor(context : Context , attrs : AttributeSet , defStyleAttr : Int) : super(context , attrs , defStyleAttr) {}
+    constructor(context: Context, attrs: AttributeSet, defStyleAttr: Int) : super(context, attrs, defStyleAttr) {}
 
-    constructor(context : Context , l : OnSelectionChangedListener) : super(context) {
+    fun setSelectionListener(l: OnSelectionChangedListener) {
         changedListener = l
     }
 
-    override fun onSelectionChanged(selStart : Int , selEnd : Int) {
-        super.onSelectionChanged(selStart , selEnd)
-        changedListener?.onSelectionChanged(selStart , selEnd)
+    override fun onSelectionChanged(selStart: Int, selEnd: Int) {
+        super.onSelectionChanged(selStart, selEnd)
+        changedListener?.onSelectionChanged(selStart, selEnd)
     }
 
     companion object {
         interface OnSelectionChangedListener {
-            fun onSelectionChanged(selStart : Int , selEnd : Int)
+            fun onSelectionChanged(selStart: Int, selEnd: Int)
         }
     }
 }

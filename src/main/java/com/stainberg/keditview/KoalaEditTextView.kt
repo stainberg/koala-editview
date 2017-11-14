@@ -140,6 +140,7 @@ class KoalaEditTextView : FrameLayout, KoalaBaseCellView {
             if (statusListener != null && v === edit_text) {
                 if (hasFocus) {
                     statusListener!!.setEnableKeyBoard(true)
+                    notifyStatusChanged()
                 } else {
                     statusListener!!.setEnableKeyBoard(false)
                 }
@@ -231,6 +232,7 @@ class KoalaEditTextView : FrameLayout, KoalaBaseCellView {
                 }
 
                 override fun afterTextChanged(s: Editable) {
+                    notifyStatusChanged()
                     if (s.length == 0) {
                         showHint = true
                         onHintSetListener?.onHintChanged()
@@ -244,6 +246,7 @@ class KoalaEditTextView : FrameLayout, KoalaBaseCellView {
             })
         }
         edit_text.setOnKeyListener(keyListener)
+        edit_text.setSelectionListener(onSelectionChangedListener)
         edit_text.onFocusChangeListener = onFocusChangeListener
         edit_text.measure(View.MeasureSpec.getMode(0), View.MeasureSpec.getMode(0))
         singleHeight = edit_text.measuredHeight
@@ -268,8 +271,8 @@ class KoalaEditTextView : FrameLayout, KoalaBaseCellView {
 
     override fun enableDrag(enable: Boolean) {
         if (enable) {
-            if (null != cover_view) {
-                removeView(cover_view)
+            if (!ifQuote()) {
+                edit_text.setPadding(defaultPadding, defaultPadding, defaultPadding, defaultPadding)
             }
             content_bg.setBackgroundResource(R.drawable.widget_view_card_bg)
             edit_text.isCursorVisible = false
@@ -282,6 +285,9 @@ class KoalaEditTextView : FrameLayout, KoalaBaseCellView {
             cover_view.visibility = View.VISIBLE
             icon_drag.visibility = View.VISIBLE
         } else {
+            if (!ifQuote()) {
+                edit_text.setPadding(0, defaultPadding, 0, defaultPadding)
+            }
             content_bg.setBackgroundResource(0)
             edit_text.isCursorVisible = true
             edit_text.isFocusable = true
@@ -552,6 +558,9 @@ class KoalaEditTextView : FrameLayout, KoalaBaseCellView {
         s = s.replace("<strike>".toRegex(), "<del>")
         s = s.replace("</strike>".toRegex(), "</del>")
         if (TextUtils.isEmpty(s)) {
+            if (result.isEmpty()) {
+                result.add("")
+            }
             return result
         }
         if (s.substring(s.length - 1, s.length) == "\n") {
@@ -740,6 +749,8 @@ class KoalaEditTextView : FrameLayout, KoalaBaseCellView {
         }
     }
 
+    private val defaultPadding = context.dp2px(4f).toInt()
+    private val quotePadding = context.dp2px(10f).toInt()
     private fun cleanQuote(v: KoalaEditTextView, section: Int, setStyle: Int) {
         val p: CharSequence?
         val n: CharSequence?
@@ -749,10 +760,7 @@ class KoalaEditTextView : FrameLayout, KoalaBaseCellView {
         lp.topMargin = 0
         lp.bottomMargin = 0
         v.layoutParams = lp
-        v.edit_text.setPadding(resources.getDimension(R.dimen.text_padding_v).toInt(),
-                resources.getDimension(R.dimen.text_padding_h).toInt(),
-                resources.getDimension(R.dimen.text_padding_v).toInt(),
-                resources.getDimension(R.dimen.text_padding_h).toInt())
+        v.edit_text.setPadding(0, defaultPadding, 0, defaultPadding)
         v.quote = false
         if (listener != null) {
             val start = v.edit_text.selectionStart
@@ -792,10 +800,7 @@ class KoalaEditTextView : FrameLayout, KoalaBaseCellView {
         lp.topMargin = 0
         lp.bottomMargin = 0
         v.layoutParams = lp
-        v.edit_text.setPadding(resources.getDimension(R.dimen.text_padding_v).toInt(),
-                resources.getDimension(R.dimen.text_padding_h).toInt(),
-                resources.getDimension(R.dimen.text_padding_v).toInt(),
-                resources.getDimension(R.dimen.text_padding_h).toInt())
+        v.edit_text.setPadding(0, defaultPadding, 0, defaultPadding)
         v.quote = false
         listener!!.splitSelf(v, null, v.edit_text.text, null, SECTION_NULL, STYLE_NORMAL)
     }
@@ -807,10 +812,7 @@ class KoalaEditTextView : FrameLayout, KoalaBaseCellView {
         lp.topMargin = resources.getDimension(R.dimen.section_text_margin).toInt()
         lp.bottomMargin = resources.getDimension(R.dimen.section_text_margin).toInt()
         v.layoutParams = lp
-        v.edit_text.setPadding(resources.getDimension(R.dimen.text_quote_padding_v).toInt(),
-                resources.getDimension(R.dimen.text_quote_padding_h).toInt(),
-                resources.getDimension(R.dimen.text_quote_padding_v).toInt(),
-                resources.getDimension(R.dimen.text_quote_padding_h).toInt())
+        v.edit_text.setPadding(quotePadding, quotePadding, quotePadding, quotePadding)
         v.cleanSection(v)
         v.resetNextSection(v)
     }

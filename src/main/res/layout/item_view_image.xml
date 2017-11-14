@@ -13,7 +13,7 @@
         android:layout_height="wrap_content"
         android:layout_marginLeft="20dp"
         android:layout_marginRight="20dp"
-        android:background="@drawable/shape_corners">
+        android:background="@drawable/widget_view_card_bg">
 
         <com.facebook.drawee.view.SimpleDraweeView
             android:id="@+id/icon"

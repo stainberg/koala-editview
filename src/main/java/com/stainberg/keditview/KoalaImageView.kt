@@ -6,6 +6,7 @@ import android.graphics.BitmapFactory
 import android.graphics.Matrix
 import android.support.media.ExifInterface
 import android.support.v4.content.ContextCompat
+import android.support.v4.view.ViewCompat
 import android.text.TextUtils
 import android.util.*
 import android.view.*
@@ -23,6 +24,10 @@ class KoalaImageView : FrameLayout, KoalaBaseCellView {
     private var visible: Boolean = false
     private var imgWidth: Int = 0
     private var imgHeight: Int = 0
+    private var rateImageWidth: Int = 0
+    private var rateImageHeight: Int = 0
+    private var defaultImageViewWidth: Int = 0
+    private var defaultImageViewHeight: Int = 0
     private var bitmap: Bitmap? = null
     private val bound = resources.displayMetrics.heightPixels
 
@@ -93,23 +98,30 @@ class KoalaImageView : FrameLayout, KoalaBaseCellView {
         v.findViewById<View>(R.id.center).setOnClickListener {
             sr.get()?.onImageClick((parent as ViewGroup).indexOfChild(this))
         }
+        icon.viewTreeObserver.addOnGlobalLayoutListener {
+            val lp = touch_container.layoutParams
+            lp.width = icon.width
+            lp.height = icon.height
+            touch_container.layoutParams = lp
+        }
         visible = false
         viewTreeObserver.addOnScrollChangedListener(onScrollChangedListener)
         imgWidth = fileData?.width ?: 0
         imgHeight = fileData?.height ?: 0
         icon.measure(MeasureSpec.AT_MOST, MeasureSpec.UNSPECIFIED)
+        val whRate = imgWidth.toFloat() / imgHeight.toFloat()
         val x: Float = context.screenWidth - context.dp2px(20f) * 2
-        val y: Float = x / (imgWidth.toFloat() / imgHeight.toFloat())
+        val y: Float = x / whRate
+
+        defaultImageViewWidth = x.toInt()
+        defaultImageViewHeight = y.toInt()
+        rateImageWidth = (defaultImageViewWidth - defaultPadding)
+        rateImageHeight = (rateImageWidth / whRate).toInt()
 
         var lp = icon.layoutParams
-        lp.width = x.toInt()
-        lp.height = y.toInt()
+        lp.width = defaultImageViewWidth
+        lp.height = defaultImageViewHeight
         icon.layoutParams = lp
-
-        lp = touch_container.layoutParams
-        lp.width = x.toInt()
-        lp.height = y.toInt()
-        touch_container.layoutParams = lp
     }
 
     override fun obtainUrl(): String {
@@ -229,13 +241,28 @@ class KoalaImageView : FrameLayout, KoalaBaseCellView {
 
     }
 
+    private val defaultPadding = context.dp2px(4f).toInt()
+    //    private var xRate = 1f
+//    private var yRate = 1f
     override fun enableDrag(enable: Boolean) {
         if (enable) {
+            content_bg.setPadding(defaultPadding, defaultPadding, defaultPadding, defaultPadding)
+            val lp = icon.layoutParams
+            lp.height = rateImageHeight
+            lp.width = rateImageWidth
+            icon.layoutParams = lp
             icon_drag.visibility = View.VISIBLE
             touch_container.visibility = View.GONE
+            invalidate()
         } else {
+            content_bg.setPadding(0, 0, 0, 0)
+            val lp = icon.layoutParams
+            lp.height = defaultImageViewHeight
+            lp.width = defaultImageViewWidth
+            icon.layoutParams = lp
             icon_drag.visibility = View.GONE
             touch_container.visibility = View.VISIBLE
+            invalidate()
         }
     }
 
@@ -301,12 +328,6 @@ class KoalaImageView : FrameLayout, KoalaBaseCellView {
         if (bitmap != null) {
             bitmap!!.recycle()
             bitmap = null
-        }
-    }
-
-    companion object {
-        interface OnImageDeleteListener {
-            fun delete(v: KoalaBaseCellView)
         }
     }
 }

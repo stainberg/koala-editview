@@ -11,12 +11,12 @@
         android:id="@+id/content_bg"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginLeft="16dp"
-        android:layout_marginRight="16dp">
+        android:layout_marginLeft="20dp"
+        android:layout_marginRight="20dp">
 
         <android.support.v7.widget.AppCompatTextView
             android:id="@+id/section_text"
-            android:layout_width="30dp"
+            android:layout_width="32dp"
             android:layout_height="wrap_content"
             android:gravity="right"
             android:lineSpacingMultiplier="1.5"
@@ -35,7 +35,8 @@
             android:background="@null"
             android:gravity="left"
             android:lineSpacingMultiplier="1.5"
-            android:padding="4dp"
+            android:paddingBottom="4dp"
+            android:paddingTop="4dp"
             android:textColor="@color/gray_text"
             android:textSize="@dimen/text_size_16dp" />
 
