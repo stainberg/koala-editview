@@ -17,7 +17,6 @@ import java.io.File
 import java.lang.ref.SoftReference
 
 
-
 /**
  * Created by Stainberg on 7/5/17.
  */
@@ -65,6 +64,7 @@ class KoalaImageView : FrameLayout, KoalaBaseCellView {
     }
 
     private lateinit var sr: SoftReference<KoalaRichEditorView.Companion.IOnImageClickListener?>
+    private lateinit var iconObserver: IconObserver
 
     constructor(context: Context, fileData: FileData, lis: KoalaRichEditorView.Companion.IOnImageClickListener?) : super(context) {
         this.sr = SoftReference(lis)
@@ -121,12 +121,8 @@ class KoalaImageView : FrameLayout, KoalaBaseCellView {
         v.findViewById<View>(R.id.center).setOnClickListener {
             sr.get()?.onImageClick((parent as ViewGroup).indexOfChild(this))
         }
-        icon.viewTreeObserver.addOnGlobalLayoutListener {
-            val lp = touch_container.layoutParams
-            lp.width = icon.width
-            lp.height = icon.height
-            touch_container.layoutParams = lp
-        }
+        iconObserver = IconObserver(SoftReference(touch_container), SoftReference(icon))
+        viewTreeObserver.addOnGlobalLayoutListener(iconObserver)
         visible = false
         viewTreeObserver.addOnScrollChangedListener(onScrollChangedListener)
         imgWidth = fileData?.width ?: 0
@@ -289,6 +285,7 @@ class KoalaImageView : FrameLayout, KoalaBaseCellView {
 
     override fun release() {
         viewTreeObserver.removeOnScrollChangedListener(onScrollChangedListener)
+        viewTreeObserver.removeOnGlobalLayoutListener(iconObserver)
         releaseImage()
     }
 
@@ -305,5 +302,16 @@ class KoalaImageView : FrameLayout, KoalaBaseCellView {
         val uri: Uri = Uri.fromFile(File(filePath))
         imagePipeline.evictFromMemoryCache(uri)
         imagePipeline.evictFromDiskCache(uri)
+    }
+
+    companion object {
+        class IconObserver(val current: SoftReference<View>, val originalView: SoftReference<View>) : ViewTreeObserver.OnGlobalLayoutListener {
+            override fun onGlobalLayout() {
+                val lp = current.get()?.layoutParams
+                lp?.width = originalView?.get()?.width
+                lp?.height = originalView?.get()?.height
+                current?.get()?.layoutParams = lp
+            }
+        }
     }
 }
