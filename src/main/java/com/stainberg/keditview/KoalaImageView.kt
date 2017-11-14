@@ -1,19 +1,21 @@
 package com.stainberg.keditview
 
 import android.content.Context
-import android.graphics.Bitmap
-import android.graphics.BitmapFactory
-import android.graphics.Matrix
-import android.support.media.ExifInterface
+import android.net.Uri
 import android.support.v4.content.ContextCompat
-import android.support.v4.view.ViewCompat
 import android.text.TextUtils
-import android.util.*
+import android.util.AttributeSet
+import android.util.Log
 import android.view.*
 import android.widget.FrameLayout
+import com.facebook.drawee.backends.pipeline.Fresco
+import com.facebook.imagepipeline.common.ResizeOptions
+import com.facebook.imagepipeline.request.ImageRequestBuilder
 import kotlinx.android.synthetic.main.item_view_image.view.*
+import java.io.File
+import java.lang.ref.SoftReference
 
-import java.lang.ref.*
+
 
 /**
  * Created by Stainberg on 7/5/17.
@@ -28,7 +30,6 @@ class KoalaImageView : FrameLayout, KoalaBaseCellView {
     private var rateImageHeight: Int = 0
     private var defaultImageViewWidth: Int = 0
     private var defaultImageViewHeight: Int = 0
-    private var bitmap: Bitmap? = null
     private val bound = resources.displayMetrics.heightPixels
 
     lateinit var fileData: FileData
@@ -66,7 +67,7 @@ class KoalaImageView : FrameLayout, KoalaBaseCellView {
     constructor(context: Context, fileData: FileData, lis: KoalaRichEditorView.Companion.IOnImageClickListener?) : super(context) {
         this.sr = SoftReference(lis)
         this.fileData = fileData
-        filePath = if (TextUtils.isEmpty(fileData.fileUrl)) fileData.filePath else fileData.fileUrl
+        filePath = if (TextUtils.isEmpty(fileData.fileUrl)) Uri.fromFile(File(fileData.filePath)).toString() else fileData.fileUrl
         init()
         reloadImage()
     }
@@ -122,6 +123,14 @@ class KoalaImageView : FrameLayout, KoalaBaseCellView {
         lp.width = defaultImageViewWidth
         lp.height = defaultImageViewHeight
         icon.layoutParams = lp
+
+        val request = ImageRequestBuilder.newBuilderWithSource(Uri.parse(filePath))
+                .setResizeOptions(ResizeOptions(100, (imgHeight/whRate).toInt()))
+                .build()
+        icon.controller = Fresco.newDraweeControllerBuilder()
+//                .setOldController(mDraweeView.getController())
+                .setImageRequest(request)
+                .build()
     }
 
     override fun obtainUrl(): String {
@@ -242,8 +251,6 @@ class KoalaImageView : FrameLayout, KoalaBaseCellView {
     }
 
     private val defaultPadding = context.dp2px(4f).toInt()
-    //    private var xRate = 1f
-//    private var yRate = 1f
     override fun enableDrag(enable: Boolean) {
         if (enable) {
             content_bg.setPadding(defaultPadding, defaultPadding, defaultPadding, defaultPadding)
@@ -272,52 +279,7 @@ class KoalaImageView : FrameLayout, KoalaBaseCellView {
     }
 
     private fun reloadImage() {
-        println("reload bitmap")
-        val w = imgWidth.toFloat()
-        val h = imgHeight.toFloat()
-        val rate = w / h
-        if (icon.aspectRatio != rate) {
-            icon.aspectRatio = w / h
-        }
-        if (filePath.startsWith("http")) {
-            icon.setImageURI(filePath)
-        } else {
-            if (bitmap != null) {
-                return
-            }
-            KoalaImageLoadPoll.getPoll().handle(Runnable {
-                try {
-                    val options = BitmapFactory.Options()
-                    options.inJustDecodeBounds = true
-                    BitmapFactory.decodeFile(filePath, options)
-                    val w = options.outWidth
-                    val scale = (w / 800).toFloat()
-                    val s = Math.ceil(scale.toDouble()).toInt()
-                    options.inJustDecodeBounds = false
-                    options.inSampleSize = s
-                    bitmap = BitmapFactory.decodeFile(filePath, options)
-                    val digree: Int
-                    val exif = ExifInterface(filePath)
-                    val ori = exif.getAttributeInt(ExifInterface.TAG_ORIENTATION,
-                            ExifInterface.ORIENTATION_UNDEFINED)
-                    when (ori) {
-                        ExifInterface.ORIENTATION_ROTATE_90 -> digree = 90
-                        ExifInterface.ORIENTATION_ROTATE_180 -> digree = 180
-                        ExifInterface.ORIENTATION_ROTATE_270 -> digree = 270
-                        else -> digree = 0
-                    }
-                    if (digree != 0) {
-                        val m = Matrix()
-                        m.postRotate(digree.toFloat())
-                        bitmap = Bitmap.createBitmap(bitmap!!, 0, 0, bitmap!!.width, bitmap!!.height, m, true)
-                        icon.setImageBitmap(bitmap)
-                    }
-                    post { icon.setImageBitmap(bitmap) }
-                } catch (e: Exception) {
-
-                }
-            })
-        }
+        icon.setImageURI(filePath)
         visible = true
     }
 
@@ -325,9 +287,9 @@ class KoalaImageView : FrameLayout, KoalaBaseCellView {
         visible = false
         icon.setImageBitmap(null)
         icon.setBackgroundColor(ContextCompat.getColor(context, R.color.gray_placeholder))
-        if (bitmap != null) {
-            bitmap!!.recycle()
-            bitmap = null
-        }
+        val imagePipeline = Fresco.getImagePipeline()
+        val uri: Uri = Uri.fromFile(File(filePath))
+        imagePipeline.evictFromMemoryCache(uri)
+        imagePipeline.evictFromDiskCache(uri)
     }
 }
