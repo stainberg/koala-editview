@@ -1,5 +1,6 @@
 package com.stainberg.keditview
 
+import android.animation.ObjectAnimator
 import android.content.Context
 import android.net.Uri
 import android.support.v4.content.ContextCompat
@@ -60,7 +61,7 @@ class KoalaImageView : FrameLayout, KoalaBaseCellView {
     }
 
     private lateinit var sr: SoftReference<KoalaRichEditorView.Companion.IOnImageClickListener?>
-    private lateinit var iconObserver: IconObserver
+//    private lateinit var iconObserver: IconObserver
 
     constructor(context: Context, fileData: FileData, lis: KoalaRichEditorView.Companion.IOnImageClickListener?) : super(context) {
         this.sr = SoftReference(lis)
@@ -117,8 +118,6 @@ class KoalaImageView : FrameLayout, KoalaBaseCellView {
         v.findViewById<View>(R.id.center).setOnClickListener {
             sr.get()?.onImageClick((parent as ViewGroup).indexOfChild(this))
         }
-        iconObserver = IconObserver(SoftReference(touch_container), SoftReference(icon))
-        viewTreeObserver.addOnGlobalLayoutListener(iconObserver)
         visible = false
         viewTreeObserver.addOnScrollChangedListener(onScrollChangedListener)
         imgWidth = fileData?.width ?: 0
@@ -128,11 +127,9 @@ class KoalaImageView : FrameLayout, KoalaBaseCellView {
         val x: Float = context.screenWidth - context.dp2px(20f) * 2
         val y: Float = x / whRate
 
-
-        var lp = icon.layoutParams
-        lp.width = x.toInt()
+        var lp = content_bg.layoutParams
         lp.height = y.toInt()
-        icon.layoutParams = lp
+        content_bg.layoutParams = lp
     }
 
     override fun obtainUrl(): String {
@@ -253,18 +250,17 @@ class KoalaImageView : FrameLayout, KoalaBaseCellView {
     }
 
     private val defaultPadding = context.dp2px(4f).toInt()
+    private val paddingAnim: PaddingAnim by lazy { PaddingAnim(content_bg) }
     override fun enableDrag(enable: Boolean) {
         container.showShadow(enable)
         if (enable) {
-            content_bg.setPadding(defaultPadding, defaultPadding, defaultPadding, defaultPadding)
+            ObjectAnimator.ofInt(paddingAnim, "padding", content_bg.paddingLeft, defaultPadding).setDuration(animTime).start()
             icon_drag.visibility = View.VISIBLE
             touch_container.visibility = View.GONE
-            invalidate()
         } else {
-            content_bg.setPadding(0, 0, 0, 0)
+            ObjectAnimator.ofInt(paddingAnim, "padding", content_bg.paddingLeft, 0).setDuration(animTime).start()
             icon_drag.visibility = View.GONE
             touch_container.visibility = View.VISIBLE
-            invalidate()
         }
     }
 
@@ -280,7 +276,6 @@ class KoalaImageView : FrameLayout, KoalaBaseCellView {
 
     override fun release() {
         viewTreeObserver.removeOnScrollChangedListener(onScrollChangedListener)
-        viewTreeObserver.removeOnGlobalLayoutListener(iconObserver)
         releaseImage()
     }
 
@@ -297,16 +292,5 @@ class KoalaImageView : FrameLayout, KoalaBaseCellView {
         val uri: Uri = Uri.fromFile(File(filePath))
         imagePipeline.evictFromMemoryCache(uri)
         imagePipeline.evictFromDiskCache(uri)
-    }
-
-    companion object {
-        class IconObserver(val current: SoftReference<View>, val originalView: SoftReference<View>) : ViewTreeObserver.OnGlobalLayoutListener {
-            override fun onGlobalLayout() {
-                val lp = current.get()?.layoutParams
-                lp?.width = originalView?.get()?.width
-                lp?.height = originalView?.get()?.height
-                current?.get()?.layoutParams = lp
-            }
-        }
     }
 }

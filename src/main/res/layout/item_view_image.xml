@@ -17,13 +17,13 @@
         <com.facebook.drawee.view.SimpleDraweeView
             android:id="@+id/icon"
             android:layout_width="match_parent"
-            android:scaleType="center"
-            android:layout_height="wrap_content" />
+            android:layout_height="match_parent"
+            android:layout_centerInParent="true" />
 
         <LinearLayout
             android:id="@+id/touch_container"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="match_parent"
             android:orientation="horizontal">
 
             <View

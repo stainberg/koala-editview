@@ -1,5 +1,6 @@
 package com.stainberg.keditview
 
+import android.animation.ObjectAnimator
 import android.content.Context
 import android.graphics.Typeface
 import android.support.v4.content.ContextCompat
@@ -14,7 +15,6 @@ import android.text.TextWatcher
 import android.text.style.StrikethroughSpan
 import android.text.style.StyleSpan
 import android.util.AttributeSet
-import android.util.Log
 import android.view.*
 import android.widget.FrameLayout
 import android.widget.LinearLayout
@@ -791,11 +791,12 @@ class KoalaEditTextView : FrameLayout, KoalaBaseCellView {
     }
 
     private val defaultPadding = context.dp2px(10f).toInt()
+    private val paddingAnim: PaddingAnim by lazy { PaddingAnim(content_bg) }
     override fun enableDrag(enable: Boolean) {
         container.showShadow(enable)
         if (enable) {
             if (!ifQuote()) {
-                content_bg.setPadding(defaultPadding, defaultPadding, defaultPadding, defaultPadding)
+                ObjectAnimator.ofInt(paddingAnim, "padding", content_bg.paddingLeft, defaultPadding).setDuration(animTime).start()
             }
             edit_text.isCursorVisible = false
             edit_text.isFocusable = false
@@ -808,7 +809,7 @@ class KoalaEditTextView : FrameLayout, KoalaBaseCellView {
             icon_drag.visibility = View.VISIBLE
         } else {
             if (!ifQuote()) {
-                content_bg.setPadding(0, 0, 0, 0)
+                ObjectAnimator.ofInt(paddingAnim, "padding", content_bg.paddingLeft, 0).setDuration(animTime).start()
             }
             edit_text.isCursorVisible = true
             edit_text.isFocusable = true
@@ -816,7 +817,6 @@ class KoalaEditTextView : FrameLayout, KoalaBaseCellView {
             edit_text.isEnabled = true
             cover_view.visibility = View.GONE
             icon_drag.visibility = View.GONE
-            setEditable(true)
         }
     }
 
@@ -860,8 +860,6 @@ class KoalaEditTextView : FrameLayout, KoalaBaseCellView {
 
         interface OnEditTextStatusListener {
             fun setEnableKeyBoard(enable: Boolean)
-
-            fun setEnableFocus(enable: Boolean)
 
             fun onEditStatus(status: Int)
         }

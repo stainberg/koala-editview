@@ -236,15 +236,6 @@ class KoalaRichEditorView @JvmOverloads constructor(context : Context , attrs : 
             }
         }
 
-        override fun setEnableFocus(enable : Boolean) {
-            for (i in 0 until container.childCount) {
-                if (container.getChildAt(i) is KoalaEditTextView) {
-                    val v = container.getChildAt(i) as KoalaEditTextView
-                    v.setEditable(false)
-                }
-            }
-        }
-
         override fun onEditStatus(status : Int) {
             if (onEditTextChangedListener != null) {
                 onEditTextChangedListener!!.onEditTextTextChanged(status)

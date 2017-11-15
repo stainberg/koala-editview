@@ -10,11 +10,6 @@ import android.util.*
 import android.view.*
 import android.widget.*
 import android.graphics.Bitmap
-import android.renderscript.*
-import android.renderscript.Allocation
-import android.R.attr.radius
-import android.renderscript.ScriptIntrinsicBlur
-import kotlinx.android.synthetic.main.item_view_image.view.*
 
 
 /**

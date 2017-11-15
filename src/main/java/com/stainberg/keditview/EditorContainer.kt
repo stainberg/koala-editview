@@ -126,6 +126,7 @@ internal class EditorContainer : LinearLayout, View.OnTouchListener {
     override fun onViewAdded(child: View?) {
         super.onViewAdded(child)
         child?.setOnClickListener { }
+        child?.setLayerType(View.LAYER_TYPE_HARDWARE, null)
     }
 
     private var tf: SoftReference<FrameViewContainer?> = SoftReference(null)
@@ -209,7 +210,6 @@ internal class EditorContainer : LinearLayout, View.OnTouchListener {
                 currentView.actionDown()
             }
         }
-        content.requestLayout()
         content.post {
             tf.get()!!.initFloatingView(selectedView!!)
             if (selectedView?.visibility != View.INVISIBLE) {
@@ -236,7 +236,6 @@ internal class EditorContainer : LinearLayout, View.OnTouchListener {
                 currentView.actionUp()
             }
         }
-        content.requestLayout()
         maxHeight = 0
     }
 
