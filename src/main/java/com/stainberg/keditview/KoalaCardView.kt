@@ -250,7 +250,9 @@ class KoalaCardView : FrameLayout , KoalaBaseCellView {
     }
 
     override fun setEditable(enable : Boolean) {
-
+        if(!enable) {
+            move!!.visibility = View.GONE
+        }
     }
 
     @Deprecated("")
