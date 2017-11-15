@@ -6,14 +6,17 @@ import android.support.annotation.AttrRes
 import android.support.annotation.RequiresApi
 import android.support.annotation.StyleRes
 import android.text.TextUtils
-import android.util.*
-import android.view.*
+import android.util.AttributeSet
+import android.util.Log
+import android.view.LayoutInflater
+import android.view.MotionEvent
+import android.view.View
+import android.view.ViewGroup
 import android.widget.FrameLayout
 import android.widget.TextView
-
 import com.facebook.drawee.view.SimpleDraweeView
 import kotlinx.android.synthetic.main.item_view_file.view.*
-import java.lang.ref.*
+import java.lang.ref.SoftReference
 
 /**
  * Created by Stainberg on 7/5/17.
@@ -178,7 +181,9 @@ class KoalaFileView : FrameLayout, KoalaBaseCellView {
     }
 
     override fun setEditable(enable: Boolean) {
-
+        if(!enable) {
+            icon_drag.visibility = View.GONE
+        }
     }
 
     override fun onInterceptTouchEvent(ev: MotionEvent): Boolean {

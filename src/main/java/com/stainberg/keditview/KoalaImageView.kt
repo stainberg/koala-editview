@@ -272,7 +272,9 @@ class KoalaImageView : FrameLayout, KoalaBaseCellView {
     }
 
     override fun setEditable(enable: Boolean) {
-
+        if(!enable) {
+            icon_drag.visibility = View.GONE
+        }
     }
 
     private val defaultPadding = context.dp2px(4f).toInt()
@@ -317,6 +319,5 @@ class KoalaImageView : FrameLayout, KoalaBaseCellView {
         val imagePipeline = Fresco.getImagePipeline()
         val uri: Uri = Uri.fromFile(File(filePath))
         imagePipeline.evictFromMemoryCache(uri)
-        imagePipeline.evictFromDiskCache(uri)
     }
 }
