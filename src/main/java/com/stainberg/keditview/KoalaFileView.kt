@@ -198,11 +198,22 @@ class KoalaFileView : FrameLayout, KoalaBaseCellView {
     }
 
     override fun enableDrag(enable: Boolean) {
+        container.showShadow(enable)
         if (enable) {
             icon_drag.visibility = View.VISIBLE
         } else {
             icon_drag.visibility = View.GONE
         }
+    }
+
+    fun actionDown() {
+        icon_drag.setImageResource(R.drawable.svg_drag_icon_selected)
+        container.showHighLight(true)
+    }
+
+    fun actionUp() {
+        icon_drag.setImageResource(R.drawable.svg_drag_icon)
+        container.showHighLight(false)
     }
 
     override fun release() {

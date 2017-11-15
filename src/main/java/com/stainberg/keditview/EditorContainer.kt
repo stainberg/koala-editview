@@ -1,6 +1,7 @@
 package com.stainberg.keditview
 
-import android.animation.*
+import android.animation.Animator
+import android.animation.ObjectAnimator
 import android.content.*
 import android.support.v4.widget.*
 import android.util.*
@@ -127,6 +128,7 @@ internal class EditorContainer : LinearLayout, View.OnTouchListener {
     override fun onViewAdded(child: View?) {
         super.onViewAdded(child)
         child?.setOnClickListener { }
+        child?.setLayerType(View.LAYER_TYPE_HARDWARE, null)
     }
 
     private var tf: SoftReference<FrameViewContainer?> = SoftReference(null)
@@ -146,16 +148,11 @@ internal class EditorContainer : LinearLayout, View.OnTouchListener {
                     downPoint = MotionEvent.obtain(ev)
                     selectedView = getLocationView(ev)
                     if (selectedView != null) {
-                        initSize()
-                        smallImage()
-
                         val top = selectedView!!.top - getParentScrollY()
                         val tf = tf.get()!!
                         tf.initStartOffset(MotionEvent.obtain(ev), top)
-                        tf.initFloatingView(selectedView!!, minHeight)
-                        if (selectedView?.visibility != View.INVISIBLE) {
-                            selectedView?.visibility = View.INVISIBLE
-                        }
+                        initSize()
+                        smallImage()
                     }
                     parent?.requestDisallowInterceptTouchEvent(true)
                 }
@@ -187,26 +184,73 @@ internal class EditorContainer : LinearLayout, View.OnTouchListener {
     }
 
     private fun initSize() {
-        maxHeight = selectedView!!.layoutParams.height
+        val currentView = selectedView ?: return
+        val content = currentView.findViewById<View>(R.id.content_bg) ?: return
+        maxHeight = content.bottom - content.top
+        minHeight = if (maxHeight > fixedMinHeight) fixedMinHeight else maxHeight
     }
 
-    private var minHeight = context.dp2px(70f).toInt()
+    private var fixedMinHeight = context.dp2px(68f).toInt()
+    private var minHeight = 0
     private var maxHeight = 0
 
+    private var hAnim: HeightAnim? = null
     private fun smallImage() {
         if (maxHeight == 0) return
         val currentView = selectedView ?: return
-        val lp = currentView.layoutParams
-        lp.height = minHeight
-        currentView.layoutParams = lp
+        val content = currentView.findViewById<View>(R.id.content_bg) ?: return
+        hAnim = HeightAnim(content)
+        val anim = ObjectAnimator.ofInt(hAnim!!, "x", content.bottom - content.top, minHeight).setDuration(animTime)
+        anim.addListener(object : Animator.AnimatorListener {
+            override fun onAnimationRepeat(animation: Animator?) {
+            }
+
+            override fun onAnimationEnd(animation: Animator?) {
+                content.post {
+                    tf.get()!!.initFloatingView(selectedView!!)
+                    if (selectedView?.visibility != View.INVISIBLE) {
+                        selectedView?.visibility = View.INVISIBLE
+                    }
+                }
+            }
+
+            override fun onAnimationCancel(animation: Animator?) {
+            }
+
+            override fun onAnimationStart(animation: Animator?) {
+            }
+        })
+        anim.start()
+        when (currentView) {
+            is KoalaImageView -> {
+                currentView.actionDown()
+            }
+            is KoalaFileView -> {
+                currentView.actionDown()
+            }
+            is KoalaEditTextView -> {
+                currentView.actionDown()
+            }
+        }
     }
 
     private fun largeImage() {
         if (maxHeight == 0) return
         val currentView = selectedView ?: return
-        val lp = currentView.layoutParams
-        lp.height = maxHeight
-        currentView.layoutParams = lp
+        val content = currentView.findViewById<View>(R.id.content_bg) ?: return
+        val anim = ObjectAnimator.ofInt(hAnim!!, "x", content.bottom - content.top, maxHeight).setDuration(animTime)
+        anim.start()
+        when (currentView) {
+            is KoalaImageView -> {
+                currentView.actionUp()
+            }
+            is KoalaFileView -> {
+                currentView.actionUp()
+            }
+            is KoalaEditTextView -> {
+                currentView.actionUp()
+            }
+        }
         maxHeight = 0
     }
 

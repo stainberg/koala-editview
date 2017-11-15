@@ -1,29 +1,29 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<com.stainberg.keditview.ShadowContainer xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/container"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:layout_marginBottom="4dp"
-    android:layout_marginTop="4dp"
-    android:background="@android:color/transparent">
+    android:layout_height="wrap_content">
 
     <RelativeLayout
         android:id="@+id/content_bg"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_marginBottom="8dp"
         android:layout_marginLeft="20dp"
         android:layout_marginRight="20dp"
-        android:background="@drawable/widget_view_card_bg">
+        android:layout_marginTop="8dp">
 
         <com.facebook.drawee.view.SimpleDraweeView
             android:id="@+id/icon"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content" />
+            android:layout_height="match_parent"
+            android:layout_centerInParent="true" />
 
         <LinearLayout
             android:id="@+id/touch_container"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="match_parent"
             android:orientation="horizontal">
 
             <View
@@ -48,10 +48,10 @@
 
     <android.support.v7.widget.AppCompatImageView
         android:id="@+id/icon_drag"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_width="28dp"
+        android:layout_height="28dp"
         android:layout_alignParentRight="true"
-        android:padding="8dp"
+        android:layout_margin="8dp"
         android:visibility="gone"
         app:srcCompat="@drawable/svg_drag_icon" />
-</RelativeLayout>
+</com.stainberg.keditview.ShadowContainer>

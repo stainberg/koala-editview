@@ -10,11 +10,6 @@ import android.util.*
 import android.view.*
 import android.widget.*
 import android.graphics.Bitmap
-import android.renderscript.*
-import android.renderscript.Allocation
-import android.R.attr.radius
-import android.renderscript.ScriptIntrinsicBlur
-import kotlinx.android.synthetic.main.item_view_image.view.*
 
 
 /**
@@ -87,25 +82,19 @@ internal class FrameViewContainer : FrameLayout {
         currentEvent = event
     }
 
-    fun initFloatingView(view: View, minHeight: Int) {
+    fun initFloatingView(view: View) {
         destroyFloatingView()
         view.isDrawingCacheEnabled = true
-        val minHeight = if (view.height > minHeight) minHeight else view.height
-        val bmp = if (view.height > minHeight) {
-            val startY = (view.height - minHeight) / 2
-            Bitmap.createBitmap(view.drawingCache, 0, startY, view.width, minHeight)
-        } else {
-            Bitmap.createBitmap(view.drawingCache)
-        }
+        val bmp = Bitmap.createBitmap(view.drawingCache)
         view.isDrawingCacheEnabled = false
         val img = AppCompatImageView(context)
         img.setPadding(0, 0, 0, 0)
         img.setBackgroundColor(Color.TRANSPARENT)
         img.setImageBitmap(bmp)
         img.scaleType = ImageView.ScaleType.CENTER
-        img.layoutParams = ViewGroup.LayoutParams(view.width, minHeight)
-        img.measure(view.width, minHeight)
-        img.layout(0, 0, view.width, minHeight)
+        img.layoutParams = ViewGroup.LayoutParams(view.width, view.height)
+        img.measure(view.width, view.height)
+        img.layout(0, 0, view.width, view.height)
         floatingView = img
     }
 }
