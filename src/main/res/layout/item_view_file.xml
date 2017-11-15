@@ -73,19 +73,19 @@
             android:orientation="horizontal">
 
             <View
-                android:id="@+id/left"
+                android:id="@+id/left_area"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:layout_weight="1" />
 
             <View
-                android:id="@+id/center"
+                android:id="@+id/center_area"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:layout_weight="1" />
 
             <View
-                android:id="@+id/right"
+                android:id="@+id/right_area"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:layout_weight="1" />

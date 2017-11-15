@@ -30,8 +30,8 @@ class KoalaImageView : FrameLayout, KoalaBaseCellView {
     private val bound = resources.displayMetrics.heightPixels
     private val request: ImageRequest
     lateinit var fileData: FileData
-
     private var isDragEnabled = false
+    private var textStatus = 0
 
     private var onScrollChangedListener: ViewTreeObserver.OnScrollChangedListener = ViewTreeObserver.OnScrollChangedListener {
         val location = IntArray(2)
@@ -108,15 +108,23 @@ class KoalaImageView : FrameLayout, KoalaBaseCellView {
     }
 
     private fun init() {
-        val v = LayoutInflater.from(context).inflate(R.layout.item_view_image, this, true)
-        v.findViewById<View>(R.id.left).setOnClickListener {
-            Log.e("ABCDEFG", "Left")
+        LayoutInflater.from(context).inflate(R.layout.item_view_image, this, true)
+        left_area.setOnClickListener {
+            textStatus = 1
+            updateTextStatus()
+            container.requestFocus()
         }
-        v.findViewById<View>(R.id.right).setOnClickListener {
-            Log.e("ABCDEFG", "Right")
+        right_area.setOnClickListener {
+            textStatus = 2
+            updateTextStatus()
+            container.requestFocus()
         }
-        v.findViewById<View>(R.id.center).setOnClickListener {
+        center_area.setOnClickListener {
             sr.get()?.onImageClick((parent as ViewGroup).indexOfChild(this))
+        }
+        container.setOnKeyListener { v, keyCode, event ->
+            Log.e("AAAAA", "${KeyEvent.keyCodeToString(keyCode)} --- ${MotionEvent.actionToString(event.action)}")
+            true
         }
         visible = false
         viewTreeObserver.addOnScrollChangedListener(onScrollChangedListener)
@@ -130,6 +138,24 @@ class KoalaImageView : FrameLayout, KoalaBaseCellView {
         var lp = content_bg.layoutParams
         lp.height = y.toInt()
         content_bg.layoutParams = lp
+
+        container.setOnFocusChangeListener { v, hasFocus ->
+            if (hasFocus) {
+                showSoft()
+            }
+            updateTextStatus()
+        }
+    }
+
+    private fun updateTextStatus() {
+        val leftVisibility = if (textStatus == 1) VISIBLE else GONE
+        if (left_line.visibility != leftVisibility) {
+            left_line.visibility = leftVisibility
+        }
+        val rightVisibility = if (textStatus == 2) VISIBLE else GONE
+        if (right_line.visibility != rightVisibility) {
+            right_line.visibility = rightVisibility
+        }
     }
 
     override fun obtainUrl(): String {

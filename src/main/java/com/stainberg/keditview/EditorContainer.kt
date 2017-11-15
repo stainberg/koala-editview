@@ -260,14 +260,4 @@ internal class EditorContainer : LinearLayout, View.OnTouchListener {
             swapIfNeeded(ev)
         }
     }
-
-    companion object {
-        class ObjAnim(val sr: SoftReference<View>) {
-            fun setValue(x: Int) {
-                val lp = sr.get()?.layoutParams
-                lp?.height = x
-                sr.get()?.layoutParams = lp
-            }
-        }
-    }
 }

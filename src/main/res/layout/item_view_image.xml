@@ -3,7 +3,9 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/container"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content">
+    android:layout_height="wrap_content"
+    android:focusable="true"
+    android:focusableInTouchMode="true">
 
     <RelativeLayout
         android:id="@+id/content_bg"
@@ -27,23 +29,38 @@
             android:orientation="horizontal">
 
             <View
-                android:id="@+id/left"
+                android:id="@+id/left_area"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:layout_weight="1" />
 
             <View
-                android:id="@+id/center"
+                android:id="@+id/center_area"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:layout_weight="1" />
 
             <View
-                android:id="@+id/right"
+                android:id="@+id/right_area"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:layout_weight="1" />
         </LinearLayout>
+
+        <View
+            android:id="@+id/left_line"
+            android:layout_width="2px"
+            android:layout_height="match_parent"
+            android:background="@color/color_FF0458"
+            android:visibility="gone" />
+
+        <View
+            android:id="@+id/right_line"
+            android:layout_width="2px"
+            android:layout_height="match_parent"
+            android:layout_alignParentRight="true"
+            android:background="@color/color_FF0458"
+            android:visibility="gone" />
     </RelativeLayout>
 
     <android.support.v7.widget.AppCompatImageView

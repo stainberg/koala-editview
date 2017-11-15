@@ -3,6 +3,7 @@ package com.stainberg.keditview
 import android.content.*
 import android.support.v7.widget.*
 import android.view.*
+import android.view.inputmethod.InputMethodManager
 import java.lang.ref.SoftReference
 
 /**
@@ -53,4 +54,10 @@ internal class HeightAnim(view: View) {
         lp?.height = x
         sr.get()?.layoutParams = lp
     }
+}
+
+internal fun View.showSoft() {
+    val imm = context.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
+    val view = rootView?.findFocus()
+    view?.let { imm.showSoftInput(view, InputMethodManager.SHOW_FORCED) }
 }

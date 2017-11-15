@@ -86,13 +86,13 @@ class KoalaFileView : FrameLayout, KoalaBaseCellView {
 
     private fun init() {
         LayoutInflater.from(context).inflate(R.layout.item_view_file, this, true)
-        findViewById<View>(R.id.left).setOnClickListener {
+        left_area.setOnClickListener {
             Log.e("ABCDEFG", "Left")
         }
-        findViewById<View>(R.id.right).setOnClickListener {
+        right_area.setOnClickListener {
             Log.e("ABCDEFG", "Right")
         }
-        findViewById<View>(R.id.center).setOnClickListener {
+        center_area.setOnClickListener {
             listener.get()?.onFileClick((parent as ViewGroup).indexOfChild(this))
         }
     }
