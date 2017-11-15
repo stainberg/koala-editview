@@ -216,14 +216,14 @@ class KoalaRichEditorView @JvmOverloads constructor(context : Context , attrs : 
         }
     }
 
-    private val onHintSetListener = object : KoalaEditTextView.Companion.OnHintSetListener {
+    private var onHintSetListener = object : KoalaEditTextView.Companion.OnHintSetListener {
 
         override fun onHintChanged() {
             setHint()
         }
     }
 
-    private val statusListener = object : KoalaEditTextView.Companion.OnEditTextStatusListener {
+    private var statusListener = object : KoalaEditTextView.Companion.OnEditTextStatusListener {
 
         override fun setEnableKeyBoard(enable : Boolean) {
             if (keyStatusListener == null) {
@@ -645,6 +645,10 @@ class KoalaRichEditorView @JvmOverloads constructor(context : Context , attrs : 
                 v.release()
             }
         }
+        container.removeAllViews()
+        keyStatusListener = null
+        onEditTextChangedListener = null
+        removeAllViews()
         super.onDetachedFromWindow()
     }
 

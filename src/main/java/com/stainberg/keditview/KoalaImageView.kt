@@ -301,7 +301,6 @@ class KoalaImageView : FrameLayout, KoalaBaseCellView {
         val imagePipeline = Fresco.getImagePipeline()
         val uri: Uri = Uri.fromFile(File(filePath))
         imagePipeline.evictFromMemoryCache(uri)
-        imagePipeline.evictFromDiskCache(uri)
     }
 
     companion object {
