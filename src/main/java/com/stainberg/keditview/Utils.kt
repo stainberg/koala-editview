@@ -3,6 +3,7 @@ package com.stainberg.keditview
 import android.content.*
 import android.support.v7.widget.*
 import android.view.*
+import java.lang.ref.SoftReference
 
 /**
  * Created by Lynn.
@@ -36,4 +37,20 @@ internal fun enableCard(ctx: Context, cardView: CardView, enable: Boolean) {
         cardView.cardElevation = 0f
     }
 //    cardContainer.layoutParams = lp
+}
+
+internal class PaddingAnim(view: View) {
+    val sr = SoftReference(view)
+    fun setPadding(padding: Int) {
+        sr.get()?.setPadding(padding, padding, padding, padding)
+    }
+}
+
+internal class HeightAnim(view: View) {
+    val sr = SoftReference(view)
+    fun setX(x: Int) {
+        val lp = sr.get()?.layoutParams
+        lp?.height = x
+        sr.get()?.layoutParams = lp
+    }
 }
