@@ -14,6 +14,7 @@ import android.text.TextWatcher
 import android.text.style.StrikethroughSpan
 import android.text.style.StyleSpan
 import android.util.AttributeSet
+import android.util.Log
 import android.view.*
 import android.widget.FrameLayout
 import android.widget.LinearLayout
@@ -95,15 +96,15 @@ class KoalaEditTextView : FrameLayout, KoalaBaseCellView {
             val prev = KoalaRichEditorView.getNext(parent as ViewGroup, this@KoalaEditTextView)
             if (quote) {
                 if (prev == null) {
-                    cleanAllQuote(this@KoalaEditTextView)
+                    cleanAllQuote()
                     return@OnKeyListener false
                 } else {
                     if (prev !is KoalaEditTextView) {
-                        cleanAllQuote(this@KoalaEditTextView)
+                        cleanAllQuote()
                         return@OnKeyListener false
                     } else {
                         if (!prev.quote) {
-                            cleanAllQuote(this@KoalaEditTextView)
+                            cleanAllQuote()
                             return@OnKeyListener false
                         }
                     }
@@ -269,36 +270,6 @@ class KoalaEditTextView : FrameLayout, KoalaBaseCellView {
         } else super.onTouchEvent(event)
     }
 
-    override fun enableDrag(enable: Boolean) {
-        if (enable) {
-            if (!ifQuote()) {
-                edit_text.setPadding(defaultPadding, defaultPadding, defaultPadding, defaultPadding)
-            }
-            content_bg.setBackgroundResource(R.drawable.widget_view_card_bg)
-            edit_text.isCursorVisible = false
-            edit_text.isFocusable = false
-            edit_text.isFocusableInTouchMode = false
-            edit_text.isEnabled = false
-            val lp = cover_view.layoutParams
-            lp.height = edit_text.layoutParams.height
-            cover_view.layoutParams = lp
-            cover_view.visibility = View.VISIBLE
-            icon_drag.visibility = View.VISIBLE
-        } else {
-            if (!ifQuote()) {
-                edit_text.setPadding(0, defaultPadding, 0, defaultPadding)
-            }
-            content_bg.setBackgroundResource(0)
-            edit_text.isCursorVisible = true
-            edit_text.isFocusable = true
-            edit_text.isFocusableInTouchMode = true
-            edit_text.isEnabled = true
-            cover_view.visibility = View.GONE
-            icon_drag.visibility = View.GONE
-            setEditable(true)
-        }
-    }
-
     override fun release() {
 
     }
@@ -326,7 +297,7 @@ class KoalaEditTextView : FrameLayout, KoalaBaseCellView {
 
     override fun setStyleH1() {
         if (quote) {
-            cleanQuote(this@KoalaEditTextView, SECTION_NULL, STYLE_H1)
+            cleanQuote(SECTION_NULL, STYLE_H1)
             return
         }
         cleanSection(this@KoalaEditTextView)
@@ -346,7 +317,7 @@ class KoalaEditTextView : FrameLayout, KoalaBaseCellView {
 
     override fun setStyleH2() {
         if (quote) {
-            cleanQuote(this@KoalaEditTextView, SECTION_NULL, STYLE_H2)
+            cleanQuote(SECTION_NULL, STYLE_H2)
             return
         }
         cleanSection(this@KoalaEditTextView)
@@ -362,7 +333,7 @@ class KoalaEditTextView : FrameLayout, KoalaBaseCellView {
 
     override fun setStyleNormal() {
         if (quote) {
-            cleanQuote(this@KoalaEditTextView, SECTION_NULL, STYLE_NORMAL)
+            cleanQuote(SECTION_NULL, STYLE_NORMAL)
             return
         }
         cleanSection(this@KoalaEditTextView)
@@ -404,19 +375,19 @@ class KoalaEditTextView : FrameLayout, KoalaBaseCellView {
             val start = edit_text.selectionStart
             val end = edit_text.selectionEnd
             if (start != end) {
-                cleanQuote(this@KoalaEditTextView, SECTION_NULL, style)
+                cleanQuote(SECTION_NULL, style)
             } else {
-                cleanAllQuote(this@KoalaEditTextView)
+                cleanAllQuote()
             }
         } else {
-            markQuote(this@KoalaEditTextView)
+            markQuote()
         }
         notifyStatusChanged()
     }
 
     override fun setSection(st: Int) {
         if (quote) {
-            cleanQuote(this@KoalaEditTextView, st, style)
+            cleanQuote(st, style)
             return
         }
         if (section == st) {
@@ -651,7 +622,7 @@ class KoalaEditTextView : FrameLayout, KoalaBaseCellView {
 
     internal fun setNumberSection(v: KoalaEditTextView) {
         if (quote) {
-            cleanQuote(this@KoalaEditTextView, SECTION_NUMBER, STYLE_NORMAL)
+            cleanQuote(SECTION_NUMBER, STYLE_NORMAL)
             return
         }
         v.setStyleNormal()
@@ -677,7 +648,7 @@ class KoalaEditTextView : FrameLayout, KoalaBaseCellView {
 
     internal fun setDotSection(v: KoalaEditTextView) {
         if (quote) {
-            cleanQuote(this@KoalaEditTextView, SECTION_DOT, STYLE_NORMAL)
+            cleanQuote(SECTION_DOT, STYLE_NORMAL)
             return
         }
         v.setStyleNormal()
@@ -749,18 +720,18 @@ class KoalaEditTextView : FrameLayout, KoalaBaseCellView {
         }
     }
 
-    private val defaultPadding = context.dp2px(4f).toInt()
     private val quotePadding = context.dp2px(10f).toInt()
-    private fun cleanQuote(v: KoalaEditTextView, section: Int, setStyle: Int) {
+    private fun cleanQuote(section: Int, setStyle: Int) {
         val p: CharSequence?
         val n: CharSequence?
         val s: CharSequence
-        v.setBackgroundColor(ContextCompat.getColor(context, android.R.color.white))
+        val v = this
+        content_bg.setBackgroundColor(ContextCompat.getColor(context, android.R.color.white))
         val lp = v.layoutParams as LinearLayout.LayoutParams
         lp.topMargin = 0
         lp.bottomMargin = 0
         v.layoutParams = lp
-        v.edit_text.setPadding(0, defaultPadding, 0, defaultPadding)
+        v.edit_text.setPadding(0, 0, 0, 0)
         v.quote = false
         if (listener != null) {
             val start = v.edit_text.selectionStart
@@ -794,19 +765,21 @@ class KoalaEditTextView : FrameLayout, KoalaBaseCellView {
         }
     }
 
-    private fun cleanAllQuote(v: KoalaEditTextView) {
-        v.setBackgroundColor(ContextCompat.getColor(context, android.R.color.white))
+    private fun cleanAllQuote() {
+        content_bg.setBackgroundColor(ContextCompat.getColor(context, android.R.color.white))
+        val v = this
         val lp = v.layoutParams as LinearLayout.LayoutParams
         lp.topMargin = 0
         lp.bottomMargin = 0
         v.layoutParams = lp
-        v.edit_text.setPadding(0, defaultPadding, 0, defaultPadding)
+        v.edit_text.setPadding(0, 0, 0, 0)
         v.quote = false
         listener!!.splitSelf(v, null, v.edit_text.text, null, SECTION_NULL, STYLE_NORMAL)
     }
 
-    private fun markQuote(v: KoalaEditTextView) {
-        v.setBackgroundResource(R.drawable.shape_edit_quote_bg)
+    private fun markQuote() {
+        content_bg.setBackgroundResource(R.drawable.shape_edit_quote_bg)
+        val v = this
         v.quote = true
         val lp = v.layoutParams as LinearLayout.LayoutParams
         lp.topMargin = resources.getDimension(R.dimen.section_text_margin).toInt()
@@ -817,30 +790,44 @@ class KoalaEditTextView : FrameLayout, KoalaBaseCellView {
         v.resetNextSection(v)
     }
 
-    private inner class HtmlTagHandler : Html.TagHandler {
-
-        override fun handleTag(opening: Boolean, tag: String, output: Editable, xmlReader: XMLReader) {
-            if (tag == "strike" || tag == "del") {//自定义解析<strike></strike>标签
-                val len = output.length
-                if (opening) {//开始解析该标签，打一个标记
-                    output.setSpan(StrikethroughSpan(), len, len, Spannable.SPAN_MARK_MARK)
-                } else {//解析结束，读出所有标记，取最后一个标记为当前解析的标签的标记（因为解析方式是便读便解析）
-                    val spans = output.getSpans(0, len, StrikethroughSpan::class.java)
-                    if (spans.size > 0) {
-                        for (i in spans.indices) {
-                            if (output.getSpanFlags(spans[i]) == Spannable.SPAN_MARK_MARK) {
-                                val start = output.getSpanStart(spans[i])
-                                output.removeSpan(spans[i])
-                                if (start != len) {
-                                    output.setSpan(StrikethroughSpan(), start, len, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE)
-                                }
-                                break
-                            }
-                        }
-                    }
-                }
+    private val defaultPadding = context.dp2px(10f).toInt()
+    override fun enableDrag(enable: Boolean) {
+        container.showShadow(enable)
+        if (enable) {
+            if (!ifQuote()) {
+                content_bg.setPadding(defaultPadding, defaultPadding, defaultPadding, defaultPadding)
             }
+            edit_text.isCursorVisible = false
+            edit_text.isFocusable = false
+            edit_text.isFocusableInTouchMode = false
+            edit_text.isEnabled = false
+            val lp = cover_view.layoutParams
+            lp.height = edit_text.layoutParams.height
+            cover_view.layoutParams = lp
+            cover_view.visibility = View.VISIBLE
+            icon_drag.visibility = View.VISIBLE
+        } else {
+            if (!ifQuote()) {
+                content_bg.setPadding(0, 0, 0, 0)
+            }
+            edit_text.isCursorVisible = true
+            edit_text.isFocusable = true
+            edit_text.isFocusableInTouchMode = true
+            edit_text.isEnabled = true
+            cover_view.visibility = View.GONE
+            icon_drag.visibility = View.GONE
+            setEditable(true)
         }
+    }
+
+    fun actionDown() {
+        icon_drag.setImageResource(R.drawable.svg_drag_icon_selected)
+        container.showHighLight(true)
+    }
+
+    fun actionUp() {
+        icon_drag.setImageResource(R.drawable.svg_drag_icon)
+        container.showHighLight(false)
     }
 
     companion object {
@@ -881,6 +868,32 @@ class KoalaEditTextView : FrameLayout, KoalaBaseCellView {
 
         interface OnHintSetListener {
             fun onHintChanged()
+        }
+
+        private class HtmlTagHandler : Html.TagHandler {
+
+            override fun handleTag(opening: Boolean, tag: String, output: Editable, xmlReader: XMLReader) {
+                if (tag == "strike" || tag == "del") {//自定义解析<strike></strike>标签
+                    val len = output.length
+                    if (opening) {//开始解析该标签，打一个标记
+                        output.setSpan(StrikethroughSpan(), len, len, Spannable.SPAN_MARK_MARK)
+                    } else {//解析结束，读出所有标记，取最后一个标记为当前解析的标签的标记（因为解析方式是便读便解析）
+                        val spans = output.getSpans(0, len, StrikethroughSpan::class.java)
+                        if (spans.size > 0) {
+                            for (i in spans.indices) {
+                                if (output.getSpanFlags(spans[i]) == Spannable.SPAN_MARK_MARK) {
+                                    val start = output.getSpanStart(spans[i])
+                                    output.removeSpan(spans[i])
+                                    if (start != len) {
+                                        output.setSpan(StrikethroughSpan(), start, len, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE)
+                                    }
+                                    break
+                                }
+                            }
+                        }
+                    }
+                }
+            }
         }
     }
 }

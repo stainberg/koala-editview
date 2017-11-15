@@ -1,6 +1,5 @@
 package com.stainberg.keditview
 
-import android.animation.*
 import android.content.*
 import android.support.v4.widget.*
 import android.util.*
@@ -146,16 +145,11 @@ internal class EditorContainer : LinearLayout, View.OnTouchListener {
                     downPoint = MotionEvent.obtain(ev)
                     selectedView = getLocationView(ev)
                     if (selectedView != null) {
-                        initSize()
-                        smallImage()
-
                         val top = selectedView!!.top - getParentScrollY()
                         val tf = tf.get()!!
                         tf.initStartOffset(MotionEvent.obtain(ev), top)
-                        tf.initFloatingView(selectedView!!, minHeight)
-                        if (selectedView?.visibility != View.INVISIBLE) {
-                            selectedView?.visibility = View.INVISIBLE
-                        }
+                        initSize()
+                        smallImage()
                     }
                     parent?.requestDisallowInterceptTouchEvent(true)
                 }
@@ -187,26 +181,62 @@ internal class EditorContainer : LinearLayout, View.OnTouchListener {
     }
 
     private fun initSize() {
-        maxHeight = selectedView!!.layoutParams.height
+        val currentView = selectedView ?: return
+        val content = currentView.findViewById<View>(R.id.content_bg) ?: return
+        maxHeight = content.layoutParams.height
+        minHeight = if (content.bottom - content.top > fixedMinHeight) fixedMinHeight else (content.bottom - content.top)
     }
 
-    private var minHeight = context.dp2px(70f).toInt()
+    private var fixedMinHeight = context.dp2px(68f).toInt()
+    private var minHeight = 0
     private var maxHeight = 0
 
     private fun smallImage() {
         if (maxHeight == 0) return
         val currentView = selectedView ?: return
-        val lp = currentView.layoutParams
+        val content = currentView.findViewById<View>(R.id.content_bg) ?: return
+        val lp = content.layoutParams
         lp.height = minHeight
-        currentView.layoutParams = lp
+        content.layoutParams = lp
+        when (currentView) {
+            is KoalaImageView -> {
+                currentView.actionDown()
+            }
+            is KoalaFileView -> {
+                currentView.actionDown()
+            }
+            is KoalaEditTextView -> {
+                currentView.actionDown()
+            }
+        }
+        content.requestLayout()
+        content.post {
+            tf.get()!!.initFloatingView(selectedView!!)
+            if (selectedView?.visibility != View.INVISIBLE) {
+                selectedView?.visibility = View.INVISIBLE
+            }
+        }
     }
 
     private fun largeImage() {
         if (maxHeight == 0) return
         val currentView = selectedView ?: return
-        val lp = currentView.layoutParams
+        val content = currentView.findViewById<View>(R.id.content_bg) ?: return
+        val lp = content.layoutParams
         lp.height = maxHeight
-        currentView.layoutParams = lp
+        content.layoutParams = lp
+        when (currentView) {
+            is KoalaImageView -> {
+                currentView.actionUp()
+            }
+            is KoalaFileView -> {
+                currentView.actionUp()
+            }
+            is KoalaEditTextView -> {
+                currentView.actionUp()
+            }
+        }
+        content.requestLayout()
         maxHeight = 0
     }
 

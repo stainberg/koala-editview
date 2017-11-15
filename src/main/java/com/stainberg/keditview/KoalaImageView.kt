@@ -26,12 +26,8 @@ class KoalaImageView : FrameLayout, KoalaBaseCellView {
     private var visible: Boolean = false
     private var imgWidth: Int = 0
     private var imgHeight: Int = 0
-    private var rateImageWidth: Int = 0
-    private var rateImageHeight: Int = 0
-    private var defaultImageViewWidth: Int = 0
-    private var defaultImageViewHeight: Int = 0
     private val bound = resources.displayMetrics.heightPixels
-    private val request : ImageRequest
+    private val request: ImageRequest
     lateinit var fileData: FileData
 
     private var isDragEnabled = false
@@ -72,14 +68,14 @@ class KoalaImageView : FrameLayout, KoalaBaseCellView {
         filePath = if (TextUtils.isEmpty(fileData.fileUrl)) Uri.fromFile(File(fileData.filePath)).toString() else fileData.fileUrl
         init()
 
-        var w : Float
-        var h : Float
-        if(fileData.width < fileData.height) {
+        var w: Float
+        var h: Float
+        if (fileData.width < fileData.height) {
             w = fileData.width.toFloat()
             while (w > 1000) {
                 w -= 200
             }
-            h = fileData.height /(fileData.width / w)
+            h = fileData.height / (fileData.width / w)
         } else {
             h = fileData.height.toFloat()
             while (h > 1000) {
@@ -132,14 +128,10 @@ class KoalaImageView : FrameLayout, KoalaBaseCellView {
         val x: Float = context.screenWidth - context.dp2px(20f) * 2
         val y: Float = x / whRate
 
-        defaultImageViewWidth = x.toInt()
-        defaultImageViewHeight = y.toInt()
-        rateImageWidth = (defaultImageViewWidth - defaultPadding)
-        rateImageHeight = (rateImageWidth / whRate).toInt()
 
         var lp = icon.layoutParams
-        lp.width = defaultImageViewWidth
-        lp.height = defaultImageViewHeight
+        lp.width = x.toInt()
+        lp.height = y.toInt()
         icon.layoutParams = lp
     }
 
@@ -262,25 +254,28 @@ class KoalaImageView : FrameLayout, KoalaBaseCellView {
 
     private val defaultPadding = context.dp2px(4f).toInt()
     override fun enableDrag(enable: Boolean) {
+        container.showShadow(enable)
         if (enable) {
             content_bg.setPadding(defaultPadding, defaultPadding, defaultPadding, defaultPadding)
-            val lp = icon.layoutParams
-            lp.height = rateImageHeight
-            lp.width = rateImageWidth
-            icon.layoutParams = lp
             icon_drag.visibility = View.VISIBLE
             touch_container.visibility = View.GONE
             invalidate()
         } else {
             content_bg.setPadding(0, 0, 0, 0)
-            val lp = icon.layoutParams
-            lp.height = defaultImageViewHeight
-            lp.width = defaultImageViewWidth
-            icon.layoutParams = lp
             icon_drag.visibility = View.GONE
             touch_container.visibility = View.VISIBLE
             invalidate()
         }
+    }
+
+    fun actionDown() {
+        icon_drag.setImageResource(R.drawable.svg_drag_icon_selected)
+        container.showHighLight(true)
+    }
+
+    fun actionUp() {
+        icon_drag.setImageResource(R.drawable.svg_drag_icon)
+        container.showHighLight(false)
     }
 
     override fun release() {
