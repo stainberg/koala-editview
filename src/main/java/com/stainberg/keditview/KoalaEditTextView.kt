@@ -49,7 +49,7 @@ class KoalaEditTextView : FrameLayout, KoalaBaseCellView {
     val selectionStart: Int
         get() = edit_text.selectionStart
 
-    private val keyListener = OnKeyListener { v, keyCode, event ->
+    private val keyListener = OnKeyListener { _, keyCode, event ->
         val start = edit_text.selectionStart
         if (keyCode == KeyEvent.KEYCODE_ENTER && event.action == KeyEvent.ACTION_DOWN) {
             if (listener != null) {
@@ -109,8 +109,7 @@ class KoalaEditTextView : FrameLayout, KoalaBaseCellView {
                         }
                     }
                 }
-            }
-            if (section != SECTION_NULL) {
+            } else if (section != SECTION_NULL) {
                 if (prev == null) {
                     cleanSection(this@KoalaEditTextView)
                     resetNextSection(this@KoalaEditTextView)
@@ -274,10 +273,6 @@ class KoalaEditTextView : FrameLayout, KoalaBaseCellView {
 
     }
 
-    private fun getDuration(view: View): Int {
-        return 100
-    }
-
     fun setText(p: String) {
         edit_text.setText(p)
     }
@@ -312,7 +307,7 @@ class KoalaEditTextView : FrameLayout, KoalaBaseCellView {
     }
 
     private fun notifyStatusChanged() {
-        onSelectionChangedListener?.onSelectionChanged(edit_text.selectionStart, edit_text.selectionEnd)
+        onSelectionChangedListener.onSelectionChanged(edit_text.selectionStart, edit_text.selectionEnd)
     }
 
     override fun setStyleH2() {
@@ -672,7 +667,7 @@ class KoalaEditTextView : FrameLayout, KoalaBaseCellView {
         if (null == v) return
         val prev = KoalaRichEditorView.getPrev(parent as ViewGroup, v)
         val next = KoalaRichEditorView.getNext(parent as ViewGroup, v)
-        if (v != null && prev != null && prev is KoalaEditTextView) {
+        if (prev != null && prev is KoalaEditTextView) {
             if (prev.section == v.section && v.section == SECTION_NUMBER && !v.quote) {
                 v.setNumberSection(v)
             } else if (prev.section == v.section && v.section == SECTION_DOT && !v.quote) {

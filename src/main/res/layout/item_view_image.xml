@@ -1,14 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 <com.stainberg.keditview.ShadowContainer xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:id="@+id/container"
+    android:id="@+id/image_container"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:focusable="true"
     android:focusableInTouchMode="true">
 
     <RelativeLayout
-        android:id="@+id/content_bg"
+        android:id="@+id/image_content_bg"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginBottom="8dp"
@@ -23,48 +23,48 @@
             android:layout_centerInParent="true" />
 
         <LinearLayout
-            android:id="@+id/touch_container"
+            android:id="@+id/image_touch_container"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:orientation="horizontal">
 
             <View
-                android:id="@+id/left_area"
+                android:id="@+id/image_left_area"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:layout_weight="1" />
 
             <View
-                android:id="@+id/center_area"
+                android:id="@+id/image_center_area"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:layout_weight="1" />
 
             <View
-                android:id="@+id/right_area"
+                android:id="@+id/image_right_area"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:layout_weight="1" />
         </LinearLayout>
 
-        <View
-            android:id="@+id/left_line"
-            android:layout_width="2px"
+        <com.stainberg.keditview.TextCursor
+            android:id="@+id/image_left_line"
+            android:layout_width="2dp"
             android:layout_height="match_parent"
-            android:background="@color/color_FF0458"
+            android:cursorVisible="false"
             android:visibility="gone" />
 
-        <View
-            android:id="@+id/right_line"
-            android:layout_width="2px"
+        <com.stainberg.keditview.TextCursor
+            android:id="@+id/image_right_line"
+            android:layout_width="2dp"
             android:layout_height="match_parent"
             android:layout_alignParentRight="true"
-            android:background="@color/color_FF0458"
+            android:cursorVisible="false"
             android:visibility="gone" />
     </RelativeLayout>
 
     <android.support.v7.widget.AppCompatImageView
-        android:id="@+id/icon_drag"
+        android:id="@+id/image_icon_drag"
         android:layout_width="28dp"
         android:layout_height="28dp"
         android:layout_alignParentRight="true"

@@ -8,6 +8,9 @@ import android.util.*
 import android.view.*
 import android.view.animation.*
 import android.widget.*
+import kotlinx.android.synthetic.main.item_view_edit_text.view.*
+import kotlinx.android.synthetic.main.item_view_file.view.*
+import kotlinx.android.synthetic.main.item_view_image.view.*
 import java.lang.ref.*
 
 /**
@@ -185,7 +188,20 @@ internal class EditorContainer : LinearLayout, View.OnTouchListener {
 
     private fun initSize() {
         val currentView = selectedView ?: return
-        val content = currentView.findViewById<View>(R.id.content_bg) ?: return
+        val content: View = when (currentView) {
+            is KoalaEditTextView -> {
+                currentView.content_bg
+            }
+            is KoalaFileView -> {
+                currentView.file_content_bg
+            }
+            is KoalaImageView -> {
+                currentView.image_content_bg
+            }
+            else -> {
+                null
+            }
+        } ?: return
         maxHeight = content.bottom - content.top
         minHeight = if (maxHeight > fixedMinHeight) fixedMinHeight else maxHeight
     }

@@ -12,6 +12,8 @@ import android.view.inputmethod.InputMethodManager
 import android.widget.FrameLayout
 import android.widget.LinearLayout
 import kotlinx.android.synthetic.main.item_view_edit_text.view.*
+import kotlinx.android.synthetic.main.item_view_file.view.*
+import kotlinx.android.synthetic.main.item_view_image.view.*
 import java.lang.ref.SoftReference
 import java.util.*
 
@@ -19,14 +21,14 @@ import java.util.*
  * Created by Stainberg on 7/5/17.
  */
 
-class KoalaRichEditorView @JvmOverloads constructor(context : Context , attrs : AttributeSet? = null , defStyleAttr : Int = 0) : FrameLayout(context , attrs , defStyleAttr) {
+class KoalaRichEditorView @JvmOverloads constructor(context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0) : FrameLayout(context, attrs, defStyleAttr) {
 
-    private lateinit var container : EditorContainer
-    private var keyStatusListener : OnStatusListener? = null
-    private var onEditTextChangedListener : OnEditTextChangedListener? = null
+    private lateinit var container: EditorContainer
+    private var keyStatusListener: OnStatusListener? = null
+    private var onEditTextChangedListener: OnEditTextChangedListener? = null
     private var editorable = false
 
-    val desc : String
+    val desc: String
         get() {
             if (container.childCount <= 0) {
                 return ""
@@ -53,10 +55,10 @@ class KoalaRichEditorView @JvmOverloads constructor(context : Context , attrs : 
             return builder.toString()
         }
 
-    val itemCount : Int
+    val itemCount: Int
         get() = container.childCount
 
-    val allViews : List<KoalaBaseCellView>
+    val allViews: List<KoalaBaseCellView>
         get() {
             val list = ArrayList<KoalaBaseCellView>()
             for (i in 0 until container.childCount) {
@@ -67,7 +69,7 @@ class KoalaRichEditorView @JvmOverloads constructor(context : Context , attrs : 
             return list
         }
 
-    val currentFocusEdit : View?
+    val currentFocusEdit: View?
         get() {
             val v = container.focusedChild
             return if (v != null && v is KoalaEditTextView) {
@@ -77,36 +79,36 @@ class KoalaRichEditorView @JvmOverloads constructor(context : Context , attrs : 
 
     private val onPressEnterListener = object : KoalaEditTextView.Companion.OnEditListener {
 
-        override fun insertEdit(v : KoalaBaseCellView) {
+        override fun insertEdit(v: KoalaBaseCellView) {
             if (v is KoalaEditTextView) {
                 val index = container.indexOfChild(v)
-                val editTextView = KoalaEditTextView(context , this , statusListener)
-                val lp = LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT , ViewGroup.LayoutParams.WRAP_CONTENT)
-                container.addView(editTextView , index , lp)
+                val editTextView = KoalaEditTextView(context, this, statusListener)
+                val lp = LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT)
+                container.addView(editTextView, index, lp)
                 editTextView.requestFocus()
                 editTextView.setSelection(0)
             }
             setHint()
         }
 
-        override fun pressEnter(v : KoalaBaseCellView) {
+        override fun pressEnter(v: KoalaBaseCellView) {
             if (v is KoalaEditTextView) {
-                val p : CharSequence
-                val n : CharSequence
+                val p: CharSequence
+                val n: CharSequence
                 val index = container.indexOfChild(v)
                 val start = v.selectionStart
                 if (start < v.obtainText().length) {
-                    p = v.obtainText().subSequence(0 , start)
-                    n = v.obtainText().subSequence(start , v.obtainText().length)
+                    p = v.obtainText().subSequence(0, start)
+                    n = v.obtainText().subSequence(start, v.obtainText().length)
                 } else {
                     p = v.obtainText()
                     n = ""
                 }
-                val editTextView = KoalaEditTextView(context , this , statusListener)
+                val editTextView = KoalaEditTextView(context, this, statusListener)
                 v.setText(p)
                 editTextView.setText(n)
-                val lp = LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT , ViewGroup.LayoutParams.WRAP_CONTENT)
-                container.addView(editTextView , index + 1 , lp)
+                val lp = LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT)
+                container.addView(editTextView, index + 1, lp)
                 editTextView.requestFocus()
                 editTextView.setSelection(0)
                 if (v.obtainSection() === 1) {
@@ -119,7 +121,7 @@ class KoalaRichEditorView @JvmOverloads constructor(context : Context , attrs : 
             setHint()
         }
 
-        override fun deleteSelf(v : KoalaBaseCellView) {
+        override fun deleteSelf(v: KoalaBaseCellView) {
             if (container.childCount > 1) {
                 val index = container.indexOfChild(v as View)
                 val lastStr = v.obtainText()
@@ -127,59 +129,42 @@ class KoalaRichEditorView @JvmOverloads constructor(context : Context , attrs : 
                     val view = container.getChildAt(index - 1)
                     if (view is KoalaEditTextView) {
                         container.removeView(v as View)
-                        view.append(lastStr , view.length())
+                        view.append(lastStr, view.length())
                         view.requestFocus()
                         view.setNextSection(view)
                     } else if (view is KoalaImageView) {
                         container.removeView(v as View)
-                        container.removeView(view)
-                        if (index > 1) {
-                            val pprev = container.getChildAt(index - 2)
-                            if (pprev is KoalaEditTextView) {
-                                pprev.append(lastStr , pprev.length())
-                                pprev.requestFocus()
-                                pprev.setNextSection(pprev)
-                            }
-                        }
-
+                        view.image_right_area.performClick()
                     } else if (view is KoalaSliderView) {
                         container.removeView(v as View)
-                        container.removeView(view)
-                        if (index > 1) {
-                            val pprev = container.getChildAt(index - 2)
-                            if (pprev is KoalaEditTextView) {
-                                pprev.append(lastStr , pprev.length())
-                                pprev.requestFocus()
-                                pprev.setNextSection(pprev)
-                            }
-                        }
+                        view.file_right_area.performClick()
                     } else if (view is KoalaBaseCellView) {
                         container.removeView(v as View)
                         container.removeView(view)
                         if (index > 1) {
                             val pprev = container.getChildAt(index - 2)
                             if (pprev is KoalaEditTextView) {
-                                pprev.append(lastStr , pprev.length())
+                                pprev.append(lastStr, pprev.length())
                                 pprev.requestFocus()
                                 pprev.setNextSection(pprev)
                             }
                         }
                     }
                 }
+                setHint()
             }
-            setHint()
         }
 
-        override fun splitSelf(v : KoalaBaseCellView , p : CharSequence? , s : CharSequence , n : CharSequence? , section : Int , style : Int) {
+        override fun splitSelf(v: KoalaBaseCellView, p: CharSequence?, s: CharSequence, n: CharSequence?, section: Int, style: Int) {
             var index = container.indexOfChild(v as View)
-            val lp = LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT , ViewGroup.LayoutParams.WRAP_CONTENT)
+            val lp = LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT)
             val ss = s.toString().split("\n".toRegex()).dropLastWhile { it.isEmpty() }.toTypedArray()
             if (!TextUtils.isEmpty(p)) {
                 v.setText(p!!)
                 v.setQuote()
                 for (i in 1 until ss.size + 1) {
-                    val c = KoalaEditTextView(context , this , statusListener)
-                    container.addView(c , index + i , lp)
+                    val c = KoalaEditTextView(context, this, statusListener)
+                    container.addView(c, index + i, lp)
                     c.setText(ss[i - 1])
                     c.setSection(section)
                     if (i == 1) {
@@ -198,8 +183,8 @@ class KoalaRichEditorView @JvmOverloads constructor(context : Context , attrs : 
                         v.setSection(section)
                         v.setTextStyle(style)
                     } else {
-                        val c = KoalaEditTextView(context , this , statusListener)
-                        container.addView(c , index + i , lp)
+                        val c = KoalaEditTextView(context, this, statusListener)
+                        container.addView(c, index + i, lp)
                         c.setText(ss[i])
                         c.setSection(section)
                         c.setTextStyle(style)
@@ -208,8 +193,8 @@ class KoalaRichEditorView @JvmOverloads constructor(context : Context , attrs : 
                 index = index + ss.size
             }
             if (n != null) {
-                val ne = KoalaEditTextView(context , this , statusListener)
-                container.addView(ne , index)
+                val ne = KoalaEditTextView(context, this, statusListener)
+                container.addView(ne, index)
                 ne.setText(n)
                 ne.setQuote()
             }
@@ -226,7 +211,7 @@ class KoalaRichEditorView @JvmOverloads constructor(context : Context , attrs : 
 
     private var statusListener = object : KoalaEditTextView.Companion.OnEditTextStatusListener {
 
-        override fun setEnableKeyBoard(enable : Boolean) {
+        override fun setEnableKeyBoard(enable: Boolean) {
             if (keyStatusListener == null) {
                 return
             }
@@ -237,7 +222,7 @@ class KoalaRichEditorView @JvmOverloads constructor(context : Context , attrs : 
             }
         }
 
-        override fun onEditStatus(status : Int) {
+        override fun onEditStatus(status: Int) {
             if (onEditTextChangedListener != null) {
                 onEditTextChangedListener!!.onEditTextTextChanged(status)
             }
@@ -257,53 +242,31 @@ class KoalaRichEditorView @JvmOverloads constructor(context : Context , attrs : 
     }
 
     private fun init() {
-        val root = View.inflate(context , R.layout.layout_koala_rich_editor , this)
+        val root = View.inflate(context, R.layout.layout_koala_rich_editor, this)
         val scrollView = root.findViewById<NestedScrollView>(R.id.koala_rich_editor_srollview)
         container = root.findViewById(R.id.koala_rich_editor_container)
         scrollView.isSmoothScrollingEnabled = true
-        val editTextView = KoalaEditTextView(context!! , onPressEnterListener , statusListener , onHintSetListener)
-        val lp = LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT , ViewGroup.LayoutParams.WRAP_CONTENT)
+        val editTextView = KoalaEditTextView(context!!, onPressEnterListener, statusListener, onHintSetListener)
+        val lp = LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT)
         editTextView.setEditable(false)
-        container.addView(editTextView , lp)
+        container.addView(editTextView, lp)
         setOnClickListener {
             val edit = container.getChildAt(container.childCount - 1) as KoalaBaseCellView
             if (edit is KoalaEditTextView) {
                 edit.edit_text!!.requestFocus()
                 edit.edit_text!!.setSelection(edit.edit_text!!.length())
                 val imm = context.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
-                imm.showSoftInput(edit.edit_text , InputMethodManager.SHOW_FORCED)
+                imm.showSoftInput(edit.edit_text, InputMethodManager.SHOW_FORCED)
             }
         }
         setHint()
     }
 
-    fun swapViewGroupChildren(viewGroup : ViewGroup , firstView : View , secondView : View) {
-        val lp = LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT , ViewGroup.LayoutParams.WRAP_CONTENT)
-        val lp1 = LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT , resources.getDimension(R.dimen.card_file_height).toInt())
-        val firstIndex = viewGroup.indexOfChild(firstView)
-        val secondIndex = viewGroup.indexOfChild(secondView)
-        if (firstIndex < secondIndex) {
-            viewGroup.removeViewAt(secondIndex)
-            viewGroup.removeViewAt(firstIndex)
-            viewGroup.addView(secondView , firstIndex , lp1)
-            secondView.visibility = View.VISIBLE
-            viewGroup.addView(firstView , secondIndex , lp)
-            firstView.visibility = View.VISIBLE
-        } else {
-            viewGroup.removeViewAt(firstIndex)
-            viewGroup.removeViewAt(secondIndex)
-            viewGroup.addView(firstView , secondIndex , lp)
-            firstView.visibility = View.VISIBLE
-            viewGroup.addView(secondView , firstIndex , lp1)
-            secondView.visibility = View.VISIBLE
-        }
-    }
-
-    fun setOnEditTextChangedListener(listener : OnEditTextChangedListener) {
+    fun setOnEditTextChangedListener(listener: OnEditTextChangedListener) {
         onEditTextChangedListener = listener
     }
 
-    fun setKeyStatusListener(listener : OnStatusListener) {
+    fun setKeyStatusListener(listener: OnStatusListener) {
         keyStatusListener = listener
     }
 
@@ -311,7 +274,7 @@ class KoalaRichEditorView @JvmOverloads constructor(context : Context , attrs : 
         container.removeAllViews()
     }
 
-    fun getItem(index : Int) : KoalaBaseCellView? {
+    fun getItem(index: Int): KoalaBaseCellView? {
         return if (container.getChildAt(index) is KoalaBaseCellView) {
             container.getChildAt(index) as KoalaBaseCellView
         } else null
@@ -337,7 +300,7 @@ class KoalaRichEditorView @JvmOverloads constructor(context : Context , attrs : 
         v?.setQuote()
     }
 
-    fun setSection(type : Int) {
+    fun setSection(type: Int) {
         val v = container.focusedChild as KoalaBaseCellView?
         v?.setSection(type)
     }
@@ -368,7 +331,7 @@ class KoalaRichEditorView @JvmOverloads constructor(context : Context , attrs : 
         v?.setStrike()
     }
 
-    fun addKoalaView(koalaBaseCellView : KoalaBaseCellView , h : Int) {
+    fun addKoalaView(koalaBaseCellView: KoalaBaseCellView, h: Int) {
         if (koalaBaseCellView !is View) {
             throw IllegalArgumentException("view is not Extends View Class")
         }
@@ -377,19 +340,19 @@ class KoalaRichEditorView @JvmOverloads constructor(context : Context , attrs : 
         if (v != null) {
             index = container.indexOfChild(v)
         }
-        val lpslider = LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT , h)
-        container.addView(koalaBaseCellView as View , index + 1 , lpslider)
-        val editTextView = KoalaEditTextView(context , onPressEnterListener , statusListener)
-        val lp = LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT , ViewGroup.LayoutParams.WRAP_CONTENT)
-        container.addView(editTextView , index + 2 , lp)
+        val lpslider = LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, h)
+        container.addView(koalaBaseCellView as View, index + 1, lpslider)
+        val editTextView = KoalaEditTextView(context, onPressEnterListener, statusListener)
+        val lp = LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT)
+        container.addView(editTextView, index + 2, lp)
         editTextView.requestFocus()
         if (v is KoalaEditTextView) {
-            val p : CharSequence
-            val n : CharSequence
+            val p: CharSequence
+            val n: CharSequence
             val start = v.selectionStart
             if (start < v.obtainText().length) {
-                p = v.obtainText().subSequence(0 , start)
-                n = v.obtainText().subSequence(start , v.obtainText().length)
+                p = v.obtainText().subSequence(0, start)
+                n = v.obtainText().subSequence(start, v.obtainText().length)
             } else {
                 p = v.obtainText()
                 n = ""
@@ -400,7 +363,7 @@ class KoalaRichEditorView @JvmOverloads constructor(context : Context , attrs : 
         }
     }
 
-    fun enableDrag(enable : Boolean) {
+    fun enableDrag(enable: Boolean) {
         container.setDragEnabled(enable)
         for (i in 0 until container.childCount) {
             if (container.getChildAt(i) is KoalaBaseCellView) {
@@ -411,34 +374,44 @@ class KoalaRichEditorView @JvmOverloads constructor(context : Context , attrs : 
     }
 
     @JvmOverloads
-    fun addCellText(sequence : String , center : Boolean = false , isAddLast : Boolean = false) {
+    fun addCellText(sequence: String, center: Boolean = false, isAddLast: Boolean = false) {
         val index = getNextIndex(isAddLast)
-        val editTextView = KoalaEditTextView(context , onPressEnterListener , statusListener)
+        val editTextView = KoalaEditTextView(context, onPressEnterListener, statusListener)
         editTextView.setEditable(editorable)
         if (center) {
             editTextView.setGravity()
         }
-        val lp = LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT , ViewGroup.LayoutParams.WRAP_CONTENT)
-        container.addView(editTextView , index , lp)
-        editTextView.setHtmlText(sequence)
-    }
-
-    private fun addCellTextLast(sequence : String) {
-        val index = container.childCount
-        val editTextView = KoalaEditTextView(context , onPressEnterListener , statusListener)
-        editTextView.setEditable(editorable)
-        val lp = LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT , ViewGroup.LayoutParams.WRAP_CONTENT)
-        container.addView(editTextView , index , lp)
+        val lp = LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT)
+        container.addView(editTextView, index, lp)
         editTextView.setHtmlText(sequence)
         editTextView.requestFocus()
     }
 
-    fun addCellQuote(sequence : String , isAddLast : Boolean) {
-        val index = getNextIndex(isAddLast)
-        val editTextView = KoalaEditTextView(context , onPressEnterListener , statusListener)
+    private fun addCellTextLast(sequence: String) {
+        val index = container.childCount
+        val editTextView = KoalaEditTextView(context, onPressEnterListener, statusListener)
         editTextView.setEditable(editorable)
-        val lp = LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT , ViewGroup.LayoutParams.WRAP_CONTENT)
-        container.addView(editTextView , index , lp)
+        val lp = LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT)
+        container.addView(editTextView, index, lp)
+        editTextView.setHtmlText(sequence)
+        editTextView.requestFocus()
+    }
+
+    fun addCellText(text: String, index: Int) {
+        val editTextView = KoalaEditTextView(context, onPressEnterListener, statusListener)
+        editTextView.setEditable(editorable)
+        val lp = LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT)
+        container.addView(editTextView, index, lp)
+        editTextView.setHtmlText(text)
+        editTextView.requestFocus()
+    }
+
+    fun addCellQuote(sequence: String, isAddLast: Boolean) {
+        val index = getNextIndex(isAddLast)
+        val editTextView = KoalaEditTextView(context, onPressEnterListener, statusListener)
+        editTextView.setEditable(editorable)
+        val lp = LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT)
+        container.addView(editTextView, index, lp)
         editTextView.setHtmlText(sequence)
         editTextView.setQuote()
         println(sequence)
@@ -446,57 +419,57 @@ class KoalaRichEditorView @JvmOverloads constructor(context : Context , attrs : 
     }
 
     @JvmOverloads
-    fun addCellH1(sequence : String , center : Boolean = false , isAddLast : Boolean = false) {
+    fun addCellH1(sequence: String, center: Boolean = false, isAddLast: Boolean = false) {
         val index = getNextIndex(isAddLast)
-        val editTextView = KoalaEditTextView(context , onPressEnterListener , statusListener)
+        val editTextView = KoalaEditTextView(context, onPressEnterListener, statusListener)
         editTextView.setEditable(editorable)
-        val lp = LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT , ViewGroup.LayoutParams.WRAP_CONTENT)
+        val lp = LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT)
         if (center) {
             editTextView.setGravity()
         }
-        container.addView(editTextView , index , lp)
+        container.addView(editTextView, index, lp)
         editTextView.setHtmlText(sequence)
         editTextView.setStyleH1()
     }
 
     @JvmOverloads
-    fun addCellH2(sequence : String , center : Boolean = false , isAddLast : Boolean = false) {
+    fun addCellH2(sequence: String, center: Boolean = false, isAddLast: Boolean = false) {
         val index = getNextIndex(isAddLast)
-        val editTextView = KoalaEditTextView(context , onPressEnterListener , statusListener)
+        val editTextView = KoalaEditTextView(context, onPressEnterListener, statusListener)
         editTextView.setEditable(editorable)
-        val lp = LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT , ViewGroup.LayoutParams.WRAP_CONTENT)
+        val lp = LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT)
         if (center) {
             editTextView.setGravity()
         }
-        container.addView(editTextView , index , lp)
+        container.addView(editTextView, index, lp)
         editTextView.setHtmlText(sequence)
         editTextView.setStyleH2()
     }
 
-    fun addCellList1(sequence : String , isAddLast : Boolean) {
+    fun addCellList1(sequence: String, isAddLast: Boolean) {
         val index = getNextIndex(isAddLast)
-        val editTextView = KoalaEditTextView(context , onPressEnterListener , statusListener)
+        val editTextView = KoalaEditTextView(context, onPressEnterListener, statusListener)
         editTextView.setEditable(editorable)
-        val lp = LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT , ViewGroup.LayoutParams.WRAP_CONTENT)
-        container.addView(editTextView , index , lp)
+        val lp = LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT)
+        container.addView(editTextView, index, lp)
         editTextView.setHtmlText(sequence)
         editTextView.setSection(KoalaEditTextView.SECTION_NUMBER)
         println(sequence)
         println(editTextView.obtainText().toString())
     }
 
-    fun addCellList2(sequence : String , isAddLast : Boolean) {
+    fun addCellList2(sequence: String, isAddLast: Boolean) {
         val index = getNextIndex(isAddLast)
-        val editTextView = KoalaEditTextView(context , onPressEnterListener , statusListener)
+        val editTextView = KoalaEditTextView(context, onPressEnterListener, statusListener)
         editTextView.setEditable(editorable)
-        val lp = LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT , ViewGroup.LayoutParams.WRAP_CONTENT)
-        container.addView(editTextView , index , lp)
+        val lp = LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT)
+        container.addView(editTextView, index, lp)
         editTextView.setHtmlText(sequence)
         editTextView.setSection(KoalaEditTextView.SECTION_DOT)
         println(sequence)
     }
 
-    private fun getNextIndex(isAddLast : Boolean) : Int {
+    private fun getNextIndex(isAddLast: Boolean): Int {
         var index = container.childCount
         if (!isAddLast) {
             val v = container.focusedChild
@@ -507,22 +480,22 @@ class KoalaRichEditorView @JvmOverloads constructor(context : Context , attrs : 
         return index
     }
 
-    fun addFile(data : FileData? , addEmptyAfter : Boolean , addLast : Boolean) {
+    fun addFile(data: FileData?, addEmptyAfter: Boolean, addLast: Boolean) {
         if (null == data) {
             return
         }
         data.type = 1
         val index = getNextIndex(addLast)
-        val cardView = KoalaFileView(context!! , data , itemFileListener.get())
+        val cardView = KoalaFileView(context!!, data, itemFileListener.get())
         cardView.setEditable(editorable)
-        val lpCard = LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT , ViewGroup.LayoutParams.WRAP_CONTENT)
-        container.addView(cardView , index , lpCard)
+        val lpCard = LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT)
+        container.addView(cardView, index, lpCard)
         if (addEmptyAfter && index == container.childCount - 1) {
             addCellTextLast("")
         }
     }
 
-    fun deleteFile(position : Int) {
+    fun deleteFile(position: Int) {
         val v = container.getChildAt(position)
         if (v is KoalaFileView) {
             container.removeView(v)
@@ -535,7 +508,7 @@ class KoalaRichEditorView @JvmOverloads constructor(context : Context , attrs : 
         }
     }
 
-    fun deleteImage(position : Int) {
+    fun deleteImage(position: Int) {
         val v = container.getChildAt(position)
         if (v is KoalaImageView) {
             container.removeView(v)
@@ -548,41 +521,41 @@ class KoalaRichEditorView @JvmOverloads constructor(context : Context , attrs : 
         }
     }
 
-    private var itemImageListener : SoftReference<IOnImageClickListener?> = SoftReference(null)
-    fun setOnImageClickListener(listener : IOnImageClickListener) {
+    private var itemImageListener: SoftReference<IOnImageClickListener?> = SoftReference(null)
+    fun setOnImageClickListener(listener: IOnImageClickListener) {
         itemImageListener = SoftReference(listener)
     }
 
-    private var itemFileListener : SoftReference<IOnFileClickListener?> = SoftReference(null)
-    fun setOnFileClickListener(listener : IOnFileClickListener) {
+    private var itemFileListener: SoftReference<IOnFileClickListener?> = SoftReference(null)
+    fun setOnFileClickListener(listener: IOnFileClickListener) {
         itemFileListener = SoftReference(listener)
     }
 
-    fun addImage(fileData : FileData? , addEmptyAfter : Boolean , addLast : Boolean) {
+    fun addImage(fileData: FileData?, addEmptyAfter: Boolean, addLast: Boolean) {
         if (null == fileData) {
             return
         }
         fileData.type = 0
         val index = getNextIndex(addLast)
-        val imageView : KoalaImageView
+        val imageView: KoalaImageView
         if (TextUtils.isEmpty(fileData.filePath)) {
             //网络图片
-            imageView = KoalaImageView(context , fileData , itemImageListener.get())
+            imageView = KoalaImageView(context, fileData, itemImageListener.get())
         } else {
-            val h : Int
+            val h: Int
             val options = BitmapFactory.Options()
             options.inJustDecodeBounds = true
-            BitmapFactory.decodeFile(fileData.filePath , options)
+            BitmapFactory.decodeFile(fileData.filePath, options)
             fileData.width = options.outWidth
             fileData.height = options.outHeight
             //本地图片
-            val c : Boolean
+            val c: Boolean
             try {
                 val exif = ExifInterface(fileData.filePath)
-                val ori = exif.getAttributeInt(ExifInterface.TAG_ORIENTATION ,
-                                               ExifInterface.ORIENTATION_UNDEFINED)
+                val ori = exif.getAttributeInt(ExifInterface.TAG_ORIENTATION,
+                        ExifInterface.ORIENTATION_UNDEFINED)
                 when (ori) {
-                    ExifInterface.ORIENTATION_ROTATE_90 , ExifInterface.ORIENTATION_ROTATE_270 -> c = true
+                    ExifInterface.ORIENTATION_ROTATE_90, ExifInterface.ORIENTATION_ROTATE_270 -> c = true
                     else -> c = false
                 }
                 if (c) {
@@ -590,15 +563,15 @@ class KoalaRichEditorView @JvmOverloads constructor(context : Context , attrs : 
                     fileData.width = fileData.height
                     fileData.height = w
                 }
-            } catch (e : Exception) {
+            } catch (e: Exception) {
 
             }
 
-            imageView = KoalaImageView(context , fileData , itemImageListener.get())
+            imageView = KoalaImageView(context, fileData, itemImageListener.get())
         }
         imageView.setEditable(editorable)
-        val lpimage = ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT , ViewGroup.LayoutParams.WRAP_CONTENT)
-        container.addView(imageView , index , lpimage)
+        val lpimage = ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT)
+        container.addView(imageView, index, lpimage)
         if (addEmptyAfter && index == container.childCount - 1) {
             addCellTextLast("")
         }
@@ -612,19 +585,19 @@ class KoalaRichEditorView @JvmOverloads constructor(context : Context , attrs : 
         }
         val sliderView = KoalaSliderView(context)
         sliderView.setEditable(editorable)
-        val lpslider = LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT , ViewGroup.LayoutParams.WRAP_CONTENT)
-        container.addView(sliderView , index + 1 , lpslider)
-        val editTextView = KoalaEditTextView(context , onPressEnterListener , statusListener)
-        val lp = LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT , ViewGroup.LayoutParams.WRAP_CONTENT)
-        container.addView(editTextView , index + 2 , lp)
+        val lpslider = LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT)
+        container.addView(sliderView, index + 1, lpslider)
+        val editTextView = KoalaEditTextView(context, onPressEnterListener, statusListener)
+        val lp = LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT)
+        container.addView(editTextView, index + 2, lp)
         editTextView.requestFocus()
         if (v is KoalaEditTextView) {
-            val p : CharSequence
-            val n : CharSequence
+            val p: CharSequence
+            val n: CharSequence
             val start = v.selectionStart
             if (start < v.obtainText().length) {
-                p = v.obtainText().subSequence(0 , start)
-                n = v.obtainText().subSequence(start , v.obtainText().length)
+                p = v.obtainText().subSequence(0, start)
+                n = v.obtainText().subSequence(start, v.obtainText().length)
             } else {
                 p = v.obtainText()
                 n = ""
@@ -642,10 +615,10 @@ class KoalaRichEditorView @JvmOverloads constructor(context : Context , attrs : 
         if (v != null) {
             index = container.indexOfChild(v)
         }
-        val codeView = KoalaEditTextView(context , onPressEnterListener , statusListener)
+        val codeView = KoalaEditTextView(context, onPressEnterListener, statusListener)
         codeView.setEditable(editorable)
-        val lp = LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT , ViewGroup.LayoutParams.WRAP_CONTENT)
-        container.addView(codeView , index + 1 , lp)
+        val lp = LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT)
+        container.addView(codeView, index + 1, lp)
         codeView.requestFocus()
         codeView.addCode()
     }
@@ -687,16 +660,16 @@ class KoalaRichEditorView @JvmOverloads constructor(context : Context , attrs : 
     }
 
     interface OnStatusListener {
-        fun setEnableKeyBoard(enableKeyBoard : Boolean)
+        fun setEnableKeyBoard(enableKeyBoard: Boolean)
     }
 
     interface OnEditTextChangedListener {
-        fun onEditTextTextChanged(status : Int)
+        fun onEditTextTextChanged(status: Int)
     }
 
     companion object {
 
-        internal fun getPrev(parent : ViewGroup , v : View) : KoalaBaseCellView? {
+        internal fun getPrev(parent: ViewGroup, v: View): KoalaBaseCellView? {
             val index = parent.indexOfChild(v)
             if (index > 0) {
                 val prev = parent.getChildAt(index - 1)
@@ -707,7 +680,7 @@ class KoalaRichEditorView @JvmOverloads constructor(context : Context , attrs : 
             return null
         }
 
-        internal fun getNext(parent : ViewGroup , v : View) : KoalaBaseCellView? {
+        internal fun getNext(parent: ViewGroup, v: View): KoalaBaseCellView? {
             val index = parent.indexOfChild(v)
             if (index < parent.childCount - 1) {
                 val next = parent.getChildAt(index + 1)
@@ -719,11 +692,11 @@ class KoalaRichEditorView @JvmOverloads constructor(context : Context , attrs : 
         }
 
         interface IOnImageClickListener {
-            fun onImageClick(position : Int)
+            fun onImageClick(position: Int)
         }
 
         interface IOnFileClickListener {
-            fun onFileClick(position : Int)
+            fun onFileClick(position: Int)
         }
 
     }

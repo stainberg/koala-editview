@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <com.stainberg.keditview.ShadowContainer xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:id="@+id/container"
+    android:id="@+id/file_container"
     android:layout_width="match_parent"
     android:layout_height="wrap_content">
 
     <RelativeLayout
-        android:id="@+id/content_bg"
+        android:id="@+id/file_content_bg"
         android:layout_width="match_parent"
         android:layout_height="68dp"
         android:layout_marginBottom="8dp"
@@ -16,12 +16,12 @@
         android:background="@drawable/widget_view_card_bg">
 
         <com.facebook.drawee.view.SimpleDraweeView
-            android:id="@+id/icon"
+            android:id="@+id/file_icon"
             android:layout_width="68dp"
             android:layout_height="68dp" />
 
         <android.support.v7.widget.AppCompatTextView
-            android:id="@+id/icon_text"
+            android:id="@+id/file_icon_text"
             android:layout_width="68dp"
             android:layout_height="68dp"
             android:layout_marginBottom="0.5dp"
@@ -35,11 +35,11 @@
             android:textStyle="bold" />
 
         <android.support.v7.widget.AppCompatTextView
-            android:id="@+id/title"
+            android:id="@+id/file_title"
             android:layout_width="match_parent"
             android:layout_height="25dp"
             android:layout_marginTop="9dp"
-            android:layout_toRightOf="@+id/icon_text"
+            android:layout_toRightOf="@+id/file_icon_text"
             android:ellipsize="end"
             android:gravity="center_vertical"
             android:maxLines="1"
@@ -51,11 +51,11 @@
             android:textStyle="bold" />
 
         <android.support.v7.widget.AppCompatTextView
-            android:id="@+id/desc"
+            android:id="@+id/file_desc"
             android:layout_width="match_parent"
             android:layout_height="25dp"
-            android:layout_below="@+id/title"
-            android:layout_toRightOf="@+id/icon_text"
+            android:layout_below="@+id/file_title"
+            android:layout_toRightOf="@+id/file_icon_text"
             android:ellipsize="end"
             android:gravity="center_vertical"
             android:maxLines="1"
@@ -67,34 +67,49 @@
             android:textStyle="bold" />
 
         <LinearLayout
-            android:id="@+id/touch_container"
+            android:id="@+id/file_touch_container"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal">
 
             <View
-                android:id="@+id/left_area"
+                android:id="@+id/file_left_area"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:layout_weight="1" />
 
             <View
-                android:id="@+id/center_area"
+                android:id="@+id/file_center_area"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:layout_weight="1" />
 
             <View
-                android:id="@+id/right_area"
+                android:id="@+id/file_right_area"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:layout_weight="1" />
         </LinearLayout>
 
+        <com.stainberg.keditview.TextCursor
+            android:id="@+id/file_left_line"
+            android:layout_width="2dp"
+            android:layout_height="match_parent"
+            android:cursorVisible="false"
+            android:visibility="gone" />
+
+        <com.stainberg.keditview.TextCursor
+            android:id="@+id/file_right_line"
+            android:layout_width="2dp"
+            android:layout_height="match_parent"
+            android:layout_alignParentRight="true"
+            android:cursorVisible="false"
+            android:visibility="gone" />
+
     </RelativeLayout>
 
     <android.support.v7.widget.AppCompatImageView
-        android:id="@+id/icon_drag"
+        android:id="@+id/file_icon_drag"
         android:layout_width="28dp"
         android:layout_height="28dp"
         android:layout_alignParentRight="true"
