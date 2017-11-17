@@ -6,6 +6,7 @@ import android.net.Uri
 import android.support.v4.content.ContextCompat
 import android.text.TextUtils
 import android.util.AttributeSet
+import android.util.Log
 import android.view.*
 import android.widget.FrameLayout
 import com.facebook.drawee.backends.pipeline.Fresco
@@ -227,6 +228,7 @@ class KoalaImageView : FrameLayout, KoalaBaseCellView {
     }
 
     override fun reload() {
+        initMargin()
         val location = IntArray(2)
         icon.getLocationInWindow(location)
         if (location[1] < 0) {
@@ -245,6 +247,30 @@ class KoalaImageView : FrameLayout, KoalaBaseCellView {
             if (location[1] < resources.displayMetrics.heightPixels + bound && !visible) {
                 reloadImage()
             }
+        }
+    }
+
+    override fun onAttachedToWindow() {
+        super.onAttachedToWindow()
+        initMargin()
+    }
+
+    private fun initMargin() {
+        val pre = KoalaRichEditorView.getPrev(parent as ViewGroup, this)
+        pre?.let {
+            val lp = image_content_bg.layoutParams as MarginLayoutParams
+            when (pre) {
+                is KoalaImageView, is KoalaFileView -> {
+                    lp.topMargin = MARGIN_4
+                }
+                is KoalaEditTextView -> {
+                    lp.topMargin = MARGIN_3
+                }
+                else -> {
+                    lp.topMargin = MARGIN_5
+                }
+            }
+            image_content_bg.layoutParams = lp
         }
     }
 

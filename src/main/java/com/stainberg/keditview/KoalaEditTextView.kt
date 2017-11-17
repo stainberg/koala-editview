@@ -54,7 +54,7 @@ class KoalaEditTextView : FrameLayout, KoalaBaseCellView {
             false
         } else {
             val start = edit_text.selectionStart
-            if (keyCode == KeyEvent.KEYCODE_ENTER && event.action == KeyEvent.ACTION_UP) {
+            if (keyCode == KeyEvent.KEYCODE_ENTER && event.action == KeyEvent.ACTION_DOWN) {
                 if (listener != null) {
                     if (code) {
                         if (edit_text.selectionEnd == edit_text.text.length && edit_text.text.toString()[edit_text.text.toString().length - 1] == '\n') {
@@ -129,7 +129,11 @@ class KoalaEditTextView : FrameLayout, KoalaBaseCellView {
                     listener!!.deleteSelf(this@KoalaEditTextView)
                 }
             }
-            true
+            if (KeyEvent.ACTION_DOWN == event.action && KeyEvent.KEYCODE_DEL == keyCode) {
+                selectionStart == 0
+            } else {
+                true
+            }
         }
     }
 
@@ -252,8 +256,8 @@ class KoalaEditTextView : FrameLayout, KoalaBaseCellView {
     }
 
     override fun onInterceptTouchEvent(ev: MotionEvent): Boolean {
-        if (icon_drag.visibility == View.VISIBLE) {
-            isDragEnabled = eventInView(ev, icon_drag)
+        if (edit_icon_drag.visibility == View.VISIBLE) {
+            isDragEnabled = eventInView(ev, edit_icon_drag)
             if (isDragEnabled) {
                 return isDragEnabled
             }
@@ -285,7 +289,41 @@ class KoalaEditTextView : FrameLayout, KoalaBaseCellView {
 
     @Deprecated("")
     override fun reload() {
+        initMargin()
+    }
 
+    private fun initMargin() {
+        val pre = KoalaRichEditorView.getPrev(parent as ViewGroup, this)
+        pre?.let {
+            val lp = edit_content_bg.layoutParams as MarginLayoutParams
+            when (pre) {
+                is KoalaImageView, is KoalaFileView -> {
+                    lp.topMargin = MARGIN_3
+                }
+                is KoalaEditTextView -> {
+                    when (pre.style) {
+                        STYLE_H1 -> {
+                            lp.topMargin = MARGIN_5
+                        }
+                        STYLE_H2 -> {
+                            lp.topMargin = MARGIN_4
+                        }
+                        else -> {
+                            lp.topMargin = MARGIN_9
+                        }
+                    }
+                }
+                else -> {
+                    lp.topMargin = MARGIN_5
+                }
+            }
+            edit_content_bg.layoutParams = lp
+        }
+    }
+
+    override fun onAttachedToWindow() {
+        super.onAttachedToWindow()
+        initMargin()
     }
 
     override fun setStyleH1() {
@@ -605,10 +643,6 @@ class KoalaEditTextView : FrameLayout, KoalaBaseCellView {
     private fun markCode(v: KoalaEditTextView) {
         v.setBackgroundResource(R.drawable.shape_edit_code_bg)
         v.code = true
-        val lp = v.layoutParams as LinearLayout.LayoutParams
-        lp.topMargin = 40
-        lp.bottomMargin = 40
-        v.layoutParams = lp
         v.cleanSection(v)
         v.resetNextSection(v)
     }
@@ -719,7 +753,7 @@ class KoalaEditTextView : FrameLayout, KoalaBaseCellView {
         val n: CharSequence?
         val s: CharSequence
         val v = this
-        content_bg.setBackgroundColor(ContextCompat.getColor(context, android.R.color.white))
+        edit_content_bg.setBackgroundColor(ContextCompat.getColor(context, android.R.color.white))
         val lp = v.layoutParams as LinearLayout.LayoutParams
         lp.topMargin = 0
         lp.bottomMargin = 0
@@ -759,68 +793,60 @@ class KoalaEditTextView : FrameLayout, KoalaBaseCellView {
     }
 
     private fun cleanAllQuote() {
-        content_bg.setBackgroundColor(ContextCompat.getColor(context, android.R.color.white))
+        edit_content_bg.setBackgroundColor(ContextCompat.getColor(context, android.R.color.white))
         val v = this
-        val lp = v.layoutParams as LinearLayout.LayoutParams
-        lp.topMargin = 0
-        lp.bottomMargin = 0
-        v.layoutParams = lp
         v.edit_text.setPadding(0, 0, 0, 0)
         v.quote = false
         listener!!.splitSelf(v, null, v.edit_text.text, null, SECTION_NULL, STYLE_NORMAL)
     }
 
     private fun markQuote() {
-        content_bg.setBackgroundResource(R.drawable.shape_edit_quote_bg)
+        edit_content_bg.setBackgroundResource(R.drawable.shape_edit_quote_bg)
         val v = this
         v.quote = true
-        val lp = v.layoutParams as LinearLayout.LayoutParams
-        lp.topMargin = resources.getDimension(R.dimen.section_text_margin).toInt()
-        lp.bottomMargin = resources.getDimension(R.dimen.section_text_margin).toInt()
-        v.layoutParams = lp
         v.edit_text.setPadding(quotePadding, quotePadding, quotePadding, quotePadding)
         v.cleanSection(v)
         v.resetNextSection(v)
     }
 
     private val defaultPadding = context.dp2px(10f).toInt()
-    private val paddingAnim: PaddingAnim by lazy { PaddingAnim(content_bg) }
+    private val paddingAnim: PaddingAnim by lazy { PaddingAnim(edit_content_bg) }
     override fun enableDrag(enable: Boolean) {
-        container.showShadow(enable)
+        edit_container.showShadow(enable)
         if (enable) {
             if (!ifQuote()) {
-                ObjectAnimator.ofInt(paddingAnim, "padding", content_bg.paddingLeft, defaultPadding).setDuration(animTime).start()
+                ObjectAnimator.ofInt(paddingAnim, "padding", edit_content_bg.paddingLeft, defaultPadding).setDuration(animTime).start()
             }
             edit_text.isCursorVisible = false
             edit_text.isFocusable = false
             edit_text.isFocusableInTouchMode = false
             edit_text.isEnabled = false
-            val lp = cover_view.layoutParams
+            val lp = edit_cover_view.layoutParams
             lp.height = edit_text.layoutParams.height
-            cover_view.layoutParams = lp
-            cover_view.visibility = View.VISIBLE
-            icon_drag.visibility = View.VISIBLE
+            edit_cover_view.layoutParams = lp
+            edit_cover_view.visibility = View.VISIBLE
+            edit_icon_drag.visibility = View.VISIBLE
         } else {
             if (!ifQuote()) {
-                ObjectAnimator.ofInt(paddingAnim, "padding", content_bg.paddingLeft, 0).setDuration(animTime).start()
+                ObjectAnimator.ofInt(paddingAnim, "padding", edit_content_bg.paddingLeft, 0).setDuration(animTime).start()
             }
             edit_text.isCursorVisible = true
             edit_text.isFocusable = true
             edit_text.isFocusableInTouchMode = true
             edit_text.isEnabled = true
-            cover_view.visibility = View.GONE
-            icon_drag.visibility = View.GONE
+            edit_cover_view.visibility = View.GONE
+            edit_icon_drag.visibility = View.GONE
         }
     }
 
     fun actionDown() {
-        icon_drag.setImageResource(R.drawable.svg_drag_icon_selected)
-        container.showHighLight(true)
+        edit_icon_drag.setImageResource(R.drawable.svg_drag_icon_selected)
+        edit_container.showHighLight(true)
     }
 
     fun actionUp() {
-        icon_drag.setImageResource(R.drawable.svg_drag_icon)
-        container.showHighLight(false)
+        edit_icon_drag.setImageResource(R.drawable.svg_drag_icon)
+        edit_container.showHighLight(false)
     }
 
     companion object {

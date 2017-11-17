@@ -11,10 +11,10 @@
         android:id="@+id/file_content_bg"
         android:layout_width="match_parent"
         android:layout_height="68dp"
-        android:layout_marginBottom="8dp"
+        android:layout_marginBottom="5dp"
         android:layout_marginLeft="20dp"
         android:layout_marginRight="20dp"
-        android:layout_marginTop="8dp"
+        android:layout_marginTop="5dp"
         android:background="@drawable/widget_view_card_bg">
 
         <com.facebook.drawee.view.SimpleDraweeView

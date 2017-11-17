@@ -147,7 +147,7 @@ class KoalaCardView : FrameLayout , KoalaBaseCellView {
         v.setBackgroundResource(R.drawable.shape_card_bg)
         addView(v , lp)
         move = View(context)
-        move!!.id = R.id.icon_drag
+        move!!.id = R.id.edit_icon_drag
         val l0 = FrameLayout.LayoutParams(120 , 60)
         l0.gravity = Gravity.END
         move!!.setBackgroundColor(Color.parseColor("#00FF00"))

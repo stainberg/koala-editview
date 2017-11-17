@@ -7,6 +7,7 @@ import android.support.annotation.RequiresApi
 import android.support.annotation.StyleRes
 import android.text.TextUtils
 import android.util.AttributeSet
+import android.util.Log
 import android.view.*
 import android.widget.FrameLayout
 import kotlinx.android.synthetic.main.item_view_edit_text.view.edit_text
@@ -158,6 +159,30 @@ class KoalaFileView : FrameLayout, KoalaBaseCellView {
         }
     }
 
+    private fun initMargin() {
+        val pre = KoalaRichEditorView.getPrev(parent as ViewGroup, this)
+        pre?.let {
+            val lp = file_content_bg.layoutParams as MarginLayoutParams
+            when (pre) {
+                is KoalaImageView, is KoalaFileView -> {
+                    lp.topMargin = MARGIN_4
+                }
+                is KoalaEditTextView -> {
+                    lp.topMargin = MARGIN_3
+                }
+                else -> {
+                    lp.topMargin = MARGIN_5
+                }
+            }
+            file_content_bg.layoutParams = lp
+        }
+    }
+
+    override fun onAttachedToWindow() {
+        super.onAttachedToWindow()
+        initMargin()
+    }
+
     private fun updateTextStatus() {
         val leftVisibility = if (textStatus == 1) VISIBLE else GONE
         if (file_left_line.visibility != leftVisibility) {
@@ -177,7 +202,7 @@ class KoalaFileView : FrameLayout, KoalaBaseCellView {
     }
 
     override fun reload() {
-
+        initMargin()
     }
 
     override fun setStyleH1() {

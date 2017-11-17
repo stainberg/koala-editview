@@ -68,3 +68,12 @@ internal fun View.hideSoft() {
         rootView?.findFocus()?.windowToken?.let { im.hideSoftInputFromWindow(rootView.findFocus().windowToken, 0) }
     }
 }
+
+internal val View.MARGIN_3
+    get() = context.dp2px(3f).toInt()
+internal val View.MARGIN_4
+    get() = context.dp2px(4f).toInt()
+internal val View.MARGIN_5
+    get() = context.dp2px(5f).toInt()
+internal val View.MARGIN_9
+    get() = context.dp2px(9f).toInt()
