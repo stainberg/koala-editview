@@ -135,9 +135,20 @@ class KoalaRichEditorView @JvmOverloads constructor(context: Context, attrs: Att
                     } else if (view is KoalaImageView) {
                         container.removeView(v as View)
                         view.image_right_area.performClick()
-                    } else if (view is KoalaSliderView) {
+                    } else if (view is KoalaFileView) {
                         container.removeView(v as View)
                         view.file_right_area.performClick()
+                    } else if (view is KoalaSliderView) {
+                        container.removeView(v as View)
+                        container.removeView(view)
+                        if (index > 1) {
+                            val pprev = container.getChildAt(index - 2)
+                            if (pprev is KoalaEditTextView) {
+                                pprev.append(lastStr, pprev.length())
+                                pprev.requestFocus()
+                                pprev.setNextSection(pprev)
+                            }
+                        }
                     } else if (view is KoalaBaseCellView) {
                         container.removeView(v as View)
                         container.removeView(view)

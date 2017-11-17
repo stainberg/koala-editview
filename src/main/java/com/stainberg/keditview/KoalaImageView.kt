@@ -149,56 +149,60 @@ class KoalaImageView : FrameLayout, KoalaBaseCellView {
         image_content_bg.layoutParams = lp
 
         image_container.setOnKeyListener { v, keyCode, event ->
-            if (textStatus != 0 && !isDragging && !KeyEvent.isModifierKey(keyCode)) {
-                if (event.action == KeyEvent.ACTION_UP || event.action == KeyEvent.ACTION_MULTIPLE) {
-                    val index = (parent as ViewGroup).indexOfChild(this@KoalaImageView)
-                    if (keyCode == KeyEvent.KEYCODE_DEL) {
-                        if (textStatus == 1) {
-                            val pre = KoalaRichEditorView.getPrev(parent as ViewGroup, this@KoalaImageView)
-                            if (null != pre) {
-                                if (pre is KoalaEditTextView) {
-                                    pre.edit_text.requestFocus()
-                                    pre.edit_text.setSelection(pre.edit_text.length())
-                                } else if (pre is KoalaImageView) {
-                                    pre.image_right_area.performClick()
-                                } else if (pre is KoalaFileView) {
-                                    pre.file_right_area.performClick()
+            if (keyCode == KeyEvent.KEYCODE_BACK || KeyEvent.isModifierKey(keyCode)) {
+                false
+            } else {
+                if (textStatus != 0 && !isDragging) {
+                    if (event.action == KeyEvent.ACTION_UP || event.action == KeyEvent.ACTION_MULTIPLE) {
+                        val index = (parent as ViewGroup).indexOfChild(this@KoalaImageView)
+                        if (keyCode == KeyEvent.KEYCODE_DEL) {
+                            if (textStatus == 1) {
+                                val pre = KoalaRichEditorView.getPrev(parent as ViewGroup, this@KoalaImageView)
+                                if (null != pre) {
+                                    if (pre is KoalaEditTextView) {
+                                        pre.edit_text.requestFocus()
+                                        pre.edit_text.setSelection(pre.edit_text.length())
+                                    } else if (pre is KoalaImageView) {
+                                        pre.image_right_area.performClick()
+                                    } else if (pre is KoalaFileView) {
+                                        pre.file_right_area.performClick()
+                                    }
                                 }
+                            } else if (textStatus == 2) {
+                                deleteCurrentItem(index)
                             }
-                        } else if (textStatus == 2) {
-                            deleteCurrentItem(index)
-                        }
-                    } else if (keyCode == KeyEvent.KEYCODE_ENTER) {
-                        if (textStatus == 1) {
-                            insertNewLine("", index)
-                        } else if (textStatus == 2) {
-                            insertNewLine("", index + 1)
-                        }
-                    } else {
-                        val s: String? = if (keyCode != 0) {
-                            if (event != null && event.unicodeChar != null) {
-                                event.unicodeChar.toChar().toString()
-                            } else {
-                                null
+                        } else if (keyCode == KeyEvent.KEYCODE_ENTER) {
+                            if (textStatus == 1) {
+                                insertNewLine("", index)
+                            } else if (textStatus == 2) {
+                                insertNewLine("", index + 1)
                             }
                         } else {
-                            if (null != event && null != event.characters) {
-                                event.characters.toString()
+                            val s: String? = if (keyCode != 0) {
+                                if (event != null && event.unicodeChar != null) {
+                                    event.unicodeChar.toChar().toString()
+                                } else {
+                                    null
+                                }
                             } else {
-                                null
+                                if (null != event && null != event.characters) {
+                                    event.characters.toString()
+                                } else {
+                                    null
+                                }
                             }
-                        }
-                        s?.let {
-                            if (textStatus == 1) {
-                                insertNewLine(s, index)
-                            } else if (textStatus == 2) {
-                                insertNewLine(s, index + 1)
+                            s?.let {
+                                if (textStatus == 1) {
+                                    insertNewLine(s, index)
+                                } else if (textStatus == 2) {
+                                    insertNewLine(s, index + 1)
+                                }
                             }
                         }
                     }
                 }
+                true
             }
-            true
         }
     }
 

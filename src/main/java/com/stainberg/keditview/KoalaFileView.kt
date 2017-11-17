@@ -9,8 +9,6 @@ import android.text.TextUtils
 import android.util.AttributeSet
 import android.view.*
 import android.widget.FrameLayout
-import android.widget.TextView
-import com.facebook.drawee.view.SimpleDraweeView
 import kotlinx.android.synthetic.main.item_view_edit_text.view.edit_text
 import kotlinx.android.synthetic.main.item_view_file.view.*
 import kotlinx.android.synthetic.main.item_view_image.view.image_right_area
@@ -79,15 +77,15 @@ class KoalaFileView : FrameLayout, KoalaBaseCellView {
         LayoutInflater.from(context).inflate(R.layout.item_view_file, this, true)
         file_left_area.setOnClickListener {
             if (!isDragging) {
-                textStatus = 1
                 file_container.requestFocus()
+                textStatus = 1
                 updateTextStatus()
             }
         }
         file_right_area.setOnClickListener {
             if (!isDragging) {
-                textStatus = 2
                 file_container.requestFocus()
+                textStatus = 2
                 updateTextStatus()
             }
         }
@@ -101,56 +99,60 @@ class KoalaFileView : FrameLayout, KoalaBaseCellView {
             }
         }
         file_container.setOnKeyListener { _, keyCode, event ->
-            if (textStatus != 0 && !isDragging && !KeyEvent.isModifierKey(keyCode)) {
-                if (event.action == KeyEvent.ACTION_UP || event.action == KeyEvent.ACTION_MULTIPLE) {
-                    val index = (parent as ViewGroup).indexOfChild(this@KoalaFileView)
-                    if (keyCode == KeyEvent.KEYCODE_DEL) {
-                        if (textStatus == 1) {
-                            val pre = KoalaRichEditorView.getPrev(parent as ViewGroup, this@KoalaFileView)
-                            if (null != pre) {
-                                if (pre is KoalaEditTextView) {
-                                    pre.edit_text.requestFocus()
-                                    pre.edit_text.setSelection(pre.edit_text.length())
-                                } else if (pre is KoalaImageView) {
-                                    pre.image_right_area.performClick()
-                                } else if (pre is KoalaFileView) {
-                                    pre.file_right_area.performClick()
+            if (keyCode == KeyEvent.KEYCODE_BACK || KeyEvent.isModifierKey(keyCode)) {
+                false
+            } else {
+                if (textStatus != 0 && !isDragging) {
+                    if (event.action == KeyEvent.ACTION_UP || event.action == KeyEvent.ACTION_MULTIPLE) {
+                        val index = (parent as ViewGroup).indexOfChild(this@KoalaFileView)
+                        if (keyCode == KeyEvent.KEYCODE_DEL) {
+                            if (textStatus == 1) {
+                                val pre = KoalaRichEditorView.getPrev(parent as ViewGroup, this@KoalaFileView)
+                                if (null != pre) {
+                                    if (pre is KoalaEditTextView) {
+                                        pre.edit_text.requestFocus()
+                                        pre.edit_text.setSelection(pre.edit_text.length())
+                                    } else if (pre is KoalaImageView) {
+                                        pre.image_right_area.performClick()
+                                    } else if (pre is KoalaFileView) {
+                                        pre.file_right_area.performClick()
+                                    }
                                 }
+                            } else if (textStatus == 2) {
+                                deleteCurrentItem(index)
                             }
-                        } else if (textStatus == 2) {
-                            deleteCurrentItem(index)
-                        }
-                    } else if (keyCode == KeyEvent.KEYCODE_ENTER) {
-                        if (textStatus == 1) {
-                            insertNewLine("", index)
-                        } else if (textStatus == 2) {
-                            insertNewLine("", index + 1)
-                        }
-                    } else {
-                        val s: String? = if (keyCode != 0) {
-                            if (event != null && event.unicodeChar != null) {
-                                event.unicodeChar.toChar().toString()
-                            } else {
-                                null
+                        } else if (keyCode == KeyEvent.KEYCODE_ENTER) {
+                            if (textStatus == 1) {
+                                insertNewLine("", index)
+                            } else if (textStatus == 2) {
+                                insertNewLine("", index + 1)
                             }
                         } else {
-                            if (null != event && null != event.characters) {
-                                event.characters.toString()
+                            val s: String? = if (keyCode != 0) {
+                                if (event != null && event.unicodeChar != null) {
+                                    event.unicodeChar.toChar().toString()
+                                } else {
+                                    null
+                                }
                             } else {
-                                null
+                                if (null != event && null != event.characters) {
+                                    event.characters.toString()
+                                } else {
+                                    null
+                                }
                             }
-                        }
-                        s?.let {
-                            if (textStatus == 1) {
-                                insertNewLine(s, index)
-                            } else if (textStatus == 2) {
-                                insertNewLine(s, index + 1)
+                            s?.let {
+                                if (textStatus == 1) {
+                                    insertNewLine(s, index)
+                                } else if (textStatus == 2) {
+                                    insertNewLine(s, index + 1)
+                                }
                             }
                         }
                     }
                 }
+                true
             }
-            true
         }
     }
 
@@ -307,7 +309,7 @@ class KoalaFileView : FrameLayout, KoalaBaseCellView {
     private fun deleteCurrentItem(index: Int) {
         val krev = parent?.parent?.parent?.parent ?: return
         if (krev is KoalaRichEditorView) {
-            krev.deleteImage(index)
+            krev.deleteFile(index)
             krev.addCellText("", index)
         }
     }

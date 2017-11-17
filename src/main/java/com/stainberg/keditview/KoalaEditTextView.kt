@@ -50,89 +50,87 @@ class KoalaEditTextView : FrameLayout, KoalaBaseCellView {
         get() = edit_text.selectionStart
 
     private val keyListener = OnKeyListener { _, keyCode, event ->
-        val start = edit_text.selectionStart
-        if (keyCode == KeyEvent.KEYCODE_ENTER && event.action == KeyEvent.ACTION_DOWN) {
-            if (listener != null) {
-                if (code) {
-                    if (edit_text.selectionEnd == edit_text.text.length && edit_text.text.toString()[edit_text.text.toString().length - 1] == '\n') {
-                        edit_text.setText(edit_text.text.subSequence(0, edit_text.text.toString().length - 1))
-                        edit_text.setSelection(edit_text.length())
-                        listener!!.pressEnter(this@KoalaEditTextView)
-                        return@OnKeyListener true
-                    }
-                    return@OnKeyListener false
-                }
-                if (section == SECTION_NULL) {
-                    if (!quote) {
-                        listener!!.pressEnter(this@KoalaEditTextView)
-                        return@OnKeyListener true
-                    } else {
+        if (keyCode == KeyEvent.KEYCODE_BACK || KeyEvent.isModifierKey(keyCode)) {
+            false
+        } else {
+            val start = edit_text.selectionStart
+            if (keyCode == KeyEvent.KEYCODE_ENTER && event.action == KeyEvent.ACTION_UP) {
+                if (listener != null) {
+                    if (code) {
                         if (edit_text.selectionEnd == edit_text.text.length && edit_text.text.toString()[edit_text.text.toString().length - 1] == '\n') {
                             edit_text.setText(edit_text.text.subSequence(0, edit_text.text.toString().length - 1))
                             edit_text.setSelection(edit_text.length())
                             listener!!.pressEnter(this@KoalaEditTextView)
                             return@OnKeyListener true
                         }
-                        if (edit_text.selectionStart == edit_text.selectionEnd && edit_text.selectionStart == 1
-                                && edit_text.text.toString()[0] == '\n') {
-                            edit_text.setText(edit_text.text.subSequence(1, edit_text.text.toString().length))
-                            listener!!.insertEdit(this@KoalaEditTextView)
+                        return@OnKeyListener false
+                    }
+                    if (section == SECTION_NULL) {
+                        if (!quote) {
+                            listener!!.pressEnter(this@KoalaEditTextView)
+                            return@OnKeyListener true
+                        } else {
+                            if (edit_text.selectionEnd == edit_text.text.length && edit_text.text.toString()[edit_text.text.toString().length - 1] == '\n') {
+                                edit_text.setText(edit_text.text.subSequence(0, edit_text.text.toString().length - 1))
+                                edit_text.setSelection(edit_text.length())
+                                listener!!.pressEnter(this@KoalaEditTextView)
+                                return@OnKeyListener true
+                            }
+                            if (edit_text.selectionStart == edit_text.selectionEnd && edit_text.selectionStart == 1
+                                    && edit_text.text.toString()[0] == '\n') {
+                                edit_text.setText(edit_text.text.subSequence(1, edit_text.text.toString().length))
+                                listener!!.insertEdit(this@KoalaEditTextView)
+                                return@OnKeyListener true
+                            }
+                        }
+                    } else {
+                        if (TextUtils.isEmpty(edit_text.text.toString().trim { it <= ' ' })) {
+                            cleanSection(this@KoalaEditTextView)
+                            resetNextSection(this@KoalaEditTextView)
+                            return@OnKeyListener true
+                        } else {
+                            listener!!.pressEnter(this@KoalaEditTextView)
                             return@OnKeyListener true
                         }
                     }
-                } else {
-                    if (TextUtils.isEmpty(edit_text.text.toString().trim { it <= ' ' })) {
-                        cleanSection(this@KoalaEditTextView)
-                        resetNextSection(this@KoalaEditTextView)
-                        return@OnKeyListener true
-                    } else {
-                        listener!!.pressEnter(this@KoalaEditTextView)
-                        return@OnKeyListener true
-                    }
-                }
-                return@OnKeyListener false
-            }
-        } else if (start == 0 && keyCode == KeyEvent.KEYCODE_DEL && event.action == KeyEvent.ACTION_DOWN) {
-            val prev = KoalaRichEditorView.getNext(parent as ViewGroup, this@KoalaEditTextView)
-            if (quote) {
-                if (prev == null) {
-                    cleanAllQuote()
                     return@OnKeyListener false
-                } else {
-                    if (prev !is KoalaEditTextView) {
+                }
+            } else if (start == 0 && keyCode == KeyEvent.KEYCODE_DEL && event.action == KeyEvent.ACTION_UP) {
+                val prev = KoalaRichEditorView.getNext(parent as ViewGroup, this@KoalaEditTextView)
+                if (quote) {
+                    if (prev == null) {
                         cleanAllQuote()
-                        return@OnKeyListener false
                     } else {
-                        if (!prev.quote) {
+                        if (prev !is KoalaEditTextView) {
                             cleanAllQuote()
-                            return@OnKeyListener false
+                        } else {
+                            if (!prev.quote) {
+                                cleanAllQuote()
+                            }
                         }
                     }
-                }
-            } else if (section != SECTION_NULL) {
-                if (prev == null) {
-                    cleanSection(this@KoalaEditTextView)
-                    resetNextSection(this@KoalaEditTextView)
-                    return@OnKeyListener false
-                } else {
-                    if (prev !is KoalaEditTextView) {
+                } else if (section != SECTION_NULL) {
+                    if (prev == null) {
                         cleanSection(this@KoalaEditTextView)
                         resetNextSection(this@KoalaEditTextView)
-                        return@OnKeyListener false
                     } else {
-                        if (prev.section != section) {
+                        if (prev !is KoalaEditTextView) {
                             cleanSection(this@KoalaEditTextView)
                             resetNextSection(this@KoalaEditTextView)
-                            return@OnKeyListener false
+                        } else {
+                            if (prev.section != section) {
+                                cleanSection(this@KoalaEditTextView)
+                                resetNextSection(this@KoalaEditTextView)
+                            }
                         }
                     }
                 }
+                if (listener != null) {
+                    listener!!.deleteSelf(this@KoalaEditTextView)
+                }
             }
-            if (listener != null) {
-                listener!!.deleteSelf(this@KoalaEditTextView)
-            }
+            true
         }
-        false
     }
 
     private val onFocusChangeListener = object : OnFocusChangeListener {
