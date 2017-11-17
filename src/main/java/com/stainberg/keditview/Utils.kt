@@ -61,3 +61,10 @@ internal fun View.showSoft() {
     val view = rootView?.findFocus()
     view?.let { imm.showSoftInput(view, InputMethodManager.SHOW_FORCED) }
 }
+
+internal fun View.hideSoft() {
+    val im = context.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
+    if (im.isActive) {
+        rootView?.findFocus()?.windowToken?.let { im.hideSoftInputFromWindow(rootView.findFocus().windowToken, 0) }
+    }
+}

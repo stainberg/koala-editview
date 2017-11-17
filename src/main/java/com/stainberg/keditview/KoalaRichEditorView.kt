@@ -375,6 +375,9 @@ class KoalaRichEditorView @JvmOverloads constructor(context: Context, attrs: Att
     }
 
     fun enableDrag(enable: Boolean) {
+        if (enable) {
+            hideSoft()
+        }
         container.setDragEnabled(enable)
         for (i in 0 until container.childCount) {
             if (container.getChildAt(i) is KoalaBaseCellView) {
