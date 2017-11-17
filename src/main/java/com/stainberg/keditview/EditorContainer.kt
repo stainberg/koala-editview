@@ -214,7 +214,20 @@ internal class EditorContainer : LinearLayout, View.OnTouchListener {
     private fun smallImage() {
         if (maxHeight == 0) return
         val currentView = selectedView ?: return
-        val content = currentView.findViewById<View>(R.id.content_bg) ?: return
+        val content: View = when (currentView) {
+            is KoalaEditTextView -> {
+                currentView.content_bg
+            }
+            is KoalaFileView -> {
+                currentView.file_content_bg
+            }
+            is KoalaImageView -> {
+                currentView.image_content_bg
+            }
+            else -> {
+                null
+            }
+        } ?: return
         hAnim = HeightAnim(content)
         val anim = ObjectAnimator.ofInt(hAnim!!, "x", content.bottom - content.top, minHeight).setDuration(animTime)
         anim.addListener(object : Animator.AnimatorListener {
@@ -253,7 +266,20 @@ internal class EditorContainer : LinearLayout, View.OnTouchListener {
     private fun largeImage() {
         if (maxHeight == 0) return
         val currentView = selectedView ?: return
-        val content = currentView.findViewById<View>(R.id.content_bg) ?: return
+        val content: View = when (currentView) {
+            is KoalaEditTextView -> {
+                currentView.content_bg
+            }
+            is KoalaFileView -> {
+                currentView.file_content_bg
+            }
+            is KoalaImageView -> {
+                currentView.image_content_bg
+            }
+            else -> {
+                null
+            }
+        } ?: return
         val anim = ObjectAnimator.ofInt(hAnim!!, "x", content.bottom - content.top, maxHeight).setDuration(animTime)
         anim.start()
         when (currentView) {

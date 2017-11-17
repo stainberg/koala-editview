@@ -347,10 +347,14 @@ class KoalaImageView : FrameLayout, KoalaBaseCellView {
         updateTextStatus()
         image_container.showShadow(enable)
         if (enable) {
+            image_container.isFocusable = false
+            image_container.isFocusableInTouchMode = false
             ObjectAnimator.ofInt(paddingAnim, "padding", image_content_bg.paddingLeft, defaultPadding).setDuration(animTime).start()
             image_icon_drag.visibility = View.VISIBLE
             image_touch_container.visibility = View.GONE
         } else {
+            image_container.isFocusable = true
+            image_container.isFocusableInTouchMode = true
             ObjectAnimator.ofInt(paddingAnim, "padding", image_content_bg.paddingLeft, 0).setDuration(animTime).start()
             image_icon_drag.visibility = View.GONE
             image_touch_container.visibility = View.VISIBLE

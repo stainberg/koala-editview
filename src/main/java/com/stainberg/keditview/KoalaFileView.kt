@@ -279,8 +279,12 @@ class KoalaFileView : FrameLayout, KoalaBaseCellView {
         updateTextStatus()
         file_container.showShadow(enable)
         if (enable) {
+            file_container.isFocusable = false
+            file_container.isFocusableInTouchMode = false
             file_icon_drag.visibility = View.VISIBLE
         } else {
+            file_container.isFocusable = true
+            file_container.isFocusableInTouchMode = true
             file_icon_drag.visibility = View.GONE
         }
     }
