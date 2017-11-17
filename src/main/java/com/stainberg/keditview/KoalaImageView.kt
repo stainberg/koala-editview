@@ -126,6 +126,8 @@ class KoalaImageView : FrameLayout, KoalaBaseCellView {
             }
         }
         image_center_area.setOnClickListener {
+            textStatus = 0
+            updateTextStatus()
             sr.get()?.onImageClick((parent as ViewGroup).indexOfChild(this))
         }
         image_container.setOnFocusChangeListener { _, hasFocus ->

@@ -90,6 +90,8 @@ class KoalaFileView : FrameLayout, KoalaBaseCellView {
             }
         }
         file_center_area.setOnClickListener {
+            textStatus = 0
+            updateTextStatus()
             listener.get()?.onFileClick((parent as ViewGroup).indexOfChild(this))
         }
         file_container.setOnFocusChangeListener { _, hasFocus ->
