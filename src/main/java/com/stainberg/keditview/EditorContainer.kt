@@ -108,17 +108,6 @@ internal class EditorContainer : LinearLayout, View.OnTouchListener {
         }
     }
 
-    private fun getLocation(view: View): IntArray {
-        val location = IntArray(2)
-        view.getLocationOnScreen(location)
-        if (location[1] == 0) {
-            val rect = Rect()
-            view.getGlobalVisibleRect(rect)
-            location[1] = rect.top
-        }
-        return location
-    }
-
     fun setDragEnabled(enable: Boolean) {
         isDragEnabled = enable
     }
@@ -205,7 +194,7 @@ internal class EditorContainer : LinearLayout, View.OnTouchListener {
     private fun initSize() {
         val content = getContentView() ?: return
         maxHeight = content.bottom - content.top
-//        originalHeight = content.layoutParams.height
+        originalHeight = content.layoutParams.height
         minHeight = if (maxHeight > fixedMinHeight) fixedMinHeight else maxHeight
     }
 
@@ -230,7 +219,7 @@ internal class EditorContainer : LinearLayout, View.OnTouchListener {
     private var fixedMinHeight = context.dp2px(68f).toInt()
     private var minHeight = 0
     private var maxHeight = 0
-//    private var originalHeight = 0
+    private var originalHeight = 0
 
     private var hAnim: HeightAnim? = null
     private var anim: ObjectAnimator? = null
@@ -285,7 +274,7 @@ internal class EditorContainer : LinearLayout, View.OnTouchListener {
         val content = getContentView() ?: return
         anim?.removeAllListeners()
         anim?.end()
-        val currAnim = ObjectAnimator.ofInt(hAnim!!, "x", content.bottom - content.top, /*originalHeight*/maxHeight).setDuration(animTime)
+        val currAnim = ObjectAnimator.ofInt(hAnim!!, "x", content.bottom - content.top, originalHeight).setDuration(animTime)
         currAnim.start()
         anim = currAnim
         when (currentView) {

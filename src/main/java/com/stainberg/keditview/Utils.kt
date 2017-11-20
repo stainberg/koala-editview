@@ -1,6 +1,7 @@
 package com.stainberg.keditview
 
 import android.content.*
+import android.graphics.Rect
 import android.support.v7.widget.*
 import android.view.*
 import android.view.inputmethod.InputMethodManager
@@ -67,6 +68,16 @@ internal fun View.hideSoft() {
     if (im.isActive) {
         rootView?.findFocus()?.windowToken?.let { im.hideSoftInputFromWindow(rootView.findFocus().windowToken, 0) }
     }
+}
+internal fun getLocation(view: View): IntArray {
+    val location = IntArray(2)
+    view.getLocationOnScreen(location)
+    if (location[1] == 0) {
+        val rect = Rect()
+        view.getGlobalVisibleRect(rect)
+        location[1] = rect.top
+    }
+    return location
 }
 
 internal val View.MARGIN_3

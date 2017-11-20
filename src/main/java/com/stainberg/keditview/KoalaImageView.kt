@@ -40,11 +40,11 @@ class KoalaImageView : FrameLayout, KoalaBaseCellView {
         val location = IntArray(2)
         icon.getLocationInWindow(location)
         if (location[1] < 0) {
-            if (location[1] < -(imgHeight + bound) && visible) {
+            if (location[1] < -(height + bound) && visible) {
                 releaseImage()
                 return@OnScrollChangedListener
             }
-            if (location[1] > -(imgHeight + bound) && !visible) {
+            if (location[1] > -(height + bound) && !visible) {
                 reloadImage()
             }
         } else {
@@ -253,6 +253,12 @@ class KoalaImageView : FrameLayout, KoalaBaseCellView {
     override fun onAttachedToWindow() {
         super.onAttachedToWindow()
         initMargin()
+        Log.e("AAAA", "onAttachedToWindow")
+    }
+
+    override fun onDetachedFromWindow() {
+        super.onDetachedFromWindow()
+        Log.e("AAAA", "onDetachedFromWindow")
     }
 
     private fun initMargin() {
@@ -405,11 +411,13 @@ class KoalaImageView : FrameLayout, KoalaBaseCellView {
     }
 
     private fun reloadImage() {
+        Log.e("AAAA", "reloadImage")
         icon.controller = Fresco.newDraweeControllerBuilder().setImageRequest(request).build()
         visible = true
     }
 
     fun releaseImage() {
+        Log.e("AAAA", "releaseImage")
         visible = false
         icon.setImageBitmap(null)
         icon.setBackgroundColor(ContextCompat.getColor(context, R.color.gray_placeholder))
