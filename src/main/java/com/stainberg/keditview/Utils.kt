@@ -3,6 +3,7 @@ package com.stainberg.keditview
 import android.content.*
 import android.support.v7.widget.*
 import android.view.*
+import android.view.inputmethod.InputMethodManager
 import java.lang.ref.SoftReference
 
 /**
@@ -54,3 +55,25 @@ internal class HeightAnim(view: View) {
         sr.get()?.layoutParams = lp
     }
 }
+
+internal fun View.showSoft() {
+    val imm = context.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
+    val view = rootView?.findFocus()
+    view?.let { imm.showSoftInput(view, InputMethodManager.SHOW_FORCED) }
+}
+
+internal fun View.hideSoft() {
+    val im = context.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
+    if (im.isActive) {
+        rootView?.findFocus()?.windowToken?.let { im.hideSoftInputFromWindow(rootView.findFocus().windowToken, 0) }
+    }
+}
+
+internal val View.MARGIN_3
+    get() = context.dp2px(3f).toInt()
+internal val View.MARGIN_4
+    get() = context.dp2px(4f).toInt()
+internal val View.MARGIN_5
+    get() = context.dp2px(5f).toInt()
+internal val View.MARGIN_9
+    get() = context.dp2px(9f).toInt()

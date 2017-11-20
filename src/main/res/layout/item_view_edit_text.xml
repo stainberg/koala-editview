@@ -1,53 +1,55 @@
 <?xml version="1.0" encoding="utf-8"?>
 <com.stainberg.keditview.ShadowContainer xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:id="@+id/container"
+    android:id="@+id/edit_container"
     android:layout_width="match_parent"
     android:layout_height="wrap_content">
 
     <RelativeLayout
-        android:id="@+id/content_bg"
+        android:id="@+id/edit_content_bg"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="8dp"
+        android:layout_marginBottom="5dp"
         android:layout_marginLeft="20dp"
         android:layout_marginRight="20dp"
-        android:layout_marginTop="8dp">
+        android:layout_marginTop="5dp">
 
         <android.support.v7.widget.AppCompatTextView
             android:id="@+id/section_text"
             android:layout_width="32dp"
             android:layout_height="wrap_content"
             android:gravity="right"
-            android:lineSpacingMultiplier="1.5"
             android:maxLines="1"
-            android:paddingTop="2dp"
             android:singleLine="true"
             android:textColor="@color/gray_text"
             android:textSize="@dimen/text_size_16dp"
             android:visibility="gone" />
 
-        <com.stainberg.keditview.KoalaEditText
-            android:id="@+id/edit_text"
+        <com.stainberg.keditview.TextExtraSpaceContainer
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_toRightOf="@+id/section_text"
-            android:background="@null"
-            android:gravity="left"
-            android:lineSpacingMultiplier="1.5"
-            android:paddingBottom="2dp"
-            android:paddingTop="2dp"
-            android:textColor="@color/gray_text"
-            android:textSize="@dimen/text_size_16dp" />
+            android:layout_toRightOf="@+id/section_text">
+
+            <com.stainberg.keditview.KoalaEditText
+                android:id="@+id/edit_text"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@null"
+                android:gravity="left"
+                android:lineSpacingExtra="5dp"
+                android:textColor="@color/gray_text"
+                android:textCursorDrawable="@null"
+                android:textSize="@dimen/text_size_16dp" />
+        </com.stainberg.keditview.TextExtraSpaceContainer>
 
         <View
-            android:id="@+id/cover_view"
+            android:id="@+id/edit_cover_view"
             android:layout_width="match_parent"
             android:layout_height="0dp" />
     </RelativeLayout>
 
     <android.support.v7.widget.AppCompatImageView
-        android:id="@+id/icon_drag"
+        android:id="@+id/edit_icon_drag"
         android:layout_width="28dp"
         android:layout_height="28dp"
         android:layout_alignParentRight="true"

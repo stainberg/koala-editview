@@ -8,6 +8,9 @@ import android.util.*
 import android.view.*
 import android.view.animation.*
 import android.widget.*
+import kotlinx.android.synthetic.main.item_view_edit_text.view.*
+import kotlinx.android.synthetic.main.item_view_file.view.*
+import kotlinx.android.synthetic.main.item_view_image.view.*
 import java.lang.ref.*
 
 /**
@@ -26,7 +29,6 @@ internal class EditorContainer : LinearLayout, View.OnTouchListener {
 
     private var selectedView: View? = null
     private var downPoint: MotionEvent? = null
-    private val gd = GestureDetector(context, GestureDetector.SimpleOnGestureListener())
     private val offset = context.dp2px(40f)
     private var topViewOffset = 0
     private var bottomViewOffset = 0
@@ -90,7 +92,7 @@ internal class EditorContainer : LinearLayout, View.OnTouchListener {
         removeView(second)
         addView(first, firstIndex)
         addView(second, firstIndex)
-        var anim: Animation
+        var anim: TranslateAnimation
         if (isSwapAfter) {
             anim = TranslateAnimation(0f, 0f, firstHeight, 0f)
             anim.duration = 100
@@ -139,7 +141,6 @@ internal class EditorContainer : LinearLayout, View.OnTouchListener {
             tf = SoftReference(parent.parent as FrameViewContainer)
         }
         if (isDragEnabled && !flag) {
-            gd.onTouchEvent(ev)
             when (ev.action) {
                 MotionEvent.ACTION_DOWN -> {
                     if (downPoint != null) {
@@ -184,21 +185,40 @@ internal class EditorContainer : LinearLayout, View.OnTouchListener {
     }
 
     private fun initSize() {
-        val currentView = selectedView ?: return
-        val content = currentView.findViewById<View>(R.id.content_bg) ?: return
+        val content = getContentView() ?: return
         maxHeight = content.bottom - content.top
+        originalHeight = content.layoutParams.height
         minHeight = if (maxHeight > fixedMinHeight) fixedMinHeight else maxHeight
+    }
+
+    private fun getContentView(): View? {
+        val currentView = selectedView ?: return null
+        return when (currentView) {
+            is KoalaEditTextView -> {
+                currentView.edit_content_bg
+            }
+            is KoalaFileView -> {
+                currentView.file_content_bg
+            }
+            is KoalaImageView -> {
+                currentView.image_content_bg
+            }
+            else -> {
+                null
+            }
+        }
     }
 
     private var fixedMinHeight = context.dp2px(68f).toInt()
     private var minHeight = 0
     private var maxHeight = 0
+    private var originalHeight = 0
 
     private var hAnim: HeightAnim? = null
     private fun smallImage() {
         if (maxHeight == 0) return
         val currentView = selectedView ?: return
-        val content = currentView.findViewById<View>(R.id.content_bg) ?: return
+        val content = getContentView() ?: return
         hAnim = HeightAnim(content)
         val anim = ObjectAnimator.ofInt(hAnim!!, "x", content.bottom - content.top, minHeight).setDuration(animTime)
         anim.addListener(object : Animator.AnimatorListener {
@@ -237,8 +257,8 @@ internal class EditorContainer : LinearLayout, View.OnTouchListener {
     private fun largeImage() {
         if (maxHeight == 0) return
         val currentView = selectedView ?: return
-        val content = currentView.findViewById<View>(R.id.content_bg) ?: return
-        val anim = ObjectAnimator.ofInt(hAnim!!, "x", content.bottom - content.top, maxHeight).setDuration(animTime)
+        val content = getContentView() ?: return
+        val anim = ObjectAnimator.ofInt(hAnim!!, "x", content.bottom - content.top, originalHeight).setDuration(animTime)
         anim.start()
         when (currentView) {
             is KoalaImageView -> {
@@ -258,16 +278,6 @@ internal class EditorContainer : LinearLayout, View.OnTouchListener {
         post {
             checkMoveIfNeeded(ev)
             swapIfNeeded(ev)
-        }
-    }
-
-    companion object {
-        class ObjAnim(val sr: SoftReference<View>) {
-            fun setValue(x: Int) {
-                val lp = sr.get()?.layoutParams
-                lp?.height = x
-                sr.get()?.layoutParams = lp
-            }
         }
     }
 }

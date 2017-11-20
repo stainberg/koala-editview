@@ -8,14 +8,11 @@ import android.support.annotation.StyleRes
 import android.text.TextUtils
 import android.util.AttributeSet
 import android.util.Log
-import android.view.LayoutInflater
-import android.view.MotionEvent
-import android.view.View
-import android.view.ViewGroup
+import android.view.*
 import android.widget.FrameLayout
-import android.widget.TextView
-import com.facebook.drawee.view.SimpleDraweeView
+import kotlinx.android.synthetic.main.item_view_edit_text.view.edit_text
 import kotlinx.android.synthetic.main.item_view_file.view.*
+import kotlinx.android.synthetic.main.item_view_image.view.image_right_area
 import java.lang.ref.SoftReference
 
 /**
@@ -25,7 +22,8 @@ import java.lang.ref.SoftReference
 class KoalaFileView : FrameLayout, KoalaBaseCellView {
 
     lateinit var fileData: FileData
-    private var isDragEnabled = false
+    private var dragTouchToggled = false
+    private var textStatus = 0
 
     @JvmOverloads constructor(context: Context, attrs: AttributeSet? = null, @AttrRes defStyleAttr: Int = 0) : super(context, attrs, defStyleAttr) {
         init()
@@ -42,61 +40,160 @@ class KoalaFileView : FrameLayout, KoalaBaseCellView {
         this.fileData = fileData
         listener = SoftReference(lis)
         if (childCount == 1) {
-            val container = getChildAt(0)
-            val icon = container.findViewById<SimpleDraweeView>(R.id.icon)
-            val iconText = container.findViewById<TextView>(R.id.icon_text)
-            val title = container.findViewById<TextView>(R.id.title)
-            val desc = container.findViewById<TextView>(R.id.desc)
             var colorId = R.color.color_unknwon
             if (fileData != null) {
                 if (fileData.iconResId != 0) {
-                    icon.setImageResource(fileData.iconResId)
-                    iconText.background = null
+                    file_icon.setImageResource(fileData.iconResId)
+                    file_icon_text.background = null
                 } else if (!TextUtils.isEmpty(fileData.iconUrl)) {
-                    icon.setImageURI(fileData.iconUrl)
-                    iconText.background = null
+                    file_icon.setImageURI(fileData.iconUrl)
+                    file_icon_text.background = null
                 } else {
                     val type = fileData.fileType
                     when (type) {
-                        FileData.DOC, FileData.DOCX -> iconText.setBackgroundResource(R.drawable.svg_file_doc)
-                        FileData.PDF -> iconText.setBackgroundResource(R.drawable.svg_file_pdf)
-                        FileData.PPT, FileData.PPTX -> iconText.setBackgroundResource(R.drawable.svg_file_ppt)
-                        FileData.EPUB -> iconText.setBackgroundResource(R.drawable.svg_file_epub)
-                        FileData.TXT -> iconText.setBackgroundResource(R.drawable.svg_file_txt)
-                        FileData.XLS, FileData.XLSX -> iconText.setBackgroundResource(R.drawable.svg_file_xls)
-                        else -> iconText.setBackgroundResource(R.drawable.svg_file_unknown)
-                    }//                            colorId = R.color.color_word;
-                    //                            colorId = R.color.color_pdf;
-                    //                            colorId = R.color.color_ppt;
-                    //                            colorId = R.color.color_epub;
-                    //                            colorId = R.color.color_txt;
-                    //                            colorId = R.color.color_excel;
-                    //                            colorId = R.color.color_unknwon;
+                        FileData.DOC, FileData.DOCX -> file_icon_text.setBackgroundResource(R.drawable.svg_file_doc)
+                        FileData.PDF -> file_icon_text.setBackgroundResource(R.drawable.svg_file_pdf)
+                        FileData.PPT, FileData.PPTX -> file_icon_text.setBackgroundResource(R.drawable.svg_file_ppt)
+                        FileData.EPUB -> file_icon_text.setBackgroundResource(R.drawable.svg_file_epub)
+                        FileData.TXT -> file_icon_text.setBackgroundResource(R.drawable.svg_file_txt)
+                        FileData.XLS, FileData.XLSX -> file_icon_text.setBackgroundResource(R.drawable.svg_file_xls)
+                        else -> file_icon_text.setBackgroundResource(R.drawable.svg_file_unknown)
+                    }
                     colorId = R.color.white_card_bg
                 }
-                iconText.text = if (TextUtils.isEmpty(fileData.fileType)) "" else fileData.fileType
-                title.text = if (TextUtils.isEmpty(fileData.fileName)) "" else fileData.fileName
-                desc.text = if (TextUtils.isEmpty(fileData.desc)) "" else fileData.desc
+                file_icon_text.text = if (TextUtils.isEmpty(fileData.fileType)) "" else fileData.fileType
+                file_title.text = if (TextUtils.isEmpty(fileData.fileName)) "" else fileData.fileName
+                file_desc.text = if (TextUtils.isEmpty(fileData.desc)) "" else fileData.desc
             } else {
-                iconText.setBackgroundResource(R.drawable.svg_file_unknown)
-                iconText.text = if (TextUtils.isEmpty(fileData!!.fileType)) "" else fileData!!.fileType
-                title.text = if (TextUtils.isEmpty(fileData.fileName)) "" else fileData.fileName
-                desc.text = if (TextUtils.isEmpty(fileData.desc)) "" else fileData.desc
+                file_icon_text.setBackgroundResource(R.drawable.svg_file_unknown)
+                file_icon_text.text = if (TextUtils.isEmpty(fileData.fileType)) "" else fileData.fileType
+                file_title.text = if (TextUtils.isEmpty(fileData.fileName)) "" else fileData.fileName
+                file_desc.text = if (TextUtils.isEmpty(fileData.desc)) "" else fileData.desc
             }
-            iconText.setTextColor(getContext().resources.getColor(colorId))
+            file_icon_text.setTextColor(getContext().resources.getColor(colorId))
         }
     }
 
     private fun init() {
         LayoutInflater.from(context).inflate(R.layout.item_view_file, this, true)
-        findViewById<View>(R.id.left).setOnClickListener {
-            Log.e("ABCDEFG", "Left")
+        file_left_area.setOnClickListener {
+            if (!isDragging) {
+                file_container.requestFocus()
+                textStatus = 1
+                updateTextStatus()
+            }
         }
-        findViewById<View>(R.id.right).setOnClickListener {
-            Log.e("ABCDEFG", "Right")
+        file_right_area.setOnClickListener {
+            if (!isDragging) {
+                file_container.requestFocus()
+                textStatus = 2
+                updateTextStatus()
+            }
         }
-        findViewById<View>(R.id.center).setOnClickListener {
+        file_center_area.setOnClickListener {
+            textStatus = 0
+            updateTextStatus()
             listener.get()?.onFileClick((parent as ViewGroup).indexOfChild(this))
+        }
+        file_container.setOnFocusChangeListener { _, hasFocus ->
+            if (!hasFocus || isDragging) {
+                textStatus = 0
+                updateTextStatus()
+            }
+        }
+        file_container.setOnKeyListener { _, keyCode, event ->
+            if (keyCode == KeyEvent.KEYCODE_BACK || KeyEvent.isModifierKey(keyCode)) {
+                false
+            } else {
+                if (textStatus != 0 && !isDragging) {
+                    if (event.action == KeyEvent.ACTION_UP || event.action == KeyEvent.ACTION_MULTIPLE) {
+                        val index = (parent as ViewGroup).indexOfChild(this@KoalaFileView)
+                        if (keyCode == KeyEvent.KEYCODE_DEL) {
+                            if (textStatus == 1) {
+                                val pre = KoalaRichEditorView.getPrev(parent as ViewGroup, this@KoalaFileView)
+                                if (null != pre) {
+                                    if (pre is KoalaEditTextView) {
+                                        pre.edit_text.requestFocus()
+                                        pre.edit_text.setSelection(pre.edit_text.length())
+                                    } else if (pre is KoalaImageView) {
+                                        pre.image_right_area.performClick()
+                                    } else if (pre is KoalaFileView) {
+                                        pre.file_right_area.performClick()
+                                    }
+                                }
+                            } else if (textStatus == 2) {
+                                deleteCurrentItem(index)
+                            }
+                        } else if (keyCode == KeyEvent.KEYCODE_ENTER) {
+                            if (textStatus == 1) {
+                                insertNewLine("", index)
+                            } else if (textStatus == 2) {
+                                insertNewLine("", index + 1)
+                            }
+                        } else {
+                            val s: String? = if (keyCode != 0) {
+                                if (event != null && event.unicodeChar != null) {
+                                    event.unicodeChar.toChar().toString()
+                                } else {
+                                    null
+                                }
+                            } else {
+                                if (null != event && null != event.characters) {
+                                    event.characters.toString()
+                                } else {
+                                    null
+                                }
+                            }
+                            s?.let {
+                                if (textStatus == 1) {
+                                    insertNewLine(s, index)
+                                } else if (textStatus == 2) {
+                                    insertNewLine(s, index + 1)
+                                }
+                            }
+                        }
+                    }
+                }
+                true
+            }
+        }
+    }
+
+    private fun initMargin() {
+        val pre = KoalaRichEditorView.getPrev(parent as ViewGroup, this)
+        pre?.let {
+            val lp = file_content_bg.layoutParams as MarginLayoutParams
+            when (pre) {
+                is KoalaImageView, is KoalaFileView -> {
+                    lp.topMargin = MARGIN_4
+                }
+                is KoalaEditTextView -> {
+                    lp.topMargin = MARGIN_3
+                }
+                else -> {
+                    lp.topMargin = MARGIN_5
+                }
+            }
+            file_content_bg.layoutParams = lp
+        }
+    }
+
+    override fun onAttachedToWindow() {
+        super.onAttachedToWindow()
+        initMargin()
+    }
+
+    private fun updateTextStatus() {
+        val leftVisibility = if (textStatus == 1) VISIBLE else GONE
+        if (file_left_line.visibility != leftVisibility) {
+            file_left_line.visibility = leftVisibility
+        }
+        val rightVisibility = if (textStatus == 2) VISIBLE else GONE
+        if (file_right_line.visibility != rightVisibility) {
+            file_right_line.visibility = rightVisibility
+        }
+        if (textStatus != 0) {
+            post { showSoft() }
         }
     }
 
@@ -105,7 +202,7 @@ class KoalaFileView : FrameLayout, KoalaBaseCellView {
     }
 
     override fun reload() {
-
+        initMargin()
     }
 
     override fun setStyleH1() {
@@ -181,47 +278,70 @@ class KoalaFileView : FrameLayout, KoalaBaseCellView {
     }
 
     override fun setEditable(enable: Boolean) {
-        if(!enable) {
-            icon_drag.visibility = View.GONE
+        if (!enable) {
+            file_icon_drag.visibility = View.GONE
         }
     }
 
     override fun onInterceptTouchEvent(ev: MotionEvent): Boolean {
-        if (icon_drag.visibility == View.VISIBLE) {
-            isDragEnabled = eventInView(ev, icon_drag)
-            if (isDragEnabled) {
-                return isDragEnabled
+        if (file_icon_drag.visibility == View.VISIBLE) {
+            dragTouchToggled = eventInView(ev, file_icon_drag)
+            if (dragTouchToggled) {
+                return dragTouchToggled
             }
         }
         return super.onInterceptTouchEvent(ev)
     }
 
     override fun onTouchEvent(event: MotionEvent): Boolean {
-        return if (isDragEnabled) {
+        return if (dragTouchToggled) {
             false
         } else super.onTouchEvent(event)
     }
 
+    private var isDragging = false
     override fun enableDrag(enable: Boolean) {
-        container.showShadow(enable)
+        isDragging = enable
+        textStatus = 0
+        updateTextStatus()
+        file_container.showShadow(enable)
         if (enable) {
-            icon_drag.visibility = View.VISIBLE
+            file_container.isFocusable = false
+            file_container.isFocusableInTouchMode = false
+            file_icon_drag.visibility = View.VISIBLE
         } else {
-            icon_drag.visibility = View.GONE
+            file_container.isFocusable = true
+            file_container.isFocusableInTouchMode = true
+            file_icon_drag.visibility = View.GONE
         }
     }
 
     fun actionDown() {
-        icon_drag.setImageResource(R.drawable.svg_drag_icon_selected)
-        container.showHighLight(true)
+        file_icon_drag.setImageResource(R.drawable.svg_drag_icon_selected)
+        file_container.showHighLight(true)
     }
 
     fun actionUp() {
-        icon_drag.setImageResource(R.drawable.svg_drag_icon)
-        container.showHighLight(false)
+        file_icon_drag.setImageResource(R.drawable.svg_drag_icon)
+        file_container.showHighLight(false)
     }
 
     override fun release() {
 
+    }
+
+    private fun insertNewLine(text: String, index: Int) {
+        val krev = parent?.parent?.parent?.parent ?: return
+        if (krev is KoalaRichEditorView) {
+            krev.addCellText(text, index)
+        }
+    }
+
+    private fun deleteCurrentItem(index: Int) {
+        val krev = parent?.parent?.parent?.parent ?: return
+        if (krev is KoalaRichEditorView) {
+            krev.deleteFile(index)
+            krev.addCellText("", index)
+        }
     }
 }

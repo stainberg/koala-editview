@@ -13,6 +13,8 @@ import com.facebook.drawee.backends.pipeline.Fresco
 import com.facebook.imagepipeline.common.ResizeOptions
 import com.facebook.imagepipeline.request.ImageRequest
 import com.facebook.imagepipeline.request.ImageRequestBuilder
+import kotlinx.android.synthetic.main.item_view_edit_text.view.edit_text
+import kotlinx.android.synthetic.main.item_view_file.view.*
 import kotlinx.android.synthetic.main.item_view_image.view.*
 import java.io.File
 import java.lang.ref.SoftReference
@@ -30,8 +32,9 @@ class KoalaImageView : FrameLayout, KoalaBaseCellView {
     private val bound = resources.displayMetrics.heightPixels
     private val request: ImageRequest
     lateinit var fileData: FileData
-
-    private var isDragEnabled = false
+    private var dragTouchToggled = false
+    private var textStatus = 0
+    private var isDragging = false
 
     private var onScrollChangedListener: ViewTreeObserver.OnScrollChangedListener = ViewTreeObserver.OnScrollChangedListener {
         val location = IntArray(2)
@@ -92,44 +95,132 @@ class KoalaImageView : FrameLayout, KoalaBaseCellView {
     }
 
     override fun onInterceptTouchEvent(ev: MotionEvent): Boolean {
-        if (icon_drag.visibility == View.VISIBLE) {
-            isDragEnabled = eventInView(ev, icon_drag)
-            if (isDragEnabled) {
-                return isDragEnabled
+        if (image_icon_drag.visibility == View.VISIBLE) {
+            dragTouchToggled = eventInView(ev, image_icon_drag)
+            if (dragTouchToggled) {
+                return dragTouchToggled
             }
         }
         return super.onInterceptTouchEvent(ev)
     }
 
     override fun onTouchEvent(event: MotionEvent): Boolean {
-        return if (isDragEnabled) {
+        return if (dragTouchToggled) {
             false
         } else super.onTouchEvent(event)
     }
 
     private fun init() {
-        val v = LayoutInflater.from(context).inflate(R.layout.item_view_image, this, true)
-        v.findViewById<View>(R.id.left).setOnClickListener {
-            Log.e("ABCDEFG", "Left")
+        LayoutInflater.from(context).inflate(R.layout.item_view_image, this, true)
+        image_left_area.setOnClickListener {
+            if (!isDragging) {
+                image_container.requestFocus()
+                textStatus = 1
+                updateTextStatus()
+            }
         }
-        v.findViewById<View>(R.id.right).setOnClickListener {
-            Log.e("ABCDEFG", "Right")
+        image_right_area.setOnClickListener {
+            if (!isDragging) {
+                image_container.requestFocus()
+                textStatus = 2
+                updateTextStatus()
+            }
         }
-        v.findViewById<View>(R.id.center).setOnClickListener {
+        image_center_area.setOnClickListener {
+            textStatus = 0
+            updateTextStatus()
             sr.get()?.onImageClick((parent as ViewGroup).indexOfChild(this))
         }
+        image_container.setOnFocusChangeListener { _, hasFocus ->
+            if (!hasFocus || isDragging) {
+                textStatus = 0
+                updateTextStatus()
+            }
+        }
+
         visible = false
         viewTreeObserver.addOnScrollChangedListener(onScrollChangedListener)
-        imgWidth = fileData?.width ?: 0
-        imgHeight = fileData?.height ?: 0
+        imgWidth = fileData.width
+        imgHeight = fileData.height
         icon.measure(MeasureSpec.AT_MOST, MeasureSpec.UNSPECIFIED)
         val whRate = imgWidth.toFloat() / imgHeight.toFloat()
         val x: Float = context.screenWidth - context.dp2px(20f) * 2
         val y: Float = x / whRate
 
-        var lp = content_bg.layoutParams
+        var lp = image_content_bg.layoutParams
         lp.height = y.toInt()
-        content_bg.layoutParams = lp
+        image_content_bg.layoutParams = lp
+
+        image_container.setOnKeyListener { v, keyCode, event ->
+            if (keyCode == KeyEvent.KEYCODE_BACK || KeyEvent.isModifierKey(keyCode)) {
+                false
+            } else {
+                if (textStatus != 0 && !isDragging) {
+                    if (event.action == KeyEvent.ACTION_UP || event.action == KeyEvent.ACTION_MULTIPLE) {
+                        val index = (parent as ViewGroup).indexOfChild(this@KoalaImageView)
+                        if (keyCode == KeyEvent.KEYCODE_DEL) {
+                            if (textStatus == 1) {
+                                val pre = KoalaRichEditorView.getPrev(parent as ViewGroup, this@KoalaImageView)
+                                if (null != pre) {
+                                    if (pre is KoalaEditTextView) {
+                                        pre.edit_text.requestFocus()
+                                        pre.edit_text.setSelection(pre.edit_text.length())
+                                    } else if (pre is KoalaImageView) {
+                                        pre.image_right_area.performClick()
+                                    } else if (pre is KoalaFileView) {
+                                        pre.file_right_area.performClick()
+                                    }
+                                }
+                            } else if (textStatus == 2) {
+                                deleteCurrentItem(index)
+                            }
+                        } else if (keyCode == KeyEvent.KEYCODE_ENTER) {
+                            if (textStatus == 1) {
+                                insertNewLine("", index)
+                            } else if (textStatus == 2) {
+                                insertNewLine("", index + 1)
+                            }
+                        } else {
+                            val s: String? = if (keyCode != 0) {
+                                if (event != null && event.unicodeChar != null) {
+                                    event.unicodeChar.toChar().toString()
+                                } else {
+                                    null
+                                }
+                            } else {
+                                if (null != event && null != event.characters) {
+                                    event.characters.toString()
+                                } else {
+                                    null
+                                }
+                            }
+                            s?.let {
+                                if (textStatus == 1) {
+                                    insertNewLine(s, index)
+                                } else if (textStatus == 2) {
+                                    insertNewLine(s, index + 1)
+                                }
+                            }
+                        }
+                    }
+                }
+                true
+            }
+        }
+    }
+
+    private fun updateTextStatus() {
+        val leftVisibility = if (textStatus == 1) VISIBLE else GONE
+        if (image_left_line.visibility != leftVisibility) {
+            image_left_line.visibility = leftVisibility
+        }
+        val rightVisibility = if (textStatus == 2) VISIBLE else GONE
+        if (image_right_line.visibility != rightVisibility) {
+            image_right_line.visibility = rightVisibility
+        }
+        if (textStatus != 0) {
+            post { showSoft() }
+        }
     }
 
     override fun obtainUrl(): String {
@@ -137,6 +228,7 @@ class KoalaImageView : FrameLayout, KoalaBaseCellView {
     }
 
     override fun reload() {
+        initMargin()
         val location = IntArray(2)
         icon.getLocationInWindow(location)
         if (location[1] < 0) {
@@ -155,6 +247,30 @@ class KoalaImageView : FrameLayout, KoalaBaseCellView {
             if (location[1] < resources.displayMetrics.heightPixels + bound && !visible) {
                 reloadImage()
             }
+        }
+    }
+
+    override fun onAttachedToWindow() {
+        super.onAttachedToWindow()
+        initMargin()
+    }
+
+    private fun initMargin() {
+        val pre = KoalaRichEditorView.getPrev(parent as ViewGroup, this)
+        pre?.let {
+            val lp = image_content_bg.layoutParams as MarginLayoutParams
+            when (pre) {
+                is KoalaImageView, is KoalaFileView -> {
+                    lp.topMargin = MARGIN_4
+                }
+                is KoalaEditTextView -> {
+                    lp.topMargin = MARGIN_3
+                }
+                else -> {
+                    lp.topMargin = MARGIN_5
+                }
+            }
+            image_content_bg.layoutParams = lp
         }
     }
 
@@ -246,34 +362,41 @@ class KoalaImageView : FrameLayout, KoalaBaseCellView {
     }
 
     override fun setEditable(enable: Boolean) {
-        if(!enable) {
-            icon_drag.visibility = View.GONE
+        if (!enable) {
+            image_icon_drag.visibility = View.GONE
         }
     }
 
     private val defaultPadding = context.dp2px(4f).toInt()
-    private val paddingAnim: PaddingAnim by lazy { PaddingAnim(content_bg) }
+    private val paddingAnim: PaddingAnim by lazy { PaddingAnim(image_content_bg) }
     override fun enableDrag(enable: Boolean) {
-        container.showShadow(enable)
+        isDragging = enable
+        textStatus = 0
+        updateTextStatus()
+        image_container.showShadow(enable)
         if (enable) {
-            ObjectAnimator.ofInt(paddingAnim, "padding", content_bg.paddingLeft, defaultPadding).setDuration(animTime).start()
-            icon_drag.visibility = View.VISIBLE
-            touch_container.visibility = View.GONE
+            image_container.isFocusable = false
+            image_container.isFocusableInTouchMode = false
+            ObjectAnimator.ofInt(paddingAnim, "padding", image_content_bg.paddingLeft, defaultPadding).setDuration(animTime).start()
+            image_icon_drag.visibility = View.VISIBLE
+            image_touch_container.visibility = View.GONE
         } else {
-            ObjectAnimator.ofInt(paddingAnim, "padding", content_bg.paddingLeft, 0).setDuration(animTime).start()
-            icon_drag.visibility = View.GONE
-            touch_container.visibility = View.VISIBLE
+            image_container.isFocusable = true
+            image_container.isFocusableInTouchMode = true
+            ObjectAnimator.ofInt(paddingAnim, "padding", image_content_bg.paddingLeft, 0).setDuration(animTime).start()
+            image_icon_drag.visibility = View.GONE
+            image_touch_container.visibility = View.VISIBLE
         }
     }
 
     fun actionDown() {
-        icon_drag.setImageResource(R.drawable.svg_drag_icon_selected)
-        container.showHighLight(true)
+        image_icon_drag.setImageResource(R.drawable.svg_drag_icon_selected)
+        image_container.showHighLight(true)
     }
 
     fun actionUp() {
-        icon_drag.setImageResource(R.drawable.svg_drag_icon)
-        container.showHighLight(false)
+        image_icon_drag.setImageResource(R.drawable.svg_drag_icon)
+        image_container.showHighLight(false)
     }
 
     override fun release() {
@@ -293,5 +416,20 @@ class KoalaImageView : FrameLayout, KoalaBaseCellView {
         val imagePipeline = Fresco.getImagePipeline()
         val uri: Uri = Uri.fromFile(File(filePath))
         imagePipeline.evictFromMemoryCache(uri)
+    }
+
+    private fun insertNewLine(text: String, index: Int) {
+        val krev = parent?.parent?.parent?.parent ?: return
+        if (krev is KoalaRichEditorView) {
+            krev.addCellText(text, index)
+        }
+    }
+
+    private fun deleteCurrentItem(index: Int) {
+        val krev = parent?.parent?.parent?.parent ?: return
+        if (krev is KoalaRichEditorView) {
+            krev.deleteImage(index)
+            krev.addCellText("", index)
+        }
     }
 }
