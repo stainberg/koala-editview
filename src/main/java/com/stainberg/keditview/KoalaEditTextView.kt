@@ -214,6 +214,29 @@ class KoalaEditTextView : FrameLayout, KoalaBaseCellView {
         init(context)
     }
 
+    private val textWatcher = object : TextWatcher {
+        override fun beforeTextChanged(s: CharSequence, start: Int, count: Int, after: Int) {
+
+        }
+
+        override fun onTextChanged(s: CharSequence, start: Int, before: Int, count: Int) {
+
+        }
+
+        override fun afterTextChanged(s: Editable) {
+            notifyStatusChanged()
+            if (s.length == 0) {
+                showHint = true
+                onHintSetListener?.onHintChanged()
+            } else {
+                if (showHint) {
+                    showHint = false
+                    onHintSetListener?.onHintChanged()
+                }
+            }
+        }
+    }
+
     private fun init(context: Context) {
         style = STYLE_NORMAL
         gravity = Gravity.LEFT
@@ -223,28 +246,7 @@ class KoalaEditTextView : FrameLayout, KoalaBaseCellView {
         sectionIndex = 1
         LayoutInflater.from(context).inflate(R.layout.item_view_edit_text, this, true)
         if (onHintSetListener != null) {
-            edit_text.addTextChangedListener(object : TextWatcher {
-                override fun beforeTextChanged(s: CharSequence, start: Int, count: Int, after: Int) {
-
-                }
-
-                override fun onTextChanged(s: CharSequence, start: Int, before: Int, count: Int) {
-
-                }
-
-                override fun afterTextChanged(s: Editable) {
-                    notifyStatusChanged()
-                    if (s.length == 0) {
-                        showHint = true
-                        onHintSetListener?.onHintChanged()
-                    } else {
-                        if (showHint) {
-                            showHint = false
-                            onHintSetListener?.onHintChanged()
-                        }
-                    }
-                }
-            })
+            edit_text.addTextChangedListener(textWatcher)
         }
         edit_text.setOnKeyListener(keyListener)
         edit_text.setSelectionListener(onSelectionChangedListener)
@@ -272,7 +274,10 @@ class KoalaEditTextView : FrameLayout, KoalaBaseCellView {
     }
 
     override fun release() {
-
+        edit_text.removeTextChangedListener(textWatcher)
+        edit_text.setOnKeyListener(null)
+        edit_text.setSelectionListener(null)
+        edit_text.onFocusChangeListener = null
     }
 
     fun setText(p: String) {
