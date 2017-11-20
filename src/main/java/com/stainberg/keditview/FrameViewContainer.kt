@@ -91,10 +91,9 @@ internal class FrameViewContainer : FrameLayout {
         val bmp = Bitmap.createBitmap(view.drawingCache)
         view.isDrawingCacheEnabled = false
         val img = AppCompatImageView(context)
-        img.setPadding(0, 0, 0, 0)
         img.setBackgroundColor(Color.TRANSPARENT)
         img.setImageBitmap(bmp)
-        img.scaleType = ImageView.ScaleType.CENTER
+        Log.e("AAAA", "${view.height}")
         img.layoutParams = ViewGroup.LayoutParams(view.width, view.height)
         img.measure(view.width, view.height)
         img.layout(0, 0, view.width, view.height)

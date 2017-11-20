@@ -93,7 +93,7 @@ internal class EditorContainer : LinearLayout, View.OnTouchListener {
         addView(second, firstIndex)
         if (second is KoalaEditTextView) {
             if (second.resetPosition() && selectedView is KoalaEditTextView) {
-                getParentContainer().initFloatingView(selectedView!!)
+                downPoint?.let { getParentContainer().initFloatingView(selectedView!!) }
             }
         }
         var anim: TranslateAnimation
@@ -182,16 +182,16 @@ internal class EditorContainer : LinearLayout, View.OnTouchListener {
                 }
                 MotionEvent.ACTION_CANCEL,
                 MotionEvent.ACTION_UP -> {
-                    fc.destroyFloatingView()
                     downPoint?.recycle()
                     downPoint = null
                     largeImage()
-                    fc.refresh()
                     dispatchDrag(ev)
                     if (selectedView?.visibility != View.VISIBLE) {
                         selectedView?.visibility = View.VISIBLE
                     }
                     parent?.requestDisallowInterceptTouchEvent(false)
+                    fc.destroyFloatingView()
+                    fc.refresh()
                 }
                 else -> {
                 }
@@ -205,7 +205,7 @@ internal class EditorContainer : LinearLayout, View.OnTouchListener {
     private fun initSize() {
         val content = getContentView() ?: return
         maxHeight = content.bottom - content.top
-        originalHeight = content.layoutParams.height
+//        originalHeight = content.layoutParams.height
         minHeight = if (maxHeight > fixedMinHeight) fixedMinHeight else maxHeight
     }
 
@@ -230,24 +230,30 @@ internal class EditorContainer : LinearLayout, View.OnTouchListener {
     private var fixedMinHeight = context.dp2px(68f).toInt()
     private var minHeight = 0
     private var maxHeight = 0
-    private var originalHeight = 0
+//    private var originalHeight = 0
 
     private var hAnim: HeightAnim? = null
+    private var anim: ObjectAnimator? = null
     private fun smallImage() {
         if (maxHeight == 0) return
         val currentView = selectedView ?: return
         val content = getContentView() ?: return
         hAnim = HeightAnim(content)
-        val anim = ObjectAnimator.ofInt(hAnim!!, "x", content.bottom - content.top, minHeight).setDuration(animTime)
-        anim.addListener(object : Animator.AnimatorListener {
+        anim?.removeAllListeners()
+        anim?.removeAllUpdateListeners()
+        anim?.end()
+        val currAnim = ObjectAnimator.ofInt(hAnim!!, "x", content.bottom - content.top, minHeight).setDuration(animTime)
+        currAnim.addListener(object : Animator.AnimatorListener {
             override fun onAnimationRepeat(animation: Animator?) {
             }
 
             override fun onAnimationEnd(animation: Animator?) {
-                content.post {
-                    getParentContainer().initFloatingView(selectedView!!)
-                    if (selectedView?.visibility != View.INVISIBLE) {
-                        selectedView?.visibility = View.INVISIBLE
+                downPoint?.let {
+                    content?.post {
+                        getParentContainer().initFloatingView(currentView)
+                        if (selectedView?.visibility != View.INVISIBLE) {
+                            selectedView?.visibility = View.INVISIBLE
+                        }
                     }
                 }
             }
@@ -258,7 +264,8 @@ internal class EditorContainer : LinearLayout, View.OnTouchListener {
             override fun onAnimationStart(animation: Animator?) {
             }
         })
-        anim.start()
+        currAnim.start()
+        anim = currAnim
         when (currentView) {
             is KoalaImageView -> {
                 currentView.actionDown()
@@ -276,8 +283,11 @@ internal class EditorContainer : LinearLayout, View.OnTouchListener {
         if (maxHeight == 0) return
         val currentView = selectedView ?: return
         val content = getContentView() ?: return
-        val anim = ObjectAnimator.ofInt(hAnim!!, "x", content.bottom - content.top, originalHeight).setDuration(animTime)
-        anim.start()
+        anim?.removeAllListeners()
+        anim?.end()
+        val currAnim = ObjectAnimator.ofInt(hAnim!!, "x", content.bottom - content.top, /*originalHeight*/maxHeight).setDuration(animTime)
+        currAnim.start()
+        anim = currAnim
         when (currentView) {
             is KoalaImageView -> {
                 currentView.actionUp()
