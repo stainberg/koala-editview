@@ -21,7 +21,7 @@ class KoalaEditText : AppCompatEditText {
 
     constructor(context: Context, attrs: AttributeSet, defStyleAttr: Int) : super(context, attrs, defStyleAttr) {}
 
-    fun setSelectionListener(l: OnSelectionChangedListener) {
+    fun setSelectionListener(l: OnSelectionChangedListener?) {
         changedListener = l
     }
 
