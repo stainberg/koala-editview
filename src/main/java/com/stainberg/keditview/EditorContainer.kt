@@ -3,6 +3,7 @@ package com.stainberg.keditview
 import android.animation.Animator
 import android.animation.ObjectAnimator
 import android.content.*
+import android.graphics.Rect
 import android.support.v4.widget.*
 import android.util.*
 import android.view.*
@@ -46,8 +47,7 @@ internal class EditorContainer : LinearLayout, View.OnTouchListener {
 
     private fun checkMoveIfNeeded(ev: MotionEvent) {
         val scrollView = (parent as NestedScrollView?) ?: return
-        val location = intArrayOf(0, 0)
-        scrollView.getLocationOnScreen(location)
+        val location = getLocation(scrollView)
         val top = location[1]
         val bottom = top + scrollView.height
         val y = ev.rawY
@@ -65,10 +65,9 @@ internal class EditorContainer : LinearLayout, View.OnTouchListener {
         val position = indexOfChild(currentView)
         var isSwapped = false
         val currentCenter = ev.y - topViewOffset + currentView.height / 2
-        val location = intArrayOf(0, 0)
         if (position > 0) {
             val pre = getChildAt(position - 1)
-            pre.getLocationOnScreen(location)
+            val location = getLocation(pre)
             val preCenter = location[1] + pre.height / 2
             if (currentCenter < preCenter) {
                 isSwapped = true
@@ -77,7 +76,7 @@ internal class EditorContainer : LinearLayout, View.OnTouchListener {
         }
         if (!isSwapped && position < childCount - 1) {
             val next = getChildAt(position + 1)
-            next.getLocationOnScreen(location)
+            val location = getLocation(next)
             val nextCenter = location[1] + next.height / 2
             if (currentCenter > nextCenter) {
                 swap(currentView, position, next, true)
@@ -92,6 +91,11 @@ internal class EditorContainer : LinearLayout, View.OnTouchListener {
         removeView(second)
         addView(first, firstIndex)
         addView(second, firstIndex)
+        if (second is KoalaEditTextView) {
+            if (second.resetPosition() && selectedView is KoalaEditTextView) {
+                getParentContainer().initFloatingView(selectedView!!)
+            }
+        }
         var anim: TranslateAnimation
         if (isSwapAfter) {
             anim = TranslateAnimation(0f, 0f, firstHeight, 0f)
@@ -104,16 +108,33 @@ internal class EditorContainer : LinearLayout, View.OnTouchListener {
         }
     }
 
+    private fun getLocation(view: View): IntArray {
+        val location = IntArray(2)
+        view.getLocationOnScreen(location)
+        if (location[1] == 0) {
+            val rect = Rect()
+            view.getGlobalVisibleRect(rect)
+            location[1] = rect.top
+        }
+        return location
+    }
+
     fun setDragEnabled(enable: Boolean) {
         isDragEnabled = enable
+    }
+
+    private fun getParentContainer(): FrameViewContainer {
+        if (null == tf.get()) {
+            tf = SoftReference(parent.parent as FrameViewContainer)
+        }
+        return tf.get()!!
     }
 
     private fun isTouchPointInView(view: View?, x: Int, y: Int): Boolean {
         if (view == null) {
             return false
         }
-        val location = IntArray(2)
-        view.getLocationOnScreen(location)
+        val location = getLocation(view)
         val left = location[0]
         val top = location[1]
         val right = left + view.measuredWidth
@@ -137,9 +158,7 @@ internal class EditorContainer : LinearLayout, View.OnTouchListener {
     override fun onTouch(view: View?, ev: MotionEvent?): Boolean {
         val flag = super.onTouchEvent(ev)
         if (null == view || null == ev) return flag
-        if (tf.get() == null) {
-            tf = SoftReference(parent.parent as FrameViewContainer)
-        }
+        val fc = getParentContainer()
         if (isDragEnabled && !flag) {
             when (ev.action) {
                 MotionEvent.ACTION_DOWN -> {
@@ -150,25 +169,24 @@ internal class EditorContainer : LinearLayout, View.OnTouchListener {
                     selectedView = getLocationView(ev)
                     if (selectedView != null) {
                         val top = selectedView!!.top - getParentScrollY()
-                        val tf = tf.get()!!
-                        tf.initStartOffset(MotionEvent.obtain(ev), top)
+                        fc.initStartOffset(MotionEvent.obtain(ev), top)
                         initSize()
                         smallImage()
                     }
                     parent?.requestDisallowInterceptTouchEvent(true)
                 }
                 MotionEvent.ACTION_MOVE -> {
-                    tf.get()!!.setCurrentPosition(MotionEvent.obtain(ev))
-                    tf.get()!!.refresh()
+                    fc.setCurrentPosition(MotionEvent.obtain(ev))
+                    fc.refresh()
                     dispatchDrag(ev)
                 }
                 MotionEvent.ACTION_CANCEL,
                 MotionEvent.ACTION_UP -> {
-                    tf.get()!!.destroyFloatingView()
+                    fc.destroyFloatingView()
                     downPoint?.recycle()
                     downPoint = null
                     largeImage()
-                    tf.get()!!.refresh()
+                    fc.refresh()
                     dispatchDrag(ev)
                     if (selectedView?.visibility != View.VISIBLE) {
                         selectedView?.visibility = View.VISIBLE
@@ -227,7 +245,7 @@ internal class EditorContainer : LinearLayout, View.OnTouchListener {
 
             override fun onAnimationEnd(animation: Animator?) {
                 content.post {
-                    tf.get()!!.initFloatingView(selectedView!!)
+                    getParentContainer().initFloatingView(selectedView!!)
                     if (selectedView?.visibility != View.INVISIBLE) {
                         selectedView?.visibility = View.INVISIBLE
                     }

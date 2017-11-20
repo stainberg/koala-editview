@@ -684,7 +684,7 @@ class KoalaEditTextView : FrameLayout, KoalaBaseCellView {
             }
         }
         v.section = 1
-        v.section_text.text = v.sectionIndex.toString() + "."
+        v.section_text.text = v.sectionIndex.toString() + ". "
         initMargin()
     }
 
@@ -727,6 +727,21 @@ class KoalaEditTextView : FrameLayout, KoalaBaseCellView {
                 v.setNextSection(next)
             }
         }
+    }
+
+    fun resetPosition(): Boolean {
+        if (section != SECTION_NUMBER) return false
+        val pr = parent as? ViewGroup ?: return false
+        val pre = KoalaRichEditorView.getPrev(pr, this)
+        val preIndex = if (pre == null || pre !is KoalaEditTextView) {
+            0
+        } else {
+            pre.sectionIndex
+        }
+        sectionIndex = preIndex + 1
+        section_text.text = "$sectionIndex. "
+        resetNextSection(this)
+        return true
     }
 
     fun resetNextSection(v: KoalaEditTextView?) {

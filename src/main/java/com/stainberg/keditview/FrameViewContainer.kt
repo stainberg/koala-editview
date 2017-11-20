@@ -74,7 +74,10 @@ internal class FrameViewContainer : FrameLayout {
     }
 
     private fun destroyPoint() {
-        downPoint?.let { downPoint?.recycle() }
+        downPoint?.let {
+            downPoint?.recycle()
+            downPoint = null
+        }
     }
 
     fun setCurrentPosition(event: MotionEvent?) {
