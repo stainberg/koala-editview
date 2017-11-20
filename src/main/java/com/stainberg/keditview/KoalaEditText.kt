@@ -4,10 +4,6 @@ import android.content.Context
 import android.graphics.Rect
 import android.support.v7.widget.AppCompatEditText
 import android.util.AttributeSet
-import android.util.Log
-import android.graphics.PorterDuff
-import android.graphics.drawable.Drawable
-import java.lang.reflect.AccessibleObject.setAccessible
 import android.widget.TextView
 
 

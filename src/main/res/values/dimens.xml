@@ -1,7 +1,7 @@
 <resources>
     <dimen name="normal_text">16px</dimen>
-    <dimen name="middle_text">18px</dimen>
-    <dimen name="large_text">20px</dimen>
+    <dimen name="middle_text">17px</dimen>
+    <dimen name="large_text">19px</dimen>
 
     <dimen name="text_padding_h">4dp</dimen>
     <dimen name="text_padding_v">4dp</dimen>

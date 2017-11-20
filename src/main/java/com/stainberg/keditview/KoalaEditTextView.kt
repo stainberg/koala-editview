@@ -39,7 +39,6 @@ class KoalaEditTextView : FrameLayout, KoalaBaseCellView {
     internal var section: Int = 0
     private var quote: Boolean = false
     private var code: Boolean = false
-    private var sectionTop = 0
     private var singleHeight = 0
     private var sectionIndex = 0
     private var showHint = true
@@ -176,7 +175,7 @@ class KoalaEditTextView : FrameLayout, KoalaBaseCellView {
                 if (bold) {
                     s = s or S_B
                 }
-                if (gravity != GRAVITY_LEFT) {
+                if (gravity != Gravity.LEFT) {
                     s = s or S_G
                 }
                 if (quote) {
@@ -217,7 +216,7 @@ class KoalaEditTextView : FrameLayout, KoalaBaseCellView {
 
     private fun init(context: Context) {
         style = STYLE_NORMAL
-        gravity = GRAVITY_LEFT
+        gravity = Gravity.LEFT
         section = SECTION_NULL
         quote = false
         code = false
@@ -252,7 +251,8 @@ class KoalaEditTextView : FrameLayout, KoalaBaseCellView {
         edit_text.onFocusChangeListener = onFocusChangeListener
         edit_text.measure(View.MeasureSpec.getMode(0), View.MeasureSpec.getMode(0))
         singleHeight = edit_text.measuredHeight
-        sectionTop = ((singleHeight - resources.getDimension(R.dimen.section_radio)) / 2).toInt()
+        setStyleNormal()
+        section_text.textSize = resources.getDimension(R.dimen.normal_text)
     }
 
     override fun onInterceptTouchEvent(ev: MotionEvent): Boolean {
@@ -293,7 +293,8 @@ class KoalaEditTextView : FrameLayout, KoalaBaseCellView {
     }
 
     private fun initMargin() {
-        val pre = KoalaRichEditorView.getPrev(parent as ViewGroup, this)
+        val pr = parent as? ViewGroup ?: return
+        val pre = KoalaRichEditorView.getPrev(pr, this)
         pre?.let {
             val lp = edit_content_bg.layoutParams as MarginLayoutParams
             when (pre) {
@@ -309,7 +310,7 @@ class KoalaEditTextView : FrameLayout, KoalaBaseCellView {
                             lp.topMargin = MARGIN_4
                         }
                         else -> {
-                            lp.topMargin = MARGIN_9
+                            lp.topMargin = if (section != SECTION_NULL) MARGIN_3 else MARGIN_9
                         }
                     }
                 }
@@ -335,11 +336,13 @@ class KoalaEditTextView : FrameLayout, KoalaBaseCellView {
         if (style != STYLE_H1) {
             edit_text.textSize = resources.getDimension(R.dimen.large_text)
             edit_text.setTextColor(ContextCompat.getColor(context, R.color.black_text))
+            edit_text.paint.typeface = Typeface.DEFAULT_BOLD
             style = STYLE_H1
         } else {
             setStyleNormal()
         }
         notifyStatusChanged()
+        initMargin()
     }
 
     private fun notifyStatusChanged() {
@@ -355,11 +358,13 @@ class KoalaEditTextView : FrameLayout, KoalaBaseCellView {
         if (style != STYLE_H2) {
             edit_text.textSize = resources.getDimension(R.dimen.middle_text)
             edit_text.setTextColor(ContextCompat.getColor(context, R.color.black_text))
+            edit_text.paint.typeface = Typeface.DEFAULT_BOLD
             style = STYLE_H2
         } else {
             setStyleNormal()
         }
         notifyStatusChanged()
+        initMargin()
     }
 
     override fun setStyleNormal() {
@@ -369,8 +374,10 @@ class KoalaEditTextView : FrameLayout, KoalaBaseCellView {
         }
         cleanSection(this@KoalaEditTextView)
         edit_text.textSize = resources.getDimension(R.dimen.normal_text)
+        edit_text.paint.typeface = Typeface.DEFAULT
         edit_text.setTextColor(ContextCompat.getColor(context, R.color.gray_text))
         style = STYLE_NORMAL
+        initMargin()
     }
 
     @Deprecated("")
@@ -384,19 +391,19 @@ class KoalaEditTextView : FrameLayout, KoalaBaseCellView {
     }
 
     override fun setGravity() {
-        if (quote || section == 1 || section == 2) {//不支持居中
+        if (quote || section != 0) {//不支持居中
             return
         }
-        if (gravity == GRAVITY_LEFT) {//left
+        if (gravity == Gravity.LEFT) {//left
             edit_text.gravity = Gravity.CENTER
-            gravity = GRAVITY_CENTER
+            gravity = Gravity.CENTER
         } /*else if (gravity == GRAVITY_CENTER) {//middle
             editText.setGravity(Gravity.END);
             gravity = GRAVITY_RIGHT;
         } */
         else {//right
             edit_text.gravity = Gravity.START or Gravity.CENTER_VERTICAL
-            gravity = GRAVITY_LEFT
+            gravity = Gravity.LEFT
         }
         notifyStatusChanged()
     }
@@ -414,12 +421,16 @@ class KoalaEditTextView : FrameLayout, KoalaBaseCellView {
             markQuote()
         }
         notifyStatusChanged()
+        initMargin()
     }
 
     override fun setSection(st: Int) {
         if (quote) {
             cleanQuote(st, style)
             return
+        }
+        if (gravity != Gravity.LEFT) {
+            setGravity()
         }
         if (section == st) {
             cleanSection(this@KoalaEditTextView)
@@ -432,11 +443,15 @@ class KoalaEditTextView : FrameLayout, KoalaBaseCellView {
                 cleanSection(this@KoalaEditTextView)
             }
         }
-        val next = KoalaRichEditorView.getNext(parent as ViewGroup, this@KoalaEditTextView)
-        if (next != null && next is KoalaEditTextView && next.section != SECTION_NULL) {
-            resetNextSection(this@KoalaEditTextView)
+        val pr = parent as? ViewGroup
+        pr?.let {
+            val next = KoalaRichEditorView.getNext(pr, this@KoalaEditTextView)
+            if (next != null && next is KoalaEditTextView && next.section != SECTION_NULL) {
+                resetNextSection(this@KoalaEditTextView)
+            }
         }
         notifyStatusChanged()
+        initMargin()
     }
 
     override fun setBold() {
@@ -653,7 +668,6 @@ class KoalaEditTextView : FrameLayout, KoalaBaseCellView {
             return
         }
         v.setStyleNormal()
-        v.section_text.gravity = Gravity.END or Gravity.CENTER_VERTICAL
         v.section_text.visibility = View.VISIBLE
         val prev = KoalaRichEditorView.getPrev(parent as ViewGroup, v)
         if (prev != null) {
@@ -671,6 +685,7 @@ class KoalaEditTextView : FrameLayout, KoalaBaseCellView {
         }
         v.section = 1
         v.section_text.text = v.sectionIndex.toString() + "."
+        initMargin()
     }
 
     internal fun setDotSection(v: KoalaEditTextView) {
@@ -683,13 +698,15 @@ class KoalaEditTextView : FrameLayout, KoalaBaseCellView {
         v.section_text.visibility = View.VISIBLE
         v.sectionIndex = 1
         v.section = 2
+        initMargin()
     }
 
     internal fun cleanSection(v: KoalaEditTextView) {
         v.section_text.visibility = View.GONE
         v.section = SECTION_NULL
         v.sectionIndex = 1
-        val next = KoalaRichEditorView.getNext(parent as ViewGroup, this@KoalaEditTextView)
+        val pr = parent as? ViewGroup ?: return
+        val next = KoalaRichEditorView.getNext(pr, this@KoalaEditTextView)
         if (next != null && next is KoalaEditTextView && next.section != SECTION_NULL) {
             resetNextSection(this@KoalaEditTextView)
         }
@@ -697,8 +714,9 @@ class KoalaEditTextView : FrameLayout, KoalaBaseCellView {
 
     internal fun setNextSection(v: KoalaEditTextView?) {
         if (null == v) return
-        val prev = KoalaRichEditorView.getPrev(parent as ViewGroup, v)
-        val next = KoalaRichEditorView.getNext(parent as ViewGroup, v)
+        val pr = parent as? ViewGroup ?: return
+        val prev = KoalaRichEditorView.getPrev(pr, v)
+        val next = KoalaRichEditorView.getNext(pr, v)
         if (prev != null && prev is KoalaEditTextView) {
             if (prev.section == v.section && v.section == SECTION_NUMBER && !v.quote) {
                 v.setNumberSection(v)
@@ -713,7 +731,8 @@ class KoalaEditTextView : FrameLayout, KoalaBaseCellView {
 
     fun resetNextSection(v: KoalaEditTextView?) {
         if (v != null) {
-            val next = KoalaRichEditorView.getNext(parent as ViewGroup, v)
+            val pr = parent as? ViewGroup ?: return
+            val next = KoalaRichEditorView.getNext(pr, v)
             if (next != null && next is KoalaEditTextView) {
                 if (!v.quote) {
                     if (next.section == v.section) {
@@ -744,6 +763,7 @@ class KoalaEditTextView : FrameLayout, KoalaBaseCellView {
                 }
                 v.resetNextSection(next)
             }
+            v.initMargin()
         }
     }
 
@@ -758,7 +778,7 @@ class KoalaEditTextView : FrameLayout, KoalaBaseCellView {
         lp.topMargin = 0
         lp.bottomMargin = 0
         v.layoutParams = lp
-        v.edit_text.setPadding(0, 0, 0, 0)
+        v.edit_content_bg.setPadding(0, 0, 0, 0)
         v.quote = false
         if (listener != null) {
             val start = v.edit_text.selectionStart
@@ -790,12 +810,13 @@ class KoalaEditTextView : FrameLayout, KoalaBaseCellView {
 
             listener!!.splitSelf(v, p, s, n, section, setStyle)
         }
+        initMargin()
     }
 
     private fun cleanAllQuote() {
         edit_content_bg.setBackgroundColor(ContextCompat.getColor(context, android.R.color.white))
         val v = this
-        v.edit_text.setPadding(0, 0, 0, 0)
+        v.edit_content_bg.setPadding(0, 0, 0, 0)
         v.quote = false
         listener!!.splitSelf(v, null, v.edit_text.text, null, SECTION_NULL, STYLE_NORMAL)
     }
@@ -804,7 +825,7 @@ class KoalaEditTextView : FrameLayout, KoalaBaseCellView {
         edit_content_bg.setBackgroundResource(R.drawable.shape_edit_quote_bg)
         val v = this
         v.quote = true
-        v.edit_text.setPadding(quotePadding, quotePadding, quotePadding, quotePadding)
+        v.edit_content_bg.setPadding(quotePadding, quotePadding, quotePadding, quotePadding)
         v.cleanSection(v)
         v.resetNextSection(v)
     }
@@ -860,9 +881,6 @@ class KoalaEditTextView : FrameLayout, KoalaBaseCellView {
         val SECTION_NULL = 0
         val SECTION_NUMBER = 1
         val SECTION_DOT = 2
-        val GRAVITY_LEFT = 0
-        val GRAVITY_CENTER = 1
-        val GRAVITY_RIGHT = 2
         val STYLE_NORMAL = 0
         val STYLE_H1 = 1
         val STYLE_H2 = 2
