@@ -92,7 +92,7 @@ internal class EditorContainer : LinearLayout, View.OnTouchListener {
         removeView(second)
         addView(first, firstIndex)
         addView(second, firstIndex)
-        var anim: Animation
+        var anim: TranslateAnimation
         if (isSwapAfter) {
             anim = TranslateAnimation(0f, 0f, firstHeight, 0f)
             anim.duration = 100
@@ -187,6 +187,7 @@ internal class EditorContainer : LinearLayout, View.OnTouchListener {
     private fun initSize() {
         val content = getContentView() ?: return
         maxHeight = content.bottom - content.top
+        originalHeight = content.layoutParams.height
         minHeight = if (maxHeight > fixedMinHeight) fixedMinHeight else maxHeight
     }
 
@@ -211,6 +212,7 @@ internal class EditorContainer : LinearLayout, View.OnTouchListener {
     private var fixedMinHeight = context.dp2px(68f).toInt()
     private var minHeight = 0
     private var maxHeight = 0
+    private var originalHeight = 0
 
     private var hAnim: HeightAnim? = null
     private fun smallImage() {
@@ -256,7 +258,7 @@ internal class EditorContainer : LinearLayout, View.OnTouchListener {
         if (maxHeight == 0) return
         val currentView = selectedView ?: return
         val content = getContentView() ?: return
-        val anim = ObjectAnimator.ofInt(hAnim!!, "x", content.bottom - content.top, maxHeight).setDuration(animTime)
+        val anim = ObjectAnimator.ofInt(hAnim!!, "x", content.bottom - content.top, originalHeight).setDuration(animTime)
         anim.start()
         when (currentView) {
             is KoalaImageView -> {
