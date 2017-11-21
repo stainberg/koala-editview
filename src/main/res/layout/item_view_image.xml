@@ -1,74 +1,85 @@
 <?xml version="1.0" encoding="utf-8"?>
-<com.stainberg.keditview.ShadowContainer xmlns:android="http://schemas.android.com/apk/res/android"
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:id="@+id/image_container"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:focusable="true"
-    android:focusableInTouchMode="true">
+    android:layout_height="wrap_content">
 
-    <RelativeLayout
-        android:id="@+id/image_content_bg"
+    <View
+        android:id="@+id/image_space"
+        android:layout_width="match_parent"
+        android:layout_height="0dp" />
+
+    <com.stainberg.keditview.ShadowContainer xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:app="http://schemas.android.com/apk/res-auto"
+        android:id="@+id/image_container"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="5dp"
-        android:layout_marginLeft="20dp"
-        android:layout_marginRight="20dp"
-        android:layout_marginTop="5dp">
+        android:focusable="true"
+        android:focusableInTouchMode="true">
 
-        <com.facebook.drawee.view.SimpleDraweeView
-            android:id="@+id/icon"
+        <RelativeLayout
+            android:id="@+id/image_content_bg"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:layout_centerInParent="true" />
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="5dp"
+            android:layout_marginLeft="20dp"
+            android:layout_marginRight="20dp"
+            android:layout_marginTop="5dp">
 
-        <LinearLayout
-            android:id="@+id/image_touch_container"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:orientation="horizontal">
-
-            <View
-                android:id="@+id/image_left_area"
+            <com.facebook.drawee.view.SimpleDraweeView
+                android:id="@+id/icon"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:layout_weight="1" />
+                android:layout_centerInParent="true" />
 
-            <View
-                android:id="@+id/image_center_area"
+            <LinearLayout
+                android:id="@+id/image_touch_container"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:layout_weight="1" />
+                android:orientation="horizontal">
 
-            <View
-                android:id="@+id/image_right_area"
-                android:layout_width="match_parent"
+                <View
+                    android:id="@+id/image_left_area"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1" />
+
+                <View
+                    android:id="@+id/image_center_area"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1" />
+
+                <View
+                    android:id="@+id/image_right_area"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1" />
+            </LinearLayout>
+
+            <com.stainberg.keditview.TextCursor
+                android:id="@+id/image_left_line"
+                android:layout_width="2dp"
                 android:layout_height="match_parent"
-                android:layout_weight="1" />
-        </LinearLayout>
+                android:cursorVisible="false"
+                android:visibility="gone" />
 
-        <com.stainberg.keditview.TextCursor
-            android:id="@+id/image_left_line"
-            android:layout_width="2dp"
-            android:layout_height="match_parent"
-            android:cursorVisible="false"
-            android:visibility="gone" />
+            <com.stainberg.keditview.TextCursor
+                android:id="@+id/image_right_line"
+                android:layout_width="2dp"
+                android:layout_height="match_parent"
+                android:layout_alignParentRight="true"
+                android:cursorVisible="false"
+                android:visibility="gone" />
+        </RelativeLayout>
 
-        <com.stainberg.keditview.TextCursor
-            android:id="@+id/image_right_line"
-            android:layout_width="2dp"
-            android:layout_height="match_parent"
+        <android.support.v7.widget.AppCompatImageView
+            android:id="@+id/image_icon_drag"
+            android:layout_width="28dp"
+            android:layout_height="28dp"
             android:layout_alignParentRight="true"
-            android:cursorVisible="false"
-            android:visibility="gone" />
-    </RelativeLayout>
-
-    <android.support.v7.widget.AppCompatImageView
-        android:id="@+id/image_icon_drag"
-        android:layout_width="28dp"
-        android:layout_height="28dp"
-        android:layout_alignParentRight="true"
-        android:layout_margin="8dp"
-        android:visibility="gone"
-        app:srcCompat="@drawable/svg_drag_icon" />
-</com.stainberg.keditview.ShadowContainer>
+            android:layout_margin="8dp"
+            android:visibility="gone"
+            app:srcCompat="@drawable/svg_drag_icon" />
+    </com.stainberg.keditview.ShadowContainer>
+</FrameLayout>

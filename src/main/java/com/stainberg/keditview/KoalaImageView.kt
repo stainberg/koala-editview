@@ -250,15 +250,43 @@ class KoalaImageView : FrameLayout, KoalaBaseCellView {
         }
     }
 
+    private val offset = context.screenHeight
+    private val globalLayoutListener = ViewTreeObserver.OnGlobalLayoutListener {
+        val height = image_container.height
+        if (height != 0) {
+            val lp = image_space.layoutParams
+            if (lp.height != height) {
+                lp.height = height
+                image_space.layoutParams = lp
+            }
+        }
+    }
+    private val scrollChangedListener = ViewTreeObserver.OnScrollChangedListener {
+        val location = IntArray(2)
+        getLocationInWindow(location)
+        val y = location[1]
+        if (y > offset * 2 || (y + height < -offset)) {
+            if (image_container.visibility != View.GONE) {
+                image_container.visibility = View.GONE
+            }
+        } else {
+            if (image_container.visibility != View.VISIBLE) {
+                image_container.visibility = View.VISIBLE
+            }
+        }
+    }
+
     override fun onAttachedToWindow() {
         super.onAttachedToWindow()
+        viewTreeObserver.addOnGlobalLayoutListener(globalLayoutListener)
+        viewTreeObserver.addOnScrollChangedListener(scrollChangedListener)
         initMargin()
-        Log.e("AAAA", "onAttachedToWindow")
     }
 
     override fun onDetachedFromWindow() {
         super.onDetachedFromWindow()
-        Log.e("AAAA", "onDetachedFromWindow")
+        viewTreeObserver.removeOnGlobalLayoutListener(globalLayoutListener)
+        viewTreeObserver.removeOnScrollChangedListener(scrollChangedListener)
     }
 
     private fun initMargin() {

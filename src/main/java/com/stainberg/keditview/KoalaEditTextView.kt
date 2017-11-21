@@ -15,6 +15,7 @@ import android.text.TextWatcher
 import android.text.style.StrikethroughSpan
 import android.text.style.StyleSpan
 import android.util.AttributeSet
+import android.util.Log
 import android.view.*
 import android.widget.FrameLayout
 import android.widget.LinearLayout
@@ -42,6 +43,7 @@ class KoalaEditTextView : FrameLayout, KoalaBaseCellView {
     private var singleHeight = 0
     private var sectionIndex = 0
     private var showHint = true
+    private var hasFocus = false
 
     private var isDragEnabled = false
 
@@ -136,15 +138,11 @@ class KoalaEditTextView : FrameLayout, KoalaBaseCellView {
         }
     }
 
-    private val onFocusChangeListener = object : OnFocusChangeListener {
-        override fun onFocusChange(v: View?, hasFocus: Boolean) {
-            if (statusListener != null && v === edit_text) {
-                if (hasFocus) {
-                    statusListener!!.setEnableKeyBoard(true)
-                    notifyStatusChanged()
-                } else {
-                    statusListener!!.setEnableKeyBoard(false)
-                }
+    private val textFocusChangeListener = OnFocusChangeListener { v, hasFocus ->
+        if (statusListener != null && v === edit_text) {
+            this.hasFocus = hasFocus
+            if (hasFocus) {
+                notifyStatusChanged()
             }
         }
     }
@@ -250,7 +248,7 @@ class KoalaEditTextView : FrameLayout, KoalaBaseCellView {
         }
         edit_text.setOnKeyListener(keyListener)
         edit_text.setSelectionListener(onSelectionChangedListener)
-        edit_text.onFocusChangeListener = onFocusChangeListener
+        edit_text.onFocusChangeListener = textFocusChangeListener
         edit_text.measure(View.MeasureSpec.getMode(0), View.MeasureSpec.getMode(0))
         singleHeight = edit_text.measuredHeight
         setStyleNormal()
@@ -327,9 +325,43 @@ class KoalaEditTextView : FrameLayout, KoalaBaseCellView {
         }
     }
 
+    private val offset = context.screenHeight
+    private val globalLayoutListener = ViewTreeObserver.OnGlobalLayoutListener {
+        val height = edit_container.height
+        if (height != 0) {
+            val lp = edit_space.layoutParams
+            if (lp.height != height) {
+                lp.height = height
+                edit_space.layoutParams = lp
+            }
+        }
+    }
+    private val scrollChangedListener = ViewTreeObserver.OnScrollChangedListener {
+        val location = IntArray(2)
+        getLocationInWindow(location)
+        val y = location[1]
+        if (y > offset * 2 || (y + height < -offset)) {
+            if (edit_container.visibility != View.GONE && !hasFocus) {
+                edit_container.visibility = View.GONE
+            }
+        } else {
+            if (edit_container.visibility != View.VISIBLE) {
+                edit_container.visibility = View.VISIBLE
+            }
+        }
+    }
+
     override fun onAttachedToWindow() {
         super.onAttachedToWindow()
+        viewTreeObserver.addOnGlobalLayoutListener(globalLayoutListener)
+        viewTreeObserver.addOnScrollChangedListener(scrollChangedListener)
         initMargin()
+    }
+
+    override fun onDetachedFromWindow() {
+        super.onDetachedFromWindow()
+        viewTreeObserver.removeOnGlobalLayoutListener(globalLayoutListener)
+        viewTreeObserver.removeOnScrollChangedListener(scrollChangedListener)
     }
 
     override fun setStyleH1() {
@@ -916,8 +948,6 @@ class KoalaEditTextView : FrameLayout, KoalaBaseCellView {
         }
 
         interface OnEditTextStatusListener {
-            fun setEnableKeyBoard(enable: Boolean)
-
             fun onEditStatus(status: Int)
         }
 

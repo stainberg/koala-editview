@@ -300,4 +300,13 @@ internal class EditorContainer : LinearLayout, View.OnTouchListener {
             swapIfNeeded(ev)
         }
     }
+
+    override fun onLayout(changed: Boolean, l: Int, t: Int, r: Int, b: Int) {
+        super.onLayout(changed, l, t, r, b)
+    }
+
+    override fun onViewRemoved(child: View?) {
+        super.onViewRemoved(child)
+        Log.e("onViewRemoved", "$child")
+    }
 }

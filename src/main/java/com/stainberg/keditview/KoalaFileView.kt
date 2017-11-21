@@ -178,9 +178,43 @@ class KoalaFileView : FrameLayout, KoalaBaseCellView {
         }
     }
 
+    private val offset = context.screenHeight
+    private val globalLayoutListener = ViewTreeObserver.OnGlobalLayoutListener {
+        val height = file_container.height
+        if (height != 0) {
+            val lp = file_space.layoutParams
+            if (lp.height != height) {
+                lp.height = height
+                file_space.layoutParams = lp
+            }
+        }
+    }
+    private val scrollChangedListener = ViewTreeObserver.OnScrollChangedListener {
+        val location = IntArray(2)
+        getLocationInWindow(location)
+        val y = location[1]
+        if (y > offset * 2 || (y + height < -offset)) {
+            if (file_container.visibility != View.GONE) {
+                file_container.visibility = View.GONE
+            }
+        } else {
+            if (file_container.visibility != View.VISIBLE) {
+                file_container.visibility = View.VISIBLE
+            }
+        }
+    }
+
     override fun onAttachedToWindow() {
         super.onAttachedToWindow()
+        viewTreeObserver.addOnGlobalLayoutListener(globalLayoutListener)
+        viewTreeObserver.addOnScrollChangedListener(scrollChangedListener)
         initMargin()
+    }
+
+    override fun onDetachedFromWindow() {
+        super.onDetachedFromWindow()
+        viewTreeObserver.removeOnGlobalLayoutListener(globalLayoutListener)
+        viewTreeObserver.removeOnScrollChangedListener(scrollChangedListener)
     }
 
     private fun updateTextStatus() {

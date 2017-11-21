@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <com.stainberg.keditview.FrameViewContainer xmlns:android="http://schemas.android.com/apk/res/android"
-                                            android:layout_width="match_parent"
-                                            android:layout_height="match_parent">
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
 
 
-    <android.support.v4.widget.NestedScrollView
+    <ScrollView
         android:id="@+id/koala_rich_editor_srollview"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -19,9 +19,8 @@
             android:layout_height="wrap_content"
             android:orientation="vertical">
 
-
         </com.stainberg.keditview.EditorContainer>
 
-    </android.support.v4.widget.NestedScrollView>
+    </ScrollView>
 
 </com.stainberg.keditview.FrameViewContainer>
