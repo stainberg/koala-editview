@@ -87,10 +87,13 @@ internal class EditorContainer : LinearLayout, View.OnTouchListener {
     private fun swap(first: View, firstIndex: Int, second: View, isSwapAfter: Boolean) {
         val firstHeight = first.height.toFloat()
         val secondHeight = second.height.toFloat()
-        removeView(first)
-        removeView(second)
-        addView(first, firstIndex)
-        addView(second, firstIndex)
+        if (isSwapAfter) {
+            removeView(first)
+            addView(first, firstIndex + 1)
+        } else {
+            removeView(second)
+            addView(second, firstIndex)
+        }
         if (second is KoalaEditTextView) {
             if (second.resetPosition() && selectedView is KoalaEditTextView) {
                 downPoint?.let { getParentContainer().initFloatingView(selectedView!!) }
