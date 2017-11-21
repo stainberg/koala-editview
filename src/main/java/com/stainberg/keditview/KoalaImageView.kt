@@ -439,13 +439,11 @@ class KoalaImageView : FrameLayout, KoalaBaseCellView {
     }
 
     private fun reloadImage() {
-        Log.e("AAAA", "reloadImage")
         icon.controller = Fresco.newDraweeControllerBuilder().setImageRequest(request).build()
         visible = true
     }
 
     fun releaseImage() {
-        Log.e("AAAA", "releaseImage")
         visible = false
         icon.setImageBitmap(null)
         icon.setBackgroundColor(ContextCompat.getColor(context, R.color.gray_placeholder))

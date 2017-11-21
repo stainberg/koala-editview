@@ -42,11 +42,11 @@ internal class EditorContainer : LinearLayout, View.OnTouchListener {
     }
 
     private fun getParentScrollY(): Int {
-        return (parent as NestedScrollView).scrollY
+        return (parent as ScrollView).scrollY
     }
 
     private fun checkMoveIfNeeded(ev: MotionEvent) {
-        val scrollView = (parent as NestedScrollView?) ?: return
+        val scrollView = (parent as ScrollView?) ?: return
         val location = getLocation(scrollView)
         val top = location[1]
         val bottom = top + scrollView.height
@@ -299,14 +299,5 @@ internal class EditorContainer : LinearLayout, View.OnTouchListener {
             checkMoveIfNeeded(ev)
             swapIfNeeded(ev)
         }
-    }
-
-    override fun onLayout(changed: Boolean, l: Int, t: Int, r: Int, b: Int) {
-        super.onLayout(changed, l, t, r, b)
-    }
-
-    override fun onViewRemoved(child: View?) {
-        super.onViewRemoved(child)
-        Log.e("onViewRemoved", "$child")
     }
 }
