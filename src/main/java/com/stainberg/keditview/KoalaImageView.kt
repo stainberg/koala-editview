@@ -26,45 +26,16 @@ import java.lang.ref.SoftReference
 
 class KoalaImageView : FrameLayout, KoalaBaseCellView {
     var filePath: String = ""
-    private var visible: Boolean = false
     private var imgWidth: Int = 0
     private var imgHeight: Int = 0
-    private val bound = resources.displayMetrics.heightPixels
     private val request: ImageRequest
-    lateinit var fileData: FileData
+    var fileData: FileData
     private var dragTouchToggled = false
     private var textStatus = 0
     private var isDragging = false
+    private var isImageReleased = true
 
-    private var onScrollChangedListener: ViewTreeObserver.OnScrollChangedListener = ViewTreeObserver.OnScrollChangedListener {
-        val location = IntArray(2)
-        icon.getLocationInWindow(location)
-        if (location[1] < 0) {
-            if (location[1] < -(height + bound) && visible) {
-                releaseImage()
-                return@OnScrollChangedListener
-            }
-            if (location[1] > -(height + bound) && !visible) {
-                reloadImage()
-            }
-        } else {
-            if (location[1] > resources.displayMetrics.heightPixels + bound && visible) {
-                releaseImage()
-                return@OnScrollChangedListener
-            }
-            if (location[1] < resources.displayMetrics.heightPixels + bound && !visible) {
-                reloadImage()
-            }
-        }
-    }
-
-    @JvmOverloads constructor(context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0, request: ImageRequest) : super(context, attrs, defStyleAttr) {
-        init()
-        this.request = request
-    }
-
-    private lateinit var sr: SoftReference<KoalaRichEditorView.Companion.IOnImageClickListener?>
-//    private lateinit var iconObserver: IconObserver
+    private var sr: SoftReference<KoalaRichEditorView.Companion.IOnImageClickListener?>
 
     constructor(context: Context, fileData: FileData, lis: KoalaRichEditorView.Companion.IOnImageClickListener?) : super(context) {
         this.sr = SoftReference(lis)
@@ -137,9 +108,7 @@ class KoalaImageView : FrameLayout, KoalaBaseCellView {
                 updateTextStatus()
             }
         }
-
-        visible = false
-        viewTreeObserver.addOnScrollChangedListener(onScrollChangedListener)
+        contentContainer = image_container
         imgWidth = fileData.width
         imgHeight = fileData.height
         icon.measure(MeasureSpec.AT_MOST, MeasureSpec.UNSPECIFIED)
@@ -223,31 +192,8 @@ class KoalaImageView : FrameLayout, KoalaBaseCellView {
         }
     }
 
-    override fun obtainUrl(): String {
-        return filePath
-    }
-
     override fun reload() {
         initMargin()
-        val location = IntArray(2)
-        icon.getLocationInWindow(location)
-        if (location[1] < 0) {
-            if (location[1] < -(imgHeight + bound) && visible) {
-                releaseImage()
-                return
-            }
-            if (location[1] > -(imgHeight + bound) && !visible) {
-                reloadImage()
-            }
-        } else {
-            if (location[1] > resources.displayMetrics.heightPixels + bound && visible) {
-                releaseImage()
-                return
-            }
-            if (location[1] < resources.displayMetrics.heightPixels + bound && !visible) {
-                reloadImage()
-            }
-        }
     }
 
     private val offset = context.screenHeight
@@ -261,18 +207,21 @@ class KoalaImageView : FrameLayout, KoalaBaseCellView {
             }
         }
     }
+    private lateinit var contentContainer: View
     private val scrollChangedListener = ViewTreeObserver.OnScrollChangedListener {
         val location = IntArray(2)
         getLocationInWindow(location)
         val y = location[1]
         if (y > offset * 2 || (y + height < -offset)) {
-            if (image_container.visibility != View.GONE) {
-                image_container.visibility = View.GONE
+            releaseImage()
+            if (contentContainer.parent != null) {
+                removeView(contentContainer)
             }
         } else {
-            if (image_container.visibility != View.VISIBLE) {
-                image_container.visibility = View.VISIBLE
+            if (contentContainer.parent == null) {
+                addView(contentContainer)
             }
+            reloadImage()
         }
     }
 
@@ -305,99 +254,6 @@ class KoalaImageView : FrameLayout, KoalaBaseCellView {
                 }
             }
             image_content_bg.layoutParams = lp
-        }
-    }
-
-    @Deprecated("")
-    override fun setStyleH1() {
-
-    }
-
-    @Deprecated("")
-    override fun setStyleH2() {
-
-    }
-
-    @Deprecated("")
-    override fun setStyleNormal() {
-
-    }
-
-    @Deprecated("")
-    override fun setGravity() {
-
-    }
-
-    @Deprecated("")
-    override fun setQuote() {
-
-    }
-
-    @Deprecated("")
-    override fun setSection(st: Int) {
-
-    }
-
-    @Deprecated("")
-    override fun setBold() {
-
-    }
-
-    @Deprecated("")
-    override fun setItalic() {
-
-    }
-
-    @Deprecated("")
-    override fun setStrike() {
-
-    }
-
-    @Deprecated("")
-    override fun addCode() {
-
-    }
-
-    @Deprecated("")
-    override fun setText(sequence: CharSequence) {
-
-    }
-
-    @Deprecated("")
-    override fun obtainText(): CharSequence {
-        return ""
-    }
-
-    @Deprecated("")
-    override fun obtainHtmlText(): List<String> {
-        return emptyList()
-    }
-
-    override fun setHtmlText(html: String) {
-
-    }
-
-    @Deprecated("")
-    override fun ifQuote(): Boolean {
-        return false
-    }
-
-    @Deprecated("")
-    override fun ifCode(): Boolean {
-        return false
-    }
-
-    override fun obtainStyle(): Int {
-        return 0
-    }
-
-    override fun obtainSection(): Int {
-        return 0
-    }
-
-    override fun setEditable(enable: Boolean) {
-        if (!enable) {
-            image_icon_drag.visibility = View.GONE
         }
     }
 
@@ -434,19 +290,19 @@ class KoalaImageView : FrameLayout, KoalaBaseCellView {
     }
 
     override fun release() {
-        viewTreeObserver.removeOnScrollChangedListener(onScrollChangedListener)
         releaseImage()
     }
 
     private fun reloadImage() {
+        if (!isImageReleased) return
+        isImageReleased = !isImageReleased
         icon.controller = Fresco.newDraweeControllerBuilder().setImageRequest(request).build()
-        visible = true
     }
 
-    fun releaseImage() {
-        visible = false
+    private fun releaseImage() {
+        if (isImageReleased) return
+        isImageReleased = !isImageReleased
         icon.setImageBitmap(null)
-        icon.setBackgroundColor(ContextCompat.getColor(context, R.color.gray_placeholder))
         val imagePipeline = Fresco.getImagePipeline()
         val uri: Uri = Uri.fromFile(File(filePath))
         imagePipeline.evictFromMemoryCache(uri)

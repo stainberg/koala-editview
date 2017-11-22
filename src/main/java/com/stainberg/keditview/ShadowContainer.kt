@@ -23,7 +23,6 @@ internal class ShadowContainer : RelativeLayout {
 
     init {
         paint.color = Color.WHITE
-        setLayerType(FrameLayout.LAYER_TYPE_SOFTWARE, null)
         paint.isAntiAlias = (true)
     }
 

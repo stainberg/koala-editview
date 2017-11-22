@@ -69,6 +69,7 @@ internal fun View.hideSoft() {
         rootView?.findFocus()?.windowToken?.let { im.hideSoftInputFromWindow(rootView.findFocus().windowToken, 0) }
     }
 }
+
 internal fun getLocation(view: View): IntArray {
     val location = IntArray(2)
     view.getLocationOnScreen(location)

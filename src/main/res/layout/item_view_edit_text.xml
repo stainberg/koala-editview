@@ -52,10 +52,6 @@
                     android:textSize="@dimen/text_size_16dp" />
             </com.stainberg.keditview.TextExtraSpaceContainer>
 
-            <View
-                android:id="@+id/edit_cover_view"
-                android:layout_width="match_parent"
-                android:layout_height="0dp" />
         </RelativeLayout>
 
         <android.support.v7.widget.AppCompatImageView

@@ -246,6 +246,7 @@ class KoalaEditTextView : FrameLayout, KoalaBaseCellView {
         if (onHintSetListener != null) {
             edit_text.addTextChangedListener(textWatcher)
         }
+        contentContainer = edit_container
         edit_text.setOnKeyListener(keyListener)
         edit_text.setSelectionListener(onSelectionChangedListener)
         edit_text.onFocusChangeListener = textFocusChangeListener
@@ -299,29 +300,33 @@ class KoalaEditTextView : FrameLayout, KoalaBaseCellView {
         val pr = parent as? ViewGroup ?: return
         val pre = KoalaRichEditorView.getPrev(pr, this)
         pre?.let {
-            val lp = edit_content_bg.layoutParams as MarginLayoutParams
+            var margin = 0
             when (pre) {
                 is KoalaImageView, is KoalaFileView -> {
-                    lp.topMargin = MARGIN_3
+                    margin = MARGIN_3
                 }
                 is KoalaEditTextView -> {
                     when (pre.style) {
                         STYLE_H1 -> {
-                            lp.topMargin = MARGIN_5
+                            margin = MARGIN_5
                         }
                         STYLE_H2 -> {
-                            lp.topMargin = MARGIN_4
+                            margin = MARGIN_4
                         }
                         else -> {
-                            lp.topMargin = if (section != SECTION_NULL) MARGIN_3 else MARGIN_9
+                            margin = if (section != SECTION_NULL) MARGIN_3 else MARGIN_9
                         }
                     }
                 }
                 else -> {
-                    lp.topMargin = MARGIN_5
+                    margin = MARGIN_5
                 }
             }
-            edit_content_bg.layoutParams = lp
+            val lp = edit_content_bg.layoutParams as MarginLayoutParams
+            if (lp.topMargin != margin) {
+                lp.topMargin = margin
+                edit_content_bg.layoutParams = lp
+            }
         }
     }
 
@@ -336,17 +341,18 @@ class KoalaEditTextView : FrameLayout, KoalaBaseCellView {
             }
         }
     }
+    private lateinit var contentContainer: View
     private val scrollChangedListener = ViewTreeObserver.OnScrollChangedListener {
         val location = IntArray(2)
         getLocationInWindow(location)
         val y = location[1]
         if (y > offset * 2 || (y + height < -offset)) {
-            if (edit_container.visibility != View.GONE && !hasFocus) {
-                edit_container.visibility = View.GONE
+            if (contentContainer.parent != null) {
+                removeView(contentContainer)
             }
         } else {
-            if (edit_container.visibility != View.VISIBLE) {
-                edit_container.visibility = View.VISIBLE
+            if (contentContainer.parent == null) {
+                addView(contentContainer)
             }
         }
     }
@@ -364,7 +370,7 @@ class KoalaEditTextView : FrameLayout, KoalaBaseCellView {
         viewTreeObserver.removeOnScrollChangedListener(scrollChangedListener)
     }
 
-    override fun setStyleH1() {
+    fun setStyleH1() {
         if (quote) {
             cleanQuote(SECTION_NULL, STYLE_H1)
             return
@@ -386,7 +392,7 @@ class KoalaEditTextView : FrameLayout, KoalaBaseCellView {
         onSelectionChangedListener.onSelectionChanged(edit_text.selectionStart, edit_text.selectionEnd)
     }
 
-    override fun setStyleH2() {
+    fun setStyleH2() {
         if (quote) {
             cleanQuote(SECTION_NULL, STYLE_H2)
             return
@@ -404,7 +410,7 @@ class KoalaEditTextView : FrameLayout, KoalaBaseCellView {
         initMargin()
     }
 
-    override fun setStyleNormal() {
+    fun setStyleNormal() {
         if (quote) {
             cleanQuote(SECTION_NULL, STYLE_NORMAL)
             return
@@ -417,17 +423,12 @@ class KoalaEditTextView : FrameLayout, KoalaBaseCellView {
         initMargin()
     }
 
-    @Deprecated("")
-    override fun obtainUrl(): String {
-        return ""
-    }
-
     fun append(text: CharSequence, start: Int) {
         edit_text.append(text, 0, text.length)
         edit_text.setSelection(start)
     }
 
-    override fun setGravity() {
+    fun setGravity() {
         if (quote || section != 0) {//不支持居中
             return
         }
@@ -445,7 +446,7 @@ class KoalaEditTextView : FrameLayout, KoalaBaseCellView {
         notifyStatusChanged()
     }
 
-    override fun setQuote() {
+    fun setQuote() {
         if (quote) {
             val start = edit_text.selectionStart
             val end = edit_text.selectionEnd
@@ -461,7 +462,7 @@ class KoalaEditTextView : FrameLayout, KoalaBaseCellView {
         initMargin()
     }
 
-    override fun setSection(st: Int) {
+    fun setSection(st: Int) {
         if (quote) {
             cleanQuote(st, style)
             return
@@ -491,7 +492,7 @@ class KoalaEditTextView : FrameLayout, KoalaBaseCellView {
         initMargin()
     }
 
-    override fun setBold() {
+    fun setBold() {
         val start = edit_text.selectionStart
         val end = edit_text.selectionEnd
         if (start < end) {
@@ -539,7 +540,7 @@ class KoalaEditTextView : FrameLayout, KoalaBaseCellView {
         notifyStatusChanged()
     }
 
-    override fun setItalic() {
+    fun setItalic() {
         val start = edit_text.selectionStart
         val end = edit_text.selectionEnd
         if (start < end) {
@@ -563,7 +564,7 @@ class KoalaEditTextView : FrameLayout, KoalaBaseCellView {
         notifyStatusChanged()
     }
 
-    override fun setStrike() {
+    fun setStrike() {
         var styleSpan = 0
         var strike = false
         val start = edit_text.selectionStart
@@ -594,19 +595,15 @@ class KoalaEditTextView : FrameLayout, KoalaBaseCellView {
         notifyStatusChanged()
     }
 
-    override fun addCode() {
-        markCode(this@KoalaEditTextView)
-    }
-
-    override fun setText(sequence: CharSequence) {
+    fun setText(sequence: CharSequence) {
         edit_text.setText(sequence)
     }
 
-    override fun obtainText(): CharSequence {
+    fun obtainText(): CharSequence {
         return edit_text.text
     }
 
-    override fun obtainHtmlText(): List<String> {
+    fun obtainHtmlText(): List<String> {
         val result = ArrayList<String>()
         var s = Html.toHtml(edit_text.text)
         s = s.replace("<strike>".toRegex(), "<del>")
@@ -655,31 +652,25 @@ class KoalaEditTextView : FrameLayout, KoalaBaseCellView {
         edit_text.hint = hint
     }
 
-    override fun setHtmlText(html: String) {
+    fun setHtmlText(html: String) {
         val spanned = Html.fromHtml(html, null, HtmlTagHandler())
         edit_text.setText(spanned)
     }
 
-    override fun ifQuote(): Boolean {
+    fun ifQuote(): Boolean {
         return quote
     }
 
-    override fun ifCode(): Boolean {
+    fun ifCode(): Boolean {
         return code
     }
 
-    override fun obtainStyle(): Int {
+    fun obtainStyle(): Int {
         return style
     }
 
-    override fun obtainSection(): Int {
+    fun obtainSection(): Int {
         return section
-    }
-
-    override fun setEditable(enable: Boolean) {
-        edit_text.isEnabled = enable
-        edit_text.isFocusable = enable
-        edit_text.isFocusableInTouchMode = true
     }
 
     fun setTextStyle(syl: Int) {
@@ -692,11 +683,11 @@ class KoalaEditTextView : FrameLayout, KoalaBaseCellView {
         }
     }
 
-    private fun markCode(v: KoalaEditTextView) {
-        v.setBackgroundResource(R.drawable.shape_edit_code_bg)
-        v.code = true
-        v.cleanSection(v)
-        v.resetNextSection(v)
+    fun setCode() {
+        setBackgroundResource(R.drawable.shape_edit_code_bg)
+        code = true
+        cleanSection(this)
+        resetNextSection(this)
     }
 
     internal fun setNumberSection(v: KoalaEditTextView) {
@@ -705,7 +696,9 @@ class KoalaEditTextView : FrameLayout, KoalaBaseCellView {
             return
         }
         v.setStyleNormal()
-        v.section_text.visibility = View.VISIBLE
+        if (v.section_text.visibility != View.VISIBLE) {
+            v.section_text.visibility = View.VISIBLE
+        }
         val prev = KoalaRichEditorView.getPrev(parent as ViewGroup, v)
         if (prev != null) {
             if (prev is KoalaEditTextView) {
@@ -739,7 +732,9 @@ class KoalaEditTextView : FrameLayout, KoalaBaseCellView {
     }
 
     internal fun cleanSection(v: KoalaEditTextView) {
-        v.section_text.visibility = View.GONE
+        if (v.section_text.visibility != View.GONE) {
+            v.section_text.visibility = View.GONE
+        }
         v.section = SECTION_NULL
         v.sectionIndex = 1
         val pr = parent as? ViewGroup ?: return
@@ -826,11 +821,9 @@ class KoalaEditTextView : FrameLayout, KoalaBaseCellView {
         val s: CharSequence
         val v = this
         edit_content_bg.setBackgroundColor(ContextCompat.getColor(context, android.R.color.white))
-        val lp = v.layoutParams as LinearLayout.LayoutParams
-        lp.topMargin = 0
-        lp.bottomMargin = 0
-        v.layoutParams = lp
-        v.edit_content_bg.setPadding(0, 0, 0, 0)
+        if (v.edit_content_bg.paddingLeft != 0) {
+            v.edit_content_bg.setPadding(0, 0, 0, 0)
+        }
         v.quote = false
         if (listener != null) {
             val start = v.edit_text.selectionStart
@@ -839,19 +832,19 @@ class KoalaEditTextView : FrameLayout, KoalaBaseCellView {
                 val f = v.edit_text.text.subSequence(0, start).toString().lastIndexOf('\n')
                 var l = v.edit_text.text.subSequence(end, edit_text.text.length).toString().indexOf('\n')
                 if (l != -1) {
-                    l = l + end
+                    l += end
                 } else {
                     l = edit_text.text.length
                 }
-                if (f != -1) {
-                    p = v.edit_text.text.subSequence(0, f)
+                p = if (f != -1) {
+                    v.edit_text.text.subSequence(0, f)
                 } else {
-                    p = null
+                    null
                 }
-                if (l < edit_text.text.length) {
-                    n = v.edit_text.text.subSequence(l + 1, edit_text.text.length)
+                n = if (l < edit_text.text.length) {
+                    v.edit_text.text.subSequence(l + 1, edit_text.text.length)
                 } else {
-                    n = null
+                    null
                 }
                 s = v.edit_text.text.subSequence(f + 1, l)
             } else {
@@ -867,19 +860,19 @@ class KoalaEditTextView : FrameLayout, KoalaBaseCellView {
 
     private fun cleanAllQuote() {
         edit_content_bg.setBackgroundColor(ContextCompat.getColor(context, android.R.color.white))
-        val v = this
-        v.edit_content_bg.setPadding(0, 0, 0, 0)
-        v.quote = false
-        listener!!.splitSelf(v, null, v.edit_text.text, null, SECTION_NULL, STYLE_NORMAL)
+        edit_content_bg.setPadding(0, 0, 0, 0)
+        quote = false
+        listener!!.splitSelf(this, null, edit_text.text, null, SECTION_NULL, STYLE_NORMAL)
     }
 
     private fun markQuote() {
         edit_content_bg.setBackgroundResource(R.drawable.shape_edit_quote_bg)
-        val v = this
-        v.quote = true
-        v.edit_content_bg.setPadding(quotePadding, quotePadding, quotePadding, quotePadding)
-        v.cleanSection(v)
-        v.resetNextSection(v)
+        quote = true
+        if (edit_content_bg.paddingLeft != quotePadding) {
+            edit_content_bg.setPadding(quotePadding, quotePadding, quotePadding, quotePadding)
+        }
+        cleanSection(this)
+        resetNextSection(this)
     }
 
     private val defaultPadding = context.dp2px(10f).toInt()
@@ -894,10 +887,6 @@ class KoalaEditTextView : FrameLayout, KoalaBaseCellView {
             edit_text.isFocusable = false
             edit_text.isFocusableInTouchMode = false
             edit_text.isEnabled = false
-            val lp = edit_cover_view.layoutParams
-            lp.height = edit_text.layoutParams.height
-            edit_cover_view.layoutParams = lp
-            edit_cover_view.visibility = View.VISIBLE
             edit_icon_drag.visibility = View.VISIBLE
         } else {
             if (!ifQuote()) {
@@ -907,7 +896,6 @@ class KoalaEditTextView : FrameLayout, KoalaBaseCellView {
             edit_text.isFocusable = true
             edit_text.isFocusableInTouchMode = true
             edit_text.isEnabled = true
-            edit_cover_view.visibility = View.GONE
             edit_icon_drag.visibility = View.GONE
         }
     }
@@ -938,13 +926,13 @@ class KoalaEditTextView : FrameLayout, KoalaBaseCellView {
         val STYLE_H2 = 2
 
         interface OnEditListener {
-            fun insertEdit(v: KoalaBaseCellView)
+            fun insertEdit(v: KoalaEditTextView)
 
-            fun pressEnter(v: KoalaBaseCellView)
+            fun pressEnter(v: KoalaEditTextView)
 
-            fun deleteSelf(v: KoalaBaseCellView)
+            fun deleteSelf(v: KoalaEditTextView)
 
-            fun splitSelf(v: KoalaBaseCellView, p: CharSequence?, s: CharSequence, n: CharSequence?, section: Int, style: Int)
+            fun splitSelf(v: KoalaEditTextView, p: CharSequence?, s: CharSequence, n: CharSequence?, section: Int, style: Int)
         }
 
         interface OnEditTextStatusListener {

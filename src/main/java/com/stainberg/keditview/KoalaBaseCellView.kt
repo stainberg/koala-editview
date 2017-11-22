@@ -6,49 +6,9 @@ package com.stainberg.keditview
 
 interface KoalaBaseCellView {
 
-    fun obtainUrl() : String
-
     fun reload()
 
-    fun setStyleH1()
-
-    fun setStyleH2()
-
-    fun setStyleNormal()
-
-    fun setGravity()
-
-    fun setQuote()
-
-    fun setSection(st : Int)
-
-    fun setBold()
-
-    fun setItalic()
-
-    fun setStrike()
-
-    fun addCode()
-
-    fun setText(sequence : CharSequence)
-
-    fun obtainText() : CharSequence
-
-    fun obtainHtmlText() : List<String>
-
-    fun setHtmlText(html : String)
-
-    fun ifQuote() : Boolean
-
-    fun ifCode() : Boolean
-
-    fun obtainStyle() : Int
-
-    fun obtainSection() : Int
-
-    fun setEditable(enable : Boolean)
-
-    fun enableDrag(enable : Boolean)
+    fun enableDrag(enable: Boolean)
 
     fun release()
 

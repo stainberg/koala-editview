@@ -157,6 +157,7 @@ class KoalaFileView : FrameLayout, KoalaBaseCellView {
                 true
             }
         }
+        contentContainer = file_container
     }
 
     private fun initMargin() {
@@ -189,17 +190,18 @@ class KoalaFileView : FrameLayout, KoalaBaseCellView {
             }
         }
     }
+    private lateinit var contentContainer: View
     private val scrollChangedListener = ViewTreeObserver.OnScrollChangedListener {
         val location = IntArray(2)
         getLocationInWindow(location)
         val y = location[1]
         if (y > offset * 2 || (y + height < -offset)) {
-            if (file_container.visibility != View.GONE) {
-                file_container.visibility = View.GONE
+            if (contentContainer.parent != null) {
+                removeView(contentContainer)
             }
         } else {
-            if (file_container.visibility != View.VISIBLE) {
-                file_container.visibility = View.VISIBLE
+            if (contentContainer.parent == null) {
+                addView(contentContainer)
             }
         }
     }
@@ -231,90 +233,8 @@ class KoalaFileView : FrameLayout, KoalaBaseCellView {
         }
     }
 
-    override fun obtainUrl(): String {
-        return ""
-    }
-
     override fun reload() {
         initMargin()
-    }
-
-    override fun setStyleH1() {
-
-    }
-
-    override fun setStyleH2() {
-
-    }
-
-    override fun setStyleNormal() {
-
-    }
-
-    override fun setGravity() {
-
-    }
-
-    override fun setQuote() {
-
-    }
-
-    override fun setSection(st: Int) {
-
-    }
-
-    override fun setBold() {
-
-    }
-
-    override fun setItalic() {
-
-    }
-
-    override fun setStrike() {
-
-    }
-
-    override fun addCode() {
-
-    }
-
-    override fun setText(sequence: CharSequence) {
-
-    }
-
-    override fun obtainText(): CharSequence {
-        return ""
-    }
-
-    override fun obtainHtmlText(): List<String> {
-        return emptyList()
-    }
-
-    override fun setHtmlText(html: String) {
-
-    }
-
-    override fun ifQuote(): Boolean {
-        return false
-    }
-
-    override fun ifCode(): Boolean {
-        return false
-    }
-
-    override fun obtainStyle(): Int {
-        return 0
-    }
-
-    override fun obtainSection(): Int {
-        return 0
-    }
-
-    override fun setEditable(enable: Boolean) {
-        if (!enable) {
-            file_icon_drag.visibility = View.GONE
-        }
     }
 
     override fun onInterceptTouchEvent(ev: MotionEvent): Boolean {
