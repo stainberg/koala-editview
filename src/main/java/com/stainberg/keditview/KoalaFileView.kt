@@ -36,42 +36,47 @@ class KoalaFileView : FrameLayout, KoalaBaseCellView {
 
     private var listener: SoftReference<KoalaRichEditorView.Companion.IOnFileClickListener?> = SoftReference(null)
 
-    constructor(context: Context, fileData: FileData, lis: KoalaRichEditorView.Companion.IOnFileClickListener?) : this(context) {
+    constructor(context: Context, fileData: FileData) : this(context) {
         this.fileData = fileData
-        listener = SoftReference(lis)
-        if (childCount == 1) {
-            var colorId = R.color.color_unknwon
-            if (fileData != null) {
-                if (fileData.iconResId != 0) {
-                    file_icon.setImageResource(fileData.iconResId)
-                    file_icon_text.background = null
-                } else if (!TextUtils.isEmpty(fileData.iconUrl)) {
-                    file_icon.setImageURI(fileData.iconUrl)
-                    file_icon_text.background = null
-                } else {
-                    val type = fileData.fileType
-                    when (type) {
-                        FileData.DOC, FileData.DOCX -> file_icon_text.setBackgroundResource(R.drawable.svg_file_doc)
-                        FileData.PDF -> file_icon_text.setBackgroundResource(R.drawable.svg_file_pdf)
-                        FileData.PPT, FileData.PPTX -> file_icon_text.setBackgroundResource(R.drawable.svg_file_ppt)
-                        FileData.EPUB -> file_icon_text.setBackgroundResource(R.drawable.svg_file_epub)
-                        FileData.TXT -> file_icon_text.setBackgroundResource(R.drawable.svg_file_txt)
-                        FileData.XLS, FileData.XLSX -> file_icon_text.setBackgroundResource(R.drawable.svg_file_xls)
-                        else -> file_icon_text.setBackgroundResource(R.drawable.svg_file_unknown)
-                    }
-                    colorId = R.color.white_card_bg
-                }
-                file_icon_text.text = if (TextUtils.isEmpty(fileData.fileType)) "" else fileData.fileType
-                file_title.text = if (TextUtils.isEmpty(fileData.fileName)) "" else fileData.fileName
-                file_desc.text = if (TextUtils.isEmpty(fileData.desc)) "" else fileData.desc
+        reloadData()
+    }
+
+    fun reloadData() {
+        var colorId = R.color.color_unknwon
+        if (fileData != null) {
+            if (fileData.iconResId != 0) {
+                file_icon.setImageResource(fileData.iconResId)
+                file_icon_text.background = null
+            } else if (!TextUtils.isEmpty(fileData.iconUrl)) {
+                file_icon.setImageURI(fileData.iconUrl)
+                file_icon_text.background = null
             } else {
-                file_icon_text.setBackgroundResource(R.drawable.svg_file_unknown)
-                file_icon_text.text = if (TextUtils.isEmpty(fileData.fileType)) "" else fileData.fileType
-                file_title.text = if (TextUtils.isEmpty(fileData.fileName)) "" else fileData.fileName
-                file_desc.text = if (TextUtils.isEmpty(fileData.desc)) "" else fileData.desc
+                val type = fileData.fileType
+                when (type) {
+                    FileData.DOC, FileData.DOCX -> file_icon_text.setBackgroundResource(R.drawable.svg_file_doc)
+                    FileData.PDF -> file_icon_text.setBackgroundResource(R.drawable.svg_file_pdf)
+                    FileData.PPT, FileData.PPTX -> file_icon_text.setBackgroundResource(R.drawable.svg_file_ppt)
+                    FileData.EPUB -> file_icon_text.setBackgroundResource(R.drawable.svg_file_epub)
+                    FileData.TXT -> file_icon_text.setBackgroundResource(R.drawable.svg_file_txt)
+                    FileData.XLS, FileData.XLSX -> file_icon_text.setBackgroundResource(R.drawable.svg_file_xls)
+                    else -> file_icon_text.setBackgroundResource(R.drawable.svg_file_unknown)
+                }
+                colorId = R.color.white_card_bg
             }
-            file_icon_text.setTextColor(getContext().resources.getColor(colorId))
+            file_icon_text.text = if (TextUtils.isEmpty(fileData.fileType)) "" else fileData.fileType
+            file_title.text = if (TextUtils.isEmpty(fileData.fileName)) "" else fileData.fileName
+            file_desc.text = if (TextUtils.isEmpty(fileData.desc)) "" else fileData.desc
+        } else {
+            file_icon_text.setBackgroundResource(R.drawable.svg_file_unknown)
+            file_icon_text.text = if (TextUtils.isEmpty(fileData.fileType)) "" else fileData.fileType
+            file_title.text = if (TextUtils.isEmpty(fileData.fileName)) "" else fileData.fileName
+            file_desc.text = if (TextUtils.isEmpty(fileData.desc)) "" else fileData.desc
         }
+        file_icon_text.setTextColor(getContext().resources.getColor(colorId))
+    }
+
+    fun setOnFileClickListener(lis: KoalaRichEditorView.Companion.IOnFileClickListener?) {
+        listener = SoftReference(lis)
     }
 
     private fun init() {
@@ -233,7 +238,7 @@ class KoalaFileView : FrameLayout, KoalaBaseCellView {
         }
     }
 
-    override fun reload() {
+    override fun resetMargin() {
         initMargin()
     }
 
@@ -278,10 +283,6 @@ class KoalaFileView : FrameLayout, KoalaBaseCellView {
     fun actionUp() {
         file_icon_drag.setImageResource(R.drawable.svg_drag_icon)
         file_container.showHighLight(false)
-    }
-
-    override fun release() {
-
     }
 
     private fun insertNewLine(text: String, index: Int) {

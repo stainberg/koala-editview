@@ -33,15 +33,11 @@ class KoalaSliderView : FrameLayout , KoalaBaseCellView {
     }
 
     @Deprecated("")
-    override fun reload() {
+    override fun resetMargin() {
 
     }
 
     override fun enableDrag(enable : Boolean) {
-
-    }
-
-    override fun release() {
 
     }
 }

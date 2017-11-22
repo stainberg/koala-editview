@@ -167,12 +167,8 @@ class KoalaCardView : FrameLayout , KoalaBaseCellView {
         }
     }
 
-    override fun release() {
-
-    }
-
     @Deprecated("")
-    override fun reload() {
+    override fun resetMargin() {
 
     }
 }

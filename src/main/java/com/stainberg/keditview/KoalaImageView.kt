@@ -192,7 +192,7 @@ class KoalaImageView : FrameLayout, KoalaBaseCellView {
         }
     }
 
-    override fun reload() {
+    override fun resetMargin() {
         initMargin()
     }
 
@@ -234,6 +234,7 @@ class KoalaImageView : FrameLayout, KoalaBaseCellView {
 
     override fun onDetachedFromWindow() {
         super.onDetachedFromWindow()
+        releaseImage()
         viewTreeObserver.removeOnGlobalLayoutListener(globalLayoutListener)
         viewTreeObserver.removeOnScrollChangedListener(scrollChangedListener)
     }
@@ -287,10 +288,6 @@ class KoalaImageView : FrameLayout, KoalaBaseCellView {
     fun actionUp() {
         image_icon_drag.setImageResource(R.drawable.svg_drag_icon)
         image_container.showHighLight(false)
-    }
-
-    override fun release() {
-        releaseImage()
     }
 
     private fun reloadImage() {

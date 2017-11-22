@@ -6,11 +6,9 @@ package com.stainberg.keditview
 
 interface KoalaBaseCellView {
 
-    fun reload()
+    fun resetMargin()
 
     fun enableDrag(enable: Boolean)
-
-    fun release()
 
     companion object {
 

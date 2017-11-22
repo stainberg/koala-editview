@@ -243,13 +243,7 @@ class KoalaEditTextView : FrameLayout, KoalaBaseCellView {
         code = false
         sectionIndex = 1
         LayoutInflater.from(context).inflate(R.layout.item_view_edit_text, this, true)
-        if (onHintSetListener != null) {
-            edit_text.addTextChangedListener(textWatcher)
-        }
         contentContainer = edit_container
-        edit_text.setOnKeyListener(keyListener)
-        edit_text.setSelectionListener(onSelectionChangedListener)
-        edit_text.onFocusChangeListener = textFocusChangeListener
         edit_text.measure(View.MeasureSpec.getMode(0), View.MeasureSpec.getMode(0))
         singleHeight = edit_text.measuredHeight
         setStyleNormal()
@@ -272,13 +266,6 @@ class KoalaEditTextView : FrameLayout, KoalaBaseCellView {
         } else super.onTouchEvent(event)
     }
 
-    override fun release() {
-        edit_text.removeTextChangedListener(textWatcher)
-        edit_text.setOnKeyListener(null)
-        edit_text.setSelectionListener(null)
-        edit_text.onFocusChangeListener = null
-    }
-
     fun setText(p: String) {
         edit_text.setText(p)
     }
@@ -291,8 +278,7 @@ class KoalaEditTextView : FrameLayout, KoalaBaseCellView {
         return edit_text.length()
     }
 
-    @Deprecated("")
-    override fun reload() {
+    override fun resetMargin() {
         initMargin()
     }
 
@@ -359,6 +345,12 @@ class KoalaEditTextView : FrameLayout, KoalaBaseCellView {
 
     override fun onAttachedToWindow() {
         super.onAttachedToWindow()
+        edit_text.setOnKeyListener(keyListener)
+        if (onHintSetListener != null) {
+            edit_text.addTextChangedListener(textWatcher)
+        }
+        edit_text.setSelectionListener(onSelectionChangedListener)
+        edit_text.onFocusChangeListener = textFocusChangeListener
         viewTreeObserver.addOnGlobalLayoutListener(globalLayoutListener)
         viewTreeObserver.addOnScrollChangedListener(scrollChangedListener)
         initMargin()
@@ -366,6 +358,10 @@ class KoalaEditTextView : FrameLayout, KoalaBaseCellView {
 
     override fun onDetachedFromWindow() {
         super.onDetachedFromWindow()
+        edit_text.setOnKeyListener(null)
+        edit_text.removeTextChangedListener(textWatcher)
+        edit_text.setSelectionListener(null)
+        edit_text.onFocusChangeListener = null
         viewTreeObserver.removeOnGlobalLayoutListener(globalLayoutListener)
         viewTreeObserver.removeOnScrollChangedListener(scrollChangedListener)
     }

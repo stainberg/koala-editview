@@ -477,7 +477,8 @@ class KoalaRichEditorView @JvmOverloads constructor(context: Context, attrs: Att
             if (null != data) {
                 data.type = 1
                 val index = getNextIndex(addLast)
-                val cardView = KoalaFileView(context!!, data, itemFileListener.get())
+                val cardView = KoalaFileView(context, data)
+                cardView.setOnFileClickListener(itemFileListener.get())
                 val lpCard = LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT)
                 container.addView(cardView, index, lpCard)
                 if (addEmptyAfter && index == container.childCount - 1) {
@@ -494,7 +495,7 @@ class KoalaRichEditorView @JvmOverloads constructor(context: Context, attrs: Att
             for (i in 0 until container.childCount) {
                 if (container.getChildAt(i) is KoalaImageView) {
                     val kcv = container.getChildAt(i) as KoalaImageView
-                    kcv.reload()
+                    kcv.resetMargin()
                 }
             }
         }
@@ -507,7 +508,7 @@ class KoalaRichEditorView @JvmOverloads constructor(context: Context, attrs: Att
             for (i in 0 until container.childCount) {
                 if (container.getChildAt(i) is KoalaImageView) {
                     val kcv = container.getChildAt(i) as KoalaImageView
-                    kcv.reload()
+                    kcv.resetMargin()
                 }
             }
         }
@@ -614,12 +615,6 @@ class KoalaRichEditorView @JvmOverloads constructor(context: Context, attrs: Att
     }
 
     override fun onDetachedFromWindow() {
-        for (i in 0 until container.childCount) {
-            if (container.getChildAt(i) is KoalaBaseCellView) {
-                val v = container.getChildAt(i) as KoalaBaseCellView
-                v.release()
-            }
-        }
         container.removeAllViews()
         menuStatusListener = null
         removeAllViews()
