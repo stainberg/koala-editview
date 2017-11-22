@@ -1,5 +1,6 @@
 package com.stainberg.keditview
 
+import android.animation.Animator
 import android.animation.ObjectAnimator
 import android.content.Context
 import android.graphics.Typeface
@@ -15,10 +16,8 @@ import android.text.TextWatcher
 import android.text.style.StrikethroughSpan
 import android.text.style.StyleSpan
 import android.util.AttributeSet
-import android.util.Log
 import android.view.*
 import android.widget.FrameLayout
-import android.widget.LinearLayout
 import kotlinx.android.synthetic.main.item_view_edit_text.view.*
 
 import org.jsoup.Jsoup
@@ -44,8 +43,8 @@ class KoalaEditTextView : FrameLayout, KoalaBaseCellView {
     private var sectionIndex = 0
     private var showHint = true
     private var hasFocus = false
-
-    private var isDragEnabled = false
+    private var isDragging = false
+    private var dragTouchToggled = false
 
     val selectionStart: Int
         get() = edit_text.selectionStart
@@ -251,16 +250,16 @@ class KoalaEditTextView : FrameLayout, KoalaBaseCellView {
 
     override fun onInterceptTouchEvent(ev: MotionEvent): Boolean {
         if (edit_icon_drag.visibility == View.VISIBLE) {
-            isDragEnabled = eventInView(ev, edit_icon_drag)
-            if (isDragEnabled) {
-                return isDragEnabled
+            dragTouchToggled = eventInView(ev, edit_icon_drag)
+            if (dragTouchToggled) {
+                return dragTouchToggled
             }
         }
         return super.onInterceptTouchEvent(ev)
     }
 
     override fun onTouchEvent(event: MotionEvent): Boolean {
-        return if (isDragEnabled) {
+        return if (dragTouchToggled) {
             false
         } else super.onTouchEvent(event)
     }
@@ -321,6 +320,7 @@ class KoalaEditTextView : FrameLayout, KoalaBaseCellView {
         if (height != 0) {
             val lp = edit_space.layoutParams
             if (lp.height != height) {
+//                originalHeight = height
                 lp.height = height
                 edit_space.layoutParams = lp
             }
@@ -331,7 +331,7 @@ class KoalaEditTextView : FrameLayout, KoalaBaseCellView {
         getLocationInWindow(location)
         val y = location[1]
         if (y > offset * 2 || (y + height < -offset)) {
-            if (edit_container.visibility != View.GONE) {
+            if (edit_container.visibility != View.GONE && !hasFocus) {
                 edit_container.visibility = View.GONE
             }
         } else {
@@ -871,11 +871,16 @@ class KoalaEditTextView : FrameLayout, KoalaBaseCellView {
 
     private val defaultPadding = context.dp2px(10f).toInt()
     private val paddingAnim: PaddingAnim by lazy { PaddingAnim(edit_content_bg) }
+    //    private val spaceHeightAnim: HeightAnim by lazy { HeightAnim(edit_space) }
+//    private var originalHeight = 0
     override fun enableDrag(enable: Boolean) {
         edit_container.showShadow(enable)
+        isDragging = enable
         if (enable) {
+//            viewTreeObserver.removeOnGlobalLayoutListener(globalLayoutListener)
             if (!ifQuote()) {
                 ObjectAnimator.ofInt(paddingAnim, "padding", edit_content_bg.paddingLeft, defaultPadding).setDuration(animTime).start()
+//                ObjectAnimator.ofInt(spaceHeightAnim, "x", edit_space.height, edit_space.height + 2 * defaultPadding).setDuration(animTime).start()
             }
             edit_text.isCursorVisible = false
             edit_text.isFocusable = false
@@ -885,6 +890,24 @@ class KoalaEditTextView : FrameLayout, KoalaBaseCellView {
         } else {
             if (!ifQuote()) {
                 ObjectAnimator.ofInt(paddingAnim, "padding", edit_content_bg.paddingLeft, 0).setDuration(animTime).start()
+//                val anim = ObjectAnimator.ofInt(spaceHeightAnim, "x", edit_space.height, originalHeight)
+//                anim.addListener(object : Animator.AnimatorListener {
+//                    override fun onAnimationRepeat(animation: Animator?) {
+//                    }
+//
+//                    override fun onAnimationEnd(animation: Animator?) {
+//                        if (!isDragging) {
+//                            viewTreeObserver.addOnGlobalLayoutListener(globalLayoutListener)
+//                        }
+//                    }
+//
+//                    override fun onAnimationCancel(animation: Animator?) {
+//                    }
+//
+//                    override fun onAnimationStart(animation: Animator?) {
+//                    }
+//                })
+//                anim.setDuration(animTime).start()
             }
             edit_text.isCursorVisible = true
             edit_text.isFocusable = true

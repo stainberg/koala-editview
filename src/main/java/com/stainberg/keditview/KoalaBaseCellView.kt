@@ -11,7 +11,6 @@ interface KoalaBaseCellView {
     fun enableDrag(enable: Boolean)
 
     companion object {
-
         val EDIT_VIEW = 1
         val IMAGE_VIEW = 2
         val SLIDER_VIEW = 3

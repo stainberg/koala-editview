@@ -24,6 +24,7 @@ class KoalaFileView : FrameLayout, KoalaBaseCellView {
     lateinit var fileData: FileData
     private var dragTouchToggled = false
     private var textStatus = 0
+    private var isDragging = false
 
     @JvmOverloads constructor(context: Context, attrs: AttributeSet? = null, @AttrRes defStyleAttr: Int = 0) : super(context, attrs, defStyleAttr) {
         init()
@@ -256,7 +257,6 @@ class KoalaFileView : FrameLayout, KoalaBaseCellView {
         } else super.onTouchEvent(event)
     }
 
-    private var isDragging = false
     override fun enableDrag(enable: Boolean) {
         isDragging = enable
         textStatus = 0

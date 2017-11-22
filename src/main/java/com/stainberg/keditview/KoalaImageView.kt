@@ -227,14 +227,15 @@ class KoalaImageView : FrameLayout, KoalaBaseCellView {
         super.onAttachedToWindow()
         viewTreeObserver.addOnGlobalLayoutListener(globalLayoutListener)
         viewTreeObserver.addOnScrollChangedListener(scrollChangedListener)
+        reloadImage()
         initMargin()
     }
 
     override fun onDetachedFromWindow() {
         super.onDetachedFromWindow()
-        releaseImage()
         viewTreeObserver.removeOnGlobalLayoutListener(globalLayoutListener)
         viewTreeObserver.removeOnScrollChangedListener(scrollChangedListener)
+        releaseImage()
     }
 
     private fun initMargin() {
