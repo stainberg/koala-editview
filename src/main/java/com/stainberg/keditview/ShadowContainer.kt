@@ -3,7 +3,7 @@ package com.stainberg.keditview
 import android.content.Context
 import android.graphics.*
 import android.util.AttributeSet
-import android.widget.FrameLayout
+import android.view.View
 import android.widget.RelativeLayout
 
 /**
@@ -23,7 +23,8 @@ internal class ShadowContainer : RelativeLayout {
 
     init {
         paint.color = Color.WHITE
-        paint.isAntiAlias = (true)
+        setLayerType(View.LAYER_TYPE_SOFTWARE, null)
+        paint.isAntiAlias = true
     }
 
     private val radius = context.dp2px(5f)
@@ -53,5 +54,10 @@ internal class ShadowContainer : RelativeLayout {
     fun showHighLight(highLight: Boolean) {
         this.highLight = highLight
         invalidate()
+    }
+
+    override fun onViewAdded(child: View?) {
+        super.onViewAdded(child)
+        child?.setLayerType(View.LAYER_TYPE_NONE, null)
     }
 }

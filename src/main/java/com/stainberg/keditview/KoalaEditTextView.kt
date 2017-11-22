@@ -243,7 +243,6 @@ class KoalaEditTextView : FrameLayout, KoalaBaseCellView {
         code = false
         sectionIndex = 1
         LayoutInflater.from(context).inflate(R.layout.item_view_edit_text, this, true)
-        contentContainer = edit_container
         edit_text.measure(View.MeasureSpec.getMode(0), View.MeasureSpec.getMode(0))
         singleHeight = edit_text.measuredHeight
         setStyleNormal()
@@ -327,18 +326,17 @@ class KoalaEditTextView : FrameLayout, KoalaBaseCellView {
             }
         }
     }
-    private lateinit var contentContainer: View
     private val scrollChangedListener = ViewTreeObserver.OnScrollChangedListener {
         val location = IntArray(2)
         getLocationInWindow(location)
         val y = location[1]
         if (y > offset * 2 || (y + height < -offset)) {
-            if (contentContainer.parent != null) {
-                removeView(contentContainer)
+            if (edit_container.visibility != View.GONE) {
+                edit_container.visibility = View.GONE
             }
         } else {
-            if (contentContainer.parent == null) {
-                addView(contentContainer)
+            if (edit_container.visibility != View.VISIBLE) {
+                edit_container.visibility = View.VISIBLE
             }
         }
     }

@@ -108,7 +108,6 @@ class KoalaImageView : FrameLayout, KoalaBaseCellView {
                 updateTextStatus()
             }
         }
-        contentContainer = image_container
         imgWidth = fileData.width
         imgHeight = fileData.height
         icon.measure(MeasureSpec.AT_MOST, MeasureSpec.UNSPECIFIED)
@@ -207,19 +206,18 @@ class KoalaImageView : FrameLayout, KoalaBaseCellView {
             }
         }
     }
-    private lateinit var contentContainer: View
     private val scrollChangedListener = ViewTreeObserver.OnScrollChangedListener {
         val location = IntArray(2)
         getLocationInWindow(location)
         val y = location[1]
         if (y > offset * 2 || (y + height < -offset)) {
-            releaseImage()
-            if (contentContainer.parent != null) {
-                removeView(contentContainer)
+            if (image_container.visibility != View.GONE) {
+                image_container.visibility = View.GONE
             }
+            releaseImage()
         } else {
-            if (contentContainer.parent == null) {
-                addView(contentContainer)
+            if (image_container.visibility != View.VISIBLE) {
+                image_container.visibility = View.VISIBLE
             }
             reloadImage()
         }

@@ -162,7 +162,6 @@ class KoalaFileView : FrameLayout, KoalaBaseCellView {
                 true
             }
         }
-        contentContainer = file_container
     }
 
     private fun initMargin() {
@@ -195,18 +194,17 @@ class KoalaFileView : FrameLayout, KoalaBaseCellView {
             }
         }
     }
-    private lateinit var contentContainer: View
     private val scrollChangedListener = ViewTreeObserver.OnScrollChangedListener {
         val location = IntArray(2)
         getLocationInWindow(location)
         val y = location[1]
         if (y > offset * 2 || (y + height < -offset)) {
-            if (contentContainer.parent != null) {
-                removeView(contentContainer)
+            if (file_container.visibility != View.GONE) {
+                file_container.visibility = View.GONE
             }
         } else {
-            if (contentContainer.parent == null) {
-                addView(contentContainer)
+            if (file_container.visibility != View.VISIBLE) {
+                file_container.visibility = View.VISIBLE
             }
         }
     }

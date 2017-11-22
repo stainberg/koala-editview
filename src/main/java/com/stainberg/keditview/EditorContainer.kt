@@ -143,7 +143,6 @@ internal class EditorContainer : LinearLayout, View.OnTouchListener {
     override fun onViewAdded(child: View?) {
         super.onViewAdded(child)
         child?.setOnClickListener { }
-        child?.setLayerType(View.LAYER_TYPE_HARDWARE, null)
     }
 
     private var tf: SoftReference<FrameViewContainer?> = SoftReference(null)
